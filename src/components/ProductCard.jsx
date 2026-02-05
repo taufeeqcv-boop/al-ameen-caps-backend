@@ -1,0 +1,62 @@
+// ProductCard – white card, image, exact name, quantity available, Add to Cart
+
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useCart } from "../context/CartContext";
+
+export default function ProductCard({ product, index = 0 }) {
+  const { id, name, price, imageURL, quantityAvailable = 0 } = product || {};
+  const { addToCart, cart } = useCart();
+  const inCart = cart.filter((item) => item.id === id).reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const available = Math.max(0, (quantityAvailable ?? 0) - inCart);
+  const canAdd = available > 0;
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    if (!canAdd) return;
+    addToCart({ id, name, price, imageURL, quantity: 1, quantityAvailable });
+  };
+
+  return (
+    <motion.article
+      className="bg-secondary rounded-lg shadow-premium hover:shadow-premium-hover transition-shadow overflow-hidden border border-black/5"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, delay: index * 0.08, ease: "easeOut" }}
+    >
+      <Link to={`/product/${id}`} className="block">
+        <div className="aspect-square bg-primary/5">
+          {imageURL ? (
+            <img src={imageURL} alt={name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-primary/30 font-serif">Image</div>
+          )}
+        </div>
+        <div className="p-5">
+          <h3 className="font-serif text-lg font-semibold text-primary">{name || "Product Name"}</h3>
+          <p className="mt-2 text-primary/70 text-sm">
+            {available <= 0 ? (
+              <span className="text-primary/60">Out of stock</span>
+            ) : (
+              <span>{available} available</span>
+            )}
+          </p>
+          {Number(price) > 0 && (
+            <p className="mt-1 text-accent font-semibold">R {(Number(price) || 0).toFixed(2)}</p>
+          )}
+        </div>
+      </Link>
+      <div className="px-5 pb-5">
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={!canAdd}
+          className="btn-outline w-full py-3.5 text-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+        >
+          {canAdd ? "Add to Cart" : "Out of stock"}
+        </button>
+      </div>
+    </motion.article>
+  );
+}

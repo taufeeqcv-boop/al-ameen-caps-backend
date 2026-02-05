@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: #E8DFD2;
+  }
+  body {
+    @apply font-sans text-primary bg-secondary antialiased;
+  }
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #E8DFD2;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer components {
+  /* Premium primary button – gold fill */
+  .btn-primary {
+    @apply inline-flex items-center justify-center font-semibold tracking-wide transition-all duration-200 rounded;
+    @apply bg-accent text-primary;
+    box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4);
+  }
+  .btn-primary:hover {
+    @apply bg-accent-light -translate-y-0.5;
+    box-shadow: 0 6px 20px 0 rgba(212, 175, 55, 0.5);
+  }
+  .btn-primary:active {
+    @apply translate-y-0;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15);
+  }
+  /* Premium outline button */
+  .btn-outline {
+    @apply inline-flex items-center justify-center font-semibold tracking-wide transition-all duration-200 rounded;
+    @apply border-2 border-accent text-accent bg-transparent;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .btn-outline:hover {
+    @apply bg-accent text-primary -translate-y-0.5;
+    box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.4);
+  }
+  .btn-outline:active {
+    @apply translate-y-0;
+  }
+}
