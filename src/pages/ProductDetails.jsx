@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import Seo from "../components/Seo";
 import { useCart } from "../context/CartContext";
 import { getProductById } from "../lib/supabase";
 import { COLLECTION_PRODUCTS } from "../data/collection";
@@ -56,6 +57,18 @@ export default function ProductDetails() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title={product.name}
+        description={(product.description || "").replace(/\n/g, " ").slice(0, 160)}
+        image={product.imageURL}
+        url={`/product/${product.id}`}
+        product={product}
+        breadcrumbs={[
+          { name: "Home", url: "/" },
+          { name: "Shop", url: "/shop" },
+          { name: product.name, url: null },
+        ]}
+      />
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <motion.div

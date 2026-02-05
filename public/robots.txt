@@ -1,0 +1,8 @@
+# Al-Ameen Caps — robots.txt
+# https://alameencaps.netlify.app or set VITE_APP_URL for production
+
+User-agent: *
+Allow: /
+
+# Sitemap (update base URL when deploying to custom domain)
+Sitemap: https://alameencaps.netlify.app/sitemap.xml

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import Seo from "../components/Seo";
 import ProductCard from "../components/ProductCard";
 import { getProducts } from "../lib/supabase";
 import { COLLECTION_PRODUCTS } from "../data/collection";
@@ -28,6 +29,12 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo
+        title="Shop the Collection"
+        description="Premium Islamic headwear: Azhari caps, Na'lain caps, Syrian Shami, Fez, and more. Kufi hats, toppies, and traditional Muslim headwear in South Africa."
+        url="/shop"
+        breadcrumbs={[{ name: "Home", url: "/" }, { name: "Shop", url: null }]}
+      />
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <h1 className="font-serif text-3xl font-semibold text-primary mb-10">Shop the Collection</h1>

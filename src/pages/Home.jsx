@@ -1,9 +1,20 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
+import { injectJsonLd, getLocalBusinessSchema, getWebSiteSchema } from "../lib/seo";
 
 export default function Home() {
+  useEffect(() => {
+    const cleanup1 = injectJsonLd(getLocalBusinessSchema());
+    const cleanup2 = injectJsonLd(getWebSiteSchema());
+    return () => {
+      cleanup1();
+      cleanup2();
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
