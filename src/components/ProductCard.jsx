@@ -3,6 +3,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
+import { formatPrice } from "../lib/format";
 
 export default function ProductCard({ product, index = 0 }) {
   const { id, name, price, imageURL, quantityAvailable = 0 } = product || {};
@@ -43,7 +44,7 @@ export default function ProductCard({ product, index = 0 }) {
             )}
           </p>
           {Number(price) > 0 && (
-            <p className="mt-1 text-accent font-semibold">R {(Number(price) || 0).toFixed(2)}</p>
+            <p className="mt-2 text-accent font-semibold text-lg tracking-tight">{formatPrice(price)}</p>
           )}
         </div>
       </Link>

@@ -6,6 +6,7 @@ import Seo from "../components/Seo";
 import { useCart } from "../context/CartContext";
 import { getProductById } from "../lib/supabase";
 import { COLLECTION_PRODUCTS } from "../data/collection";
+import { formatPrice } from "../lib/format";
 import { motion } from "framer-motion";
 import defaultProductImg from "../assets/caps-collection.png";
 
@@ -103,7 +104,7 @@ export default function ProductDetails() {
               {available <= 0 ? "Out of stock" : `${available} available`}
             </p>
             {Number(product.price) > 0 && (
-              <p className="mt-2 text-accent text-2xl font-semibold">R {(Number(product.price) || 0).toFixed(2)}</p>
+              <p className="mt-3 text-accent text-2xl font-semibold tracking-tight border-b border-primary/10 pb-3">{formatPrice(product.price)}</p>
             )}
             <div className="mt-6 text-primary/80 whitespace-pre-line leading-relaxed">{product.description || "Description coming soon."}</div>
             <p className="mt-6 text-sm text-primary/70 italic border-l-2 border-accent/50 pl-4">

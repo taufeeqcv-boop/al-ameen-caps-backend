@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import SuccessModal from '../components/SuccessModal';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { formatPrice } from '../lib/format';
 
 const DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 
@@ -237,20 +238,20 @@ const Checkout = () => {
                 {cart.map((item, i) => (
                   <div key={item.id ?? i} className="flex justify-between py-2 border-b border-black/10 font-sans">
                     <span className="text-primary">{item.name} (x{item.quantity || 1})</span>
-                    <span className="font-semibold text-primary">R{(item.price * (item.quantity || 1)).toFixed(2)}</span>
+                    <span className="font-semibold text-primary">{formatPrice(item.price * (item.quantity || 1))}</span>
                   </div>
                 ))}
                 <div className="flex justify-between py-2 border-b border-black/10 font-sans">
                   <span className="text-primary">Subtotal</span>
-                  <span className="font-semibold text-primary">R{subtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-primary">{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between py-2 border-b border-black/10 font-sans">
                   <span className="text-primary">Delivery</span>
-                  <span className="font-semibold text-primary">R{delivery.toFixed(2)}</span>
+                  <span className="font-semibold text-primary">{formatPrice(delivery)}</span>
                 </div>
                 <div className="flex justify-between mt-4 text-xl font-bold border-t border-black/10 pt-4 font-sans">
                   <span className="text-primary">Total</span>
-                  <span className="text-accent">R{total.toFixed(2)}</span>
+                  <span className="text-accent">{formatPrice(total)}</span>
                 </div>
               </>
             )}

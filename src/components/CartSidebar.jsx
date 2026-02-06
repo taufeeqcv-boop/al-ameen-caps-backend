@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { formatPrice } from "../lib/format";
 
 export default function CartSidebar({ isOpen, onClose }) {
   const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
@@ -40,7 +41,7 @@ export default function CartSidebar({ isOpen, onClose }) {
                   <li key={`${item.id ?? "item"}-${i}`} className="flex justify-between items-start gap-4 border-b border-black/10 pb-4">
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-primary">{item.name}</p>
-                      <p className="text-accent text-sm mt-1">R {(price * qty).toFixed(2)}</p>
+                      <p className="text-accent text-sm mt-1 font-medium">{formatPrice(price * qty)}</p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
                           type="button"
@@ -72,7 +73,7 @@ export default function CartSidebar({ isOpen, onClose }) {
         </div>
         {cart.length > 0 && (
           <div className="p-6 border-t border-black/10">
-            <p className="text-accent text-xl font-semibold">Total: R {cartTotal.toFixed(2)}</p>
+            <p className="text-accent text-xl font-semibold">Total: {formatPrice(cartTotal)}</p>
             <Link
               to="/checkout"
               onClick={onClose}
