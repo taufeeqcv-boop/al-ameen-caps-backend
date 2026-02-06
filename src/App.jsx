@@ -13,6 +13,7 @@ import Checkout from "./pages/Checkout";
 import Success from "./pages/Success";
 import Cancel from "./pages/Cancel";
 import Account from "./pages/Account";
+import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/login" element={<Login />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -27,11 +27,15 @@ export function AuthProvider({ children }) {
 
   const signInWithGoogle = async () => {
     if (!supabase) return;
-    const siteUrl = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || (typeof window !== "undefined" ? window.location.origin : "https://al-ameen-caps.netlify.app");
-    const redirectTo = siteUrl.replace(/\/$/, "");
+    // Use current origin so localhost vs production is correct (matches Supabase Redirect URLs)
+    const origin = typeof window !== "undefined" ? window.location.origin : (import.meta.env.VITE_SITE_URL || "https://al-ameen-caps.netlify.app").replace(/\/$/, "");
+    const baseUrl = origin.replace(/\/$/, "");
+    // After login: /checkout if they came from cart, otherwise /shop
+    const returnPath = typeof window !== "undefined" && window.location?.pathname === "/checkout" ? "/checkout" : "/shop";
+    const redirectTo = `${baseUrl}${returnPath}`;
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${redirectTo}/` },
+      options: { redirectTo },
     });
   };
 

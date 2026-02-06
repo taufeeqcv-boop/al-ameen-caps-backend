@@ -1,7 +1,10 @@
 // Footer – minimal, on-brand with logo
 
 import { Link } from "react-router-dom";
+import { Facebook } from "lucide-react";
 import logoImg from "../assets/logo.png";
+
+const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61587066161054";
 
 export default function Footer() {
   return (
@@ -13,7 +16,17 @@ export default function Footer() {
           </div>
         </Link>
         <p className="mt-1 text-sm text-white/80">Restoring the Crown of the Believer</p>
-        <div className="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-white/70">
+        <div className="mt-4 flex flex-wrap justify-center items-center gap-x-6 gap-y-1 text-sm text-white/70">
+          <a
+            href={FACEBOOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 hover:text-accent transition-colors"
+            aria-label="Al-Ameen Caps on Facebook"
+          >
+            <Facebook className="w-4 h-4" />
+            <span>Facebook</span>
+          </a>
           <Link to="/shop" className="hover:text-accent transition-colors">Shop</Link>
           <Link to="/about" className="hover:text-accent transition-colors">About</Link>
           <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>

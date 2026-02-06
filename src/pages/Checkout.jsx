@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SuccessModal from '../components/SuccessModal';
@@ -110,7 +111,12 @@ const Checkout = () => {
           <div className="bg-secondary p-6 shadow-premium rounded-lg border border-accent/20">
             {authConfigured && (
               <div className="mb-6 text-center">
-                {user ? (
+                {authLoading ? (
+                  <div className="flex flex-col items-center justify-center gap-3 py-4">
+                    <Loader2 className="w-10 h-10 text-accent animate-spin" aria-hidden />
+                    <p className="font-sans text-sm text-primary/80">Signing you in…</p>
+                  </div>
+                ) : user ? (
                   <div className="flex items-center justify-center gap-2">
                     {user.user_metadata?.avatar_url && (
                       <img src={user.user_metadata.avatar_url} alt="" className="w-8 h-8 rounded-full" />
@@ -128,10 +134,9 @@ const Checkout = () => {
                   <button
                     type="button"
                     onClick={signInWithGoogle}
-                    disabled={authLoading}
-                    className="font-sans w-full py-2.5 px-4 rounded border-2 border-black/20 hover:border-accent hover:bg-accent/10 transition-colors text-sm font-medium disabled:opacity-50"
+                    className="font-sans w-full py-2.5 px-4 rounded border-2 border-black/20 hover:border-accent hover:bg-accent/10 transition-colors text-sm font-medium"
                   >
-                    {authLoading ? 'Loading...' : 'Sign in with Google'}
+                    Sign in with Google
                   </button>
                 )}
               </div>

@@ -6,7 +6,9 @@ import { useAuth } from "../context/AuthContext";
 import { useState, useRef, useEffect } from "react";
 import CartSidebar from "./CartSidebar";
 import logoImg from "../assets/logo.png";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Facebook } from "lucide-react";
+
+const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61587066161054";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -61,6 +63,15 @@ export default function Navbar() {
               ))}
             </div>
             <div className="flex items-center gap-3">
+              <a
+                href={FACEBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-secondary hover:text-accent transition-colors rounded"
+                aria-label="Al-Ameen Caps on Facebook"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
               <button
                 type="button"
                 onClick={() => setCartOpen(true)}
@@ -104,7 +115,7 @@ export default function Navbar() {
                   </div>
                 ) : (
                   <Link
-                    to="/checkout"
+                    to="/login"
                     className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-accent hover:underline"
                   >
                     Sign In
@@ -135,6 +146,16 @@ export default function Navbar() {
                   {label}
                 </Link>
               ))}
+              <a
+                href={FACEBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-center gap-2 py-3 text-secondary hover:text-accent font-medium"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5" /> Facebook
+              </a>
               <Link
                 to="/checkout"
                 onClick={() => setMenuOpen(false)}
@@ -152,7 +173,7 @@ export default function Navbar() {
                 </div>
               )}
               {authConfigured && !user && (
-                <Link to="/checkout" onClick={() => setMenuOpen(false)} className="block py-2 text-accent font-medium">
+                <Link to="/login" onClick={() => setMenuOpen(false)} className="block py-2 text-accent font-medium">
                   Sign In
                 </Link>
               )}

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
@@ -9,7 +10,20 @@ function getFirstName(user) {
 }
 
 export default function Account() {
-  const { user, signOut } = useAuth();
+  const { user, loading, signInWithGoogle, signOut } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24 flex flex-col items-center justify-center gap-4">
+          <Loader2 className="w-12 h-12 text-accent animate-spin" aria-hidden />
+          <p className="font-sans text-primary/80">Loading…</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -17,9 +31,13 @@ export default function Account() {
         <Navbar />
         <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24 text-center">
           <p className="font-sans text-primary/80">Please sign in to view your account.</p>
-          <Link to="/checkout" className="inline-block mt-4 btn-primary px-6 py-2">
-            Sign In
-          </Link>
+          <button
+            type="button"
+            onClick={signInWithGoogle}
+            className="inline-block mt-4 btn-primary px-6 py-2"
+          >
+            Sign in with Google
+          </button>
         </main>
         <Footer />
       </div>
