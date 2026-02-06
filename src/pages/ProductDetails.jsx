@@ -104,7 +104,7 @@ export default function ProductDetails() {
               {available <= 0 ? "Out of stock" : `${available} available`}
             </p>
             {Number(product.price) > 0 && (
-              <p className="mt-3 text-accent text-2xl font-semibold tracking-tight border-b border-primary/10 pb-3">{formatPrice(product.price)}</p>
+              <p className="mt-3 text-2xl font-extrabold text-amber-700 border-b border-amber-700/20 pb-3">{formatPrice(product.price)}</p>
             )}
             <div className="mt-6 text-primary/80 whitespace-pre-line leading-relaxed">{product.description || "Description coming soon."}</div>
             <p className="mt-6 text-sm text-primary/70 italic border-l-2 border-accent/50 pl-4">

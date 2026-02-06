@@ -1,10 +1,16 @@
 // CartContext – addToCart, removeFromCart, clearCart, cartTotal, localStorage persistence (Phase 3)
 
-import { createContext, useContext, useReducer, useEffect } from "react";
+import { createContext, useContext, useReducer, useEffect, useMemo } from "react";
+import { COLLECTION_PRODUCTS } from "../data/collection";
 
 const CartContext = createContext(null);
 
 const CART_STORAGE_KEY = "alameen-caps-cart";
+
+function getCurrentPrice(productId) {
+  const product = COLLECTION_PRODUCTS.find((p) => p.id === productId);
+  return product != null ? Number(product.price) || 0 : 0;
+}
 
 function normalizeItem(item) {
   return {
@@ -58,7 +64,14 @@ export function CartProvider({ children }) {
   const removeFromCart = (index) => dispatch({ type: "REMOVE", payload: { index } });
   const updateQuantity = (index, quantity) => dispatch({ type: "UPDATE_QUANTITY", payload: { index, quantity } });
   const clearCart = () => dispatch({ type: "CLEAR" });
-  const cartTotal = cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (item.quantity || 1), 0);
+  const cartTotal = useMemo(
+    () =>
+      cart.reduce((sum, item) => {
+        const freshPrice = getCurrentPrice(item.id) || Number(item.price) || 0;
+        return sum + freshPrice * (item.quantity || 1);
+      }, 0),
+    [cart]
+  );
   const cartCount = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   return (
