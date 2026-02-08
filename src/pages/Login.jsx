@@ -1,35 +1,72 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
+import { supabase } from "../lib/supabase";
 
 export default function Login() {
-  const { user, loading: authLoading, signInWithGoogle, isConfigured } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
-  // If already signed in, redirect to shop
-  useEffect(() => {
-    if (!authLoading && user) {
-      navigate("/shop", { replace: true });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    if (!email.trim() || !password) {
+      setError("Please enter email and password.");
+      return;
     }
-  }, [user, authLoading, navigate]);
+    if (!supabase) {
+      setError("Sign-in is not configured.");
+      return;
+    }
+    setSubmitting(true);
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    setSubmitting(false);
 
-  const handleSignIn = async () => {
-    setIsRedirecting(true);
-    await signInWithGoogle();
-    // Browser redirects to Google; if it doesn't (e.g. popup blocked), allow retry
-    setTimeout(() => setIsRedirecting(false), 3000);
+    if (signInError) {
+      setError(signInError.message || "Invalid login credentials.");
+      return;
+    }
+
+    if (!data?.user?.id) {
+      setError("Sign-in failed. Please try again.");
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_admin")
+      .eq("id", data.user.id)
+      .single();
+
+    if (profile?.is_admin) {
+      navigate("/admin/dashboard", { replace: true });
+    } else {
+      navigate("/", { replace: true });
+    }
   };
 
-  if (!isConfigured) {
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate("/", { replace: true });
+    }
+  }, [authLoading, user, navigate]);
+
+  if (authLoading) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24 text-center">
-          <p className="font-sans text-primary/80">Sign-in is not configured.</p>
+        <main className="flex-1 flex items-center justify-center px-6 py-24">
+          <Loader2 className="w-12 h-12 text-accent animate-spin" aria-hidden />
         </main>
         <Footer />
       </div>
@@ -39,26 +76,63 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24 flex flex-col items-center justify-center">
-        <h1 className="font-serif text-2xl font-bold text-accent mb-2 text-center">Sign In</h1>
-        <p className="font-sans text-primary/80 text-sm text-center mb-8">
-          Sign in with Google to continue to checkout or manage your account.
-        </p>
-        <button
-          type="button"
-          onClick={handleSignIn}
-          disabled={authLoading || isRedirecting}
-          className="font-sans w-full max-w-xs py-3.5 px-6 rounded-lg border-2 border-black/20 hover:border-accent hover:bg-accent/10 transition-colors text-base font-medium disabled:opacity-70 disabled:cursor-wait flex items-center justify-center gap-2"
-        >
-          {(authLoading || isRedirecting) ? (
-            <>
-              <Loader2 className="w-5 h-5 text-accent animate-spin" aria-hidden />
-              <span>{isRedirecting ? "Redirecting to Google…" : "Loading…"}</span>
-            </>
-          ) : (
-            "Sign in with Google"
-          )}
-        </button>
+      <main className="flex-1 flex items-center justify-center px-6 py-24">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-xl shadow-premium border border-secondary/30 p-8">
+            <h1 className="font-serif text-2xl font-bold text-primary text-center mb-6">
+              Admin Login
+            </h1>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="login-email" className="block text-sm font-medium text-primary mb-1">
+                  Email
+                </label>
+                <input
+                  id="login-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full border border-secondary/40 rounded-lg px-3 py-2.5 text-primary focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                  placeholder="admin@alameencaps.co.za"
+                />
+              </div>
+              <div>
+                <label htmlFor="login-password" className="block text-sm font-medium text-primary mb-1">
+                  Password
+                </label>
+                <input
+                  id="login-password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-secondary/40 rounded-lg px-3 py-2.5 text-primary focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent"
+                  placeholder="••••••••"
+                />
+              </div>
+              {error && (
+                <div className="rounded-lg bg-red-50 text-red-700 text-sm px-3 py-2 border border-red-200">
+                  {error}
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full py-3 px-4 rounded-lg font-medium bg-accent text-primary hover:bg-accent-light focus:outline-none focus:ring-2 focus:ring-accent/50 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" aria-hidden />
+                    Signing in…
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
       </main>
       <Footer />
     </div>

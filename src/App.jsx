@@ -1,6 +1,8 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import AdminRoute from "./components/AdminRoute";
+import AdminLayout from "./components/AdminLayout";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
 import About from "./pages/About";
@@ -15,6 +17,10 @@ import Cancel from "./pages/Cancel";
 import Account from "./pages/Account";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/Dashboard";
+import AdminOrders from "./pages/admin/Orders";
+import AdminProducts from "./pages/admin/Products";
+import AdminCustomers from "./pages/admin/Customers";
 
 function App() {
   return (
@@ -35,6 +41,20 @@ function App() {
           <Route path="/cancel" element={<Cancel />} />
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="customers" element={<AdminCustomers />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
