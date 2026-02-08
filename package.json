@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "node scripts/generate-sitemap.js && vite build && node -e \"require('fs').copyFileSync('dist/index.html','dist/404.html')\"",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:netlify": "netlify dev"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.94.1",
@@ -21,6 +22,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@netlify/functions": "^5.1.2",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
@@ -29,6 +31,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "netlify-cli": "^23.15.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.15",
     "vite": "^7.2.4"
