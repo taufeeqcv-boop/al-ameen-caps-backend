@@ -4,8 +4,9 @@ import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 
 // After we've verified admin once, wait this long for user to come back before redirecting to login
-// (avoids loop when Supabase briefly fires null session on nav/token refresh)
 const AUTH_BLIP_GRACE_MS = 2000;
+// Don't show spinner forever if profile check or auth never completes
+const PROFILE_LOADING_TIMEOUT_MS = 8000;
 
 const AdminRoute = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
@@ -15,14 +16,30 @@ const AdminRoute = ({ children }) => {
   const [gracePeriodExpired, setGracePeriodExpired] = useState(false);
   const location = useLocation();
   const graceTimerRef = useRef(null);
+  const profileTimeoutRef = useRef(null);
 
-  // WAIT 400ms before redirecting to allow Auth to "Settle"
+  // WAIT 600ms before redirecting to login so auth state can settle after client-side nav
   useEffect(() => {
     const timer = setTimeout(() => {
       setAllowRedirect(true);
-    }, 400);
+    }, 600);
     return () => clearTimeout(timer);
   }, []);
+
+  // Safety: stop showing spinner if profile check takes too long (e.g. network hang)
+  useEffect(() => {
+    if (!profileLoading) return;
+    profileTimeoutRef.current = setTimeout(() => {
+      profileTimeoutRef.current = null;
+      setProfileLoading(false);
+    }, PROFILE_LOADING_TIMEOUT_MS);
+    return () => {
+      if (profileTimeoutRef.current) {
+        clearTimeout(profileTimeoutRef.current);
+        profileTimeoutRef.current = null;
+      }
+    };
+  }, [profileLoading]);
 
   useEffect(() => {
     if (user) {

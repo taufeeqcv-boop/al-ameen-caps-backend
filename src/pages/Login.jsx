@@ -14,6 +14,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  // After successful admin login, wait for AuthContext to have user before navigating (avoids redirect loop)
+  const [pendingRedirectToAdmin, setPendingRedirectToAdmin] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,31 +57,43 @@ export default function Login() {
     }
 
     if (profile?.is_admin) {
-      navigate("/admin/dashboard", { replace: true });
+      // Don't navigate yet — wait for AuthContext to get the user from onAuthStateChange, then redirect in useEffect
+      setPendingRedirectToAdmin(true);
     } else {
       setError("This account does not have admin access. Set is_admin = true for your user in Supabase → Table Editor → profiles.");
       return;
     }
   };
 
-  // Redirect already-logged-in users away from login (send back to where they came from)
   const from = location.state?.from?.pathname || "/";
+
+  // Redirect when we have a user: either already logged in (from) or just logged in (pendingRedirectToAdmin)
   useEffect(() => {
     if (authLoading || !user) return;
-    // If the user was trying to go to Admin, send them there. Otherwise, Home.
+    if (pendingRedirectToAdmin) {
+      setPendingRedirectToAdmin(false);
+      navigate("/admin/dashboard", { replace: true });
+      return;
+    }
+    // Already logged in: send back to where they came from
     if (from.includes("/admin")) {
       navigate("/admin/dashboard", { replace: true });
     } else {
       navigate("/", { replace: true });
     }
-  }, [authLoading, user, navigate, from]);
+  }, [authLoading, user, navigate, from, pendingRedirectToAdmin]);
 
-  if (authLoading) {
+  if (authLoading || pendingRedirectToAdmin) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 flex items-center justify-center px-6 py-24">
-          <Loader2 className="w-12 h-12 text-accent animate-spin" aria-hidden />
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="w-12 h-12 text-accent animate-spin" aria-hidden />
+            {pendingRedirectToAdmin && (
+              <p className="text-primary/70 text-sm">Redirecting to admin…</p>
+            )}
+          </div>
         </main>
         <Footer />
       </div>
