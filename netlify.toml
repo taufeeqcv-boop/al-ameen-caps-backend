@@ -14,6 +14,27 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
+# Don't cache HTML — ensures users get latest index.html and correct hashed asset URLs after deploys
+# (cached index.html can request old /assets/index-OLDHASH.css which no longer exists → server returns 404 HTML → MIME type error)
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+[[headers]]
+  for = "/404.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Cache hashed assets (Vite puts them in /assets/)
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # Cache static assets
 [[headers]]
   for = "/collection/*"
@@ -25,13 +46,7 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# SPA fallback — serve index.html for client-side routes (React Router)
-[[redirects]]
-  from = "/"
-  to = "/index.html"
-  status = 200
-  force = false
-
+# SPA fallback — serve index.html for client-side routes only when no static file matches (force = false)
 [[redirects]]
   from = "/*"
   to = "/index.html"
