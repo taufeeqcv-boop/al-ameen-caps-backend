@@ -15,10 +15,17 @@ export default function Shop() {
     getProducts()
       .then((list) => {
         if (cancelled) return;
-        if (list && list.length > 0) setProducts(list);
+        if (list && list.length > 0) {
+          setProducts(list);
+        } else {
+          setProducts(COLLECTION_PRODUCTS);
+        }
       })
       .catch(() => {
         if (!cancelled) setProducts(COLLECTION_PRODUCTS);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
   }, []);

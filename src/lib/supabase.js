@@ -43,11 +43,14 @@ function norm(s) {
 }
 
 // Fallback stock from collection when Supabase has 0 / invalid (match by sku or case-insensitive name)
+// Supabase may return stock_quantity as number or string; support snake_case and camelCase
 function getQuantityAvailable(p, collectionProducts) {
-  const fromDb = Number(p.stock_quantity ?? p.quantity_available ?? p.quantityAvailable);
+  const raw =
+    p.stock_quantity ?? p.stockQuantity ?? p.quantity_available ?? p.quantityAvailable;
+  const fromDb = typeof raw === 'number' ? raw : Number(raw);
   const match = findCollectionMatch(p, collectionProducts);
   const fromCollection = match?.quantityAvailable != null ? Math.max(0, Number(match.quantityAvailable)) : 0;
-  if (fromDb > 0 && !Number.isNaN(fromDb)) return fromDb;
+  if (fromDb > 0 && !Number.isNaN(fromDb)) return Math.floor(fromDb);
   return fromCollection;
 }
 
