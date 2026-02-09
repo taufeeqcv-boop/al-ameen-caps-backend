@@ -108,7 +108,7 @@ export default function ProductDetails() {
             )}
             <div className="mt-6 text-primary/80 whitespace-pre-line leading-relaxed">{product.description || "Description coming soon."}</div>
             <p className="mt-6 text-sm text-primary/70 italic border-l-2 border-accent/50 pl-4">
-              To ensure the highest quality, our items are handcrafted and imported. By reserving now, you secure your place in our first delivery queue.
+              To ensure the highest quality, our items are handcrafted and imported. By pre-ordering now, you secure your place in our first delivery queue.
             </p>
           </div>
         </motion.div>

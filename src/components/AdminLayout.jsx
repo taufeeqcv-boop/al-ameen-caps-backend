@@ -6,7 +6,7 @@ import { supabase } from "../lib/supabase";
 const navItems = [
   { to: "/admin/dashboard", end: true, label: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/orders", end: false, label: "Orders", icon: ShoppingBag },
-  { to: "/admin/reservations", end: false, label: "Reservations", icon: ClipboardList },
+  { to: "/admin/reservations", end: false, label: "Pre-Orders", icon: ClipboardList },
   { to: "/admin/products", end: false, label: "Inventory", icon: Package },
   { to: "/admin/customers", end: false, label: "Customers", icon: Users },
 ];

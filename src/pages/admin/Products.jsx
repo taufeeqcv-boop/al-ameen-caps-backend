@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
-import { Loader2, Plus, Pencil, Image as ImageIcon } from "lucide-react";
+import { Loader2, Plus, Pencil, Image as ImageIcon, Database } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
+import { COLLECTION_PRODUCTS } from "../../data/collection";
 
 export default function AdminProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -23,6 +24,8 @@ export default function AdminProducts() {
     is_active: true,
   });
   const [imageFile, setImageFile] = useState(null);
+  const [seeding, setSeeding] = useState(false);
+  const [seedMessage, setSeedMessage] = useState(null);
 
   const fetchProducts = async () => {
     if (!supabase) return;
@@ -96,6 +99,33 @@ export default function AdminProducts() {
     setSearchParams({});
   };
 
+  /** Populate Inventory from frontend collection; missing quantity becomes 0 */
+  const seedFromCollection = async () => {
+    if (!supabase || !COLLECTION_PRODUCTS?.length) return;
+    setSeeding(true);
+    setError(null);
+    setSeedMessage(null);
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const rows = COLLECTION_PRODUCTS.map((item) => ({
+      sku: String(item.id ?? "").trim() || `sku-${item.name?.slice(0, 20)}`,
+      name: String(item.name ?? "").trim() || "Unnamed",
+      description: item.description?.trim() || null,
+      price: Number(item.price) || 0,
+      stock_quantity: Math.max(0, Number(item.quantityAvailable) ?? 0),
+      image_url: item.imageURL ? `${origin}${item.imageURL.startsWith("/") ? "" : "/"}${item.imageURL}` : null,
+      is_active: true,
+    }));
+    const { error: e } = await supabase.from("products").upsert(rows, { onConflict: "sku" });
+    if (e) {
+      setError(e.message);
+      setSeedMessage(null);
+    } else {
+      setSeedMessage(`Seeded ${rows.length} products (missing quantities set to 0).`);
+      await fetchProducts();
+    }
+    setSeeding(false);
+  };
+
   const uploadImage = async () => {
     if (!imageFile || !supabase) return null;
     const ext = imageFile.name.split(".").pop() || "jpg";
@@ -157,17 +187,31 @@ export default function AdminProducts() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="font-serif text-2xl font-semibold text-primary">Inventory</h1>
-        <button
-          type="button"
-          onClick={openNew}
-          className="flex items-center gap-2 px-4 py-2 bg-accent text-primary rounded-lg font-medium hover:bg-accent-light"
-        >
-          <Plus className="w-5 h-5" />
-          Add Product
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={seedFromCollection}
+            disabled={seeding || !COLLECTION_PRODUCTS?.length}
+            className="flex items-center gap-2 px-4 py-2 bg-secondary border border-secondary/60 text-primary rounded-lg font-medium hover:bg-secondary/80 disabled:opacity-50"
+          >
+            {seeding ? <Loader2 className="w-5 h-5 animate-spin" /> : <Database className="w-5 h-5" />}
+            Seed from collection
+          </button>
+          <button
+            type="button"
+            onClick={openNew}
+            className="flex items-center gap-2 px-4 py-2 bg-accent text-primary rounded-lg font-medium hover:bg-accent-light"
+          >
+            <Plus className="w-5 h-5" />
+            Add Product
+          </button>
+        </div>
       </div>
+      {seedMessage && (
+        <div className="rounded-lg bg-green-50 text-green-800 p-4 text-sm">{seedMessage}</div>
+      )}
       {error && (
         <div className="rounded-lg bg-red-50 text-red-800 p-4 text-sm">{error}</div>
       )}

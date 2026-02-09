@@ -81,7 +81,7 @@ export default function CartSidebar({ isOpen, onClose }) {
               onClick={onClose}
               className="btn-primary mt-4 w-full py-3.5 text-center block"
             >
-              {enableEcommerce ? 'Checkout' : 'Proceed to Reservation'}
+              {enableEcommerce ? 'Checkout' : 'Proceed to Pre-Order'}
             </Link>
           </div>
         )}

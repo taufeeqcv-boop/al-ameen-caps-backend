@@ -130,61 +130,62 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: "Missing formData or email" };
   }
 
-  // 1. Persist to database (if Supabase is configured)
-  if (supabase) {
-    const customerName = [formData.name_first, formData.name_last].filter(Boolean).join(" ").trim() || null;
-    const notes = formData.message || (formData.address_line_1 ? [formData.address_line_1, formData.address_line_2, formData.city, formData.postal_code].filter(Boolean).join(", ") : "") || "";
-    const { error: dbError } = await supabase
-      .from("reservations")
-      .insert([{
-        customer_name: customerName,
-        customer_email: formData.email_address,
-        customer_phone: formData.cell_number || "",
-        items: cart || [],
-        total_amount: Number(total) || 0,
-        notes: notes,
-        status: "pending",
-      }]);
-    if (dbError) {
-      console.error("Reservation: DB insert failed", dbError);
-      return { statusCode: 500, body: JSON.stringify({ error: dbError.message }) };
+  // 1. Persist to database (required — otherwise reservation never shows in admin)
+  if (!supabase) {
+    console.error("Reservation: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set in Netlify");
+    return {
+      statusCode: 503,
+      body: JSON.stringify({ error: "Reservation service not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Netlify." }),
+    };
+  }
+
+  const customerName = [formData.name_first, formData.name_last].filter(Boolean).join(" ").trim() || null;
+  const notes = formData.message || (formData.address_line_1 ? [formData.address_line_1, formData.address_line_2, formData.city, formData.postal_code].filter(Boolean).join(", ") : "") || "";
+  const { error: dbError } = await supabase
+    .from("reservations")
+    .insert([{
+      customer_name: customerName,
+      customer_email: formData.email_address,
+      customer_phone: formData.cell_number || "",
+      items: cart || [],
+      total_amount: Number(total) || 0,
+      notes: notes,
+      status: "pending",
+    }]);
+  if (dbError) {
+    console.error("Reservation: DB insert failed", dbError);
+    return { statusCode: 500, body: JSON.stringify({ error: dbError.message }) };
+  }
+
+  // 2. Send emails (optional — reservation is already saved to DB)
+  if (emailUser && emailPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: emailHost,
+        port: emailPort,
+        secure: emailPort === 465,
+        auth: { user: emailUser, pass: emailPass },
+      });
+      await transporter.sendMail({
+        from: `"Al-Ameen Caps" <${emailUser}>`,
+        to: adminEmail,
+        subject: "NEW RESERVATION — Al-Ameen Caps",
+        html: getReservationEmailHtml(data),
+        text: `NEW RESERVATION from ${formData.name_first} ${formData.name_last} (${formData.email_address}). Total: R${Number(total || 0).toFixed(2)}.`,
+      });
+      const customerItems = (cart || []).map((i) => `• ${i.name} × ${i.quantity || 1}`).join("\n") || "—";
+      await transporter.sendMail({
+        from: `"Al-Ameen Caps" <${emailUser}>`,
+        to: formData.email_address,
+        subject: "Reservation Confirmed: Al-Ameen Caps Inaugural Collection",
+        html: getCustomerConfirmationEmailHtml(data),
+        text: `Assalamu alaikum ${[formData.name_first, formData.name_last].filter(Boolean).join(" ") || "Valued Customer"},\n\nThank you for your interest in the Al-Ameen Caps Inaugural Collection. We have successfully recorded your reservation.\n\nItems Reserved:\n${customerItems}\n\nWhat happens next?\nOur collection is currently being handcrafted and imported. As soon as your items arrive at our boutique in Cape Town, we will contact you personally via this email address to finalize your order and arrange delivery.\n\nNo payment is required at this stage. You have secured your place in our priority delivery queue.\n\nJazakallah khair for your patience and for choosing Al-Ameen Caps.\n\nWarm regards,\nThe Al-Ameen Caps Team\n"Restoring the Crown of the Believer"`,
+      });
+    } catch (err) {
+      console.error("Reservation: Email send failed (reservation was saved)", err);
     }
-  }
-
-  if (!emailUser || !emailPass) {
-    console.error("Reservation: EMAIL_USER or EMAIL_PASS not set");
-    return { statusCode: 500, body: "Email not configured" };
-  }
-
-  try {
-    const transporter = nodemailer.createTransport({
-      host: emailHost,
-      port: emailPort,
-      secure: emailPort === 465,
-      auth: { user: emailUser, pass: emailPass },
-    });
-
-    // 1. Email to Admin
-    await transporter.sendMail({
-      from: `"Al-Ameen Caps" <${emailUser}>`,
-      to: adminEmail,
-      subject: "NEW RESERVATION — Al-Ameen Caps",
-      html: getReservationEmailHtml(data),
-      text: `NEW RESERVATION from ${formData.name_first} ${formData.name_last} (${formData.email_address}). Total: R${Number(total || 0).toFixed(2)}.`,
-    });
-
-    // 2. Email to Customer — Reservation Confirmed
-    const customerItems = (cart || []).map((i) => `• ${i.name} × ${i.quantity || 1}`).join("\n") || "—";
-    await transporter.sendMail({
-      from: `"Al-Ameen Caps" <${emailUser}>`,
-      to: formData.email_address,
-      subject: "Reservation Confirmed: Al-Ameen Caps Inaugural Collection",
-      html: getCustomerConfirmationEmailHtml(data),
-      text: `Assalamu alaikum ${[formData.name_first, formData.name_last].filter(Boolean).join(" ") || "Valued Customer"},\n\nThank you for your interest in the Al-Ameen Caps Inaugural Collection. We have successfully recorded your reservation.\n\nItems Reserved:\n${customerItems}\n\nWhat happens next?\nOur collection is currently being handcrafted and imported. As soon as your items arrive at our boutique in Cape Town, we will contact you personally via this email address to finalize your order and arrange delivery.\n\nNo payment is required at this stage. You have secured your place in our priority delivery queue.\n\nJazakallah khair for your patience and for choosing Al-Ameen Caps.\n\nWarm regards,\nThe Al-Ameen Caps Team\n"Restoring the Crown of the Believer"`,
-    });
-  } catch (err) {
-    console.error("Reservation: Email send failed", err);
-    return { statusCode: 500, body: JSON.stringify({ error: "Failed to send reservation" }) };
+  } else {
+    console.warn("Reservation: EMAIL_USER/EMAIL_PASS not set — reservation saved to DB only");
   }
 
   return { statusCode: 200, body: JSON.stringify({ message: "Success", ok: true }) };

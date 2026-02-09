@@ -46,7 +46,7 @@ export default function Navbar() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50">
         <div className="bg-accent text-primary text-center py-2 px-4 text-sm font-medium">
-          Inaugural Collection Arriving Soon — Reserving Orders Now.
+          Inaugural Collection Arriving Soon — Pre-Order Now.
         </div>
         <nav className="bg-primary border-b-2 border-accent shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

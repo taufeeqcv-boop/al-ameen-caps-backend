@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
-import { DollarSign, ShoppingBag, Inbox, AlertTriangle, Loader2 } from "lucide-react";
+import { Banknote, ShoppingBag, Inbox, AlertTriangle, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -72,8 +72,8 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
           <div className="flex items-center gap-3 text-primary/70">
-            <DollarSign className="w-8 h-8 text-accent" />
-            <span className="font-medium">Total Revenue</span>
+            <Banknote className="w-8 h-8 text-accent" />
+            <span className="font-medium">Total Revenue (ZAR)</span>
           </div>
           <p className="mt-2 text-2xl font-semibold text-primary">
             {formatPrice(revenue)}
@@ -93,11 +93,11 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
           <div className="flex items-center gap-3 text-primary/70">
             <Inbox className="w-8 h-8 text-amber-600" />
-            <span className="font-medium">New Inquiries</span>
+            <span className="font-medium">Pre-Orders</span>
           </div>
           <p className="mt-2 text-2xl font-semibold text-primary">{inquiriesCount ?? 0}</p>
           <Link to="/admin/reservations" className="text-sm text-accent hover:underline">
-            View reservations →
+            View pre-orders →
           </Link>
         </div>
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">

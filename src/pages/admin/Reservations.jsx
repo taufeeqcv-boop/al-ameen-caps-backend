@@ -47,7 +47,7 @@ export default function AdminReservations() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-semibold text-primary">Reservations</h1>
+      <h1 className="font-serif text-2xl font-semibold text-primary">Pre-Orders</h1>
       {error && (
         <div className="rounded-lg bg-red-50 text-red-800 p-4 text-sm">{error}</div>
       )}
@@ -112,7 +112,7 @@ export default function AdminReservations() {
           </table>
         </div>
         {reservations.length === 0 && !error && (
-          <p className="px-6 py-8 text-center text-primary/60">No reservations yet.</p>
+          <p className="px-6 py-8 text-center text-primary/60">No pre-orders yet.</p>
         )}
       </div>
     </div>

@@ -72,7 +72,7 @@ export default function Account() {
               to="/checkout"
               className="block w-full py-3 text-center font-sans font-medium rounded border-2 border-accent text-accent hover:bg-accent hover:text-primary transition-colors"
             >
-              Place a Reservation
+              Place a Pre-Order
             </Link>
             <button
               type="button"

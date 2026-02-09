@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../lib/format';
 import { generateSignature } from '../utils/payfast';
+import { supabase } from '../lib/supabase';
 
 const DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 const enableEcommerce = import.meta.env.VITE_ENABLE_ECOMMERCE === 'true';
@@ -16,9 +17,9 @@ const Checkout = () => {
   const { cart, cartTotal, clearCart, getItemPrice } = useCart();
   const { user, loading: authLoading, signInWithGoogle, signOut, isConfigured: authConfigured } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [reserved, setReserved] = useState(false);
-  const [reservedName, setReservedName] = useState('');
-  const [reservedPhone, setReservedPhone] = useState('');
+  const [isPreOrder, setIsPreOrder] = useState(false);
+  const [preOrderName, setPreOrderName] = useState('');
+  const [preOrderPhone, setPreOrderPhone] = useState('');
   const [error, setError] = useState('');
   const subtotal = cartTotal;
   const delivery = cart.length > 0 ? DELIVERY_FEE : 0;
@@ -57,7 +58,7 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePayment = (e) => {
+  const handlePayment = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -66,17 +67,56 @@ const Checkout = () => {
       return;
     }
 
+    if (!user?.id) {
+      setError('Please sign in to pay with PayFast. You can use Pre-Order Now without signing in.');
+      return;
+    }
+
+    if (!supabase) {
+      setError('Checkout is not fully configured. Please use Pre-Order Now.');
+      return;
+    }
+
+    setLoading(true);
     try {
       const isSandbox = import.meta.env.VITE_PAYFAST_SANDBOX === 'true';
       const merchantId = import.meta.env.VITE_PAYFAST_MERCHANT_ID;
       const merchantKey = import.meta.env.VITE_PAYFAST_MERCHANT_KEY;
       const passPhrase = import.meta.env.VITE_PAYFAST_PASSPHRASE || (isSandbox ? 'jt7NOE43FZPn' : '');
 
-      console.log('Is Sandbox:', isSandbox);
-
       if (!merchantId || !merchantKey) {
-        setError('PayFast is not configured. Please use Place Reservation.');
+        setError('PayFast is not configured. Please use Pre-Order Now.');
         return;
+      }
+
+      // Create order (and order_items) so Admin Orders page and PayFast ITN can use it
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          status: 'PENDING',
+          total_amount: total,
+        })
+        .select('id')
+        .single();
+
+      if (orderError || !order?.id) {
+        setError(orderError?.message || 'Could not create order. Try Pre-Order Now or sign in and try again.');
+        return;
+      }
+
+      // Add order_items for cart items that have a numeric product id (from products table)
+      for (const item of cart) {
+        const productId = typeof item.id === 'number' ? item.id : parseInt(item.id, 10);
+        if (Number.isNaN(productId)) continue;
+        const unitPrice = getItemPrice(item);
+        await supabase.from('order_items').insert({
+          order_id: order.id,
+          product_id: productId,
+          quantity: item.quantity || 1,
+          unit_price: unitPrice,
+          product_name: item.name || 'Item',
+        });
       }
 
       const origin = window.location.origin;
@@ -89,16 +129,13 @@ const Checkout = () => {
         name_first: formData.name_first?.trim() || 'Guest',
         name_last: formData.name_last?.trim() || 'User',
         email_address: formData.email_address?.trim() || '',
-        m_payment_id: Date.now().toString(),
+        m_payment_id: order.id,
         amount: total.toFixed(2),
-        item_name: 'Al-Ameen Caps Order',
+        item_name: `Al-Ameen Caps Order #${order.id.slice(0, 8)}`,
       };
 
       const signature = generateSignature(data, passPhrase || null);
       data.signature = signature;
-
-      console.log('PayFast Data:', data);
-      console.log('Generated Signature:', signature);
 
       const form = document.createElement('form');
       form.method = 'POST';
@@ -119,12 +156,13 @@ const Checkout = () => {
       document.body.removeChild(form);
     } catch (err) {
       console.error('PayFast handlePayment error:', err);
-      alert(`PayFast error: ${err?.message || err}`);
       setError(err?.message || 'Payment submission failed. Check the console for details.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleReservation = async (e) => {
+  const handlePreOrder = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -143,11 +181,11 @@ const Checkout = () => {
 
       if (!res.ok) {
         const msg = await res.text();
-        throw new Error(msg || 'Reservation failed');
+        throw new Error(msg || 'Pre-order failed');
       }
-      setReservedName([formData.name_first, formData.name_last].filter(Boolean).join(' ') || 'Valued Customer');
-      setReservedPhone(formData.cell_number?.trim() || '');
-      setReserved(true);
+      setPreOrderName([formData.name_first, formData.name_last].filter(Boolean).join(' ') || 'Valued Customer');
+      setPreOrderPhone(formData.cell_number?.trim() || '');
+      setIsPreOrder(true);
       clearCart();
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again or contact us.');
@@ -156,7 +194,7 @@ const Checkout = () => {
     }
   };
 
-  if (reserved) {
+  if (isPreOrder) {
     return (
       <>
         <div className="min-h-screen flex flex-col">
@@ -164,7 +202,7 @@ const Checkout = () => {
           <main className="flex-1 pt-32 pb-24" />
           <Footer />
         </div>
-        <SuccessModal customerName={reservedName} reservationPhone={reservedPhone} />
+        <SuccessModal customerName={preOrderName} preOrderPhone={preOrderPhone} />
       </>
     );
   }
@@ -225,7 +263,7 @@ const Checkout = () => {
             <h2 className="font-serif text-xl font-semibold text-primary mb-4 text-center">
               Customer Details
             </h2>
-            <form onSubmit={handleReservation} className="space-y-4">
+            <form onSubmit={handlePreOrder} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <input
                   name="name_first"
@@ -307,24 +345,29 @@ const Checkout = () => {
                     disabled={loading || cart.length === 0}
                     className="btn-primary font-sans w-full py-4 text-base mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                   >
-                    {loading ? 'Placing Reservation...' : 'Place Reservation'}
+                    {loading ? 'Placing Pre-Order...' : 'Pre-Order Now'}
                   </button>
                 </>
               ) : (
-                <button
-                  type="button"
-                  onClick={handlePayment}
-                  disabled={loading || cart.length === 0}
-                  className="btn-primary font-sans w-full py-4 text-base mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                >
-                  Pay with PayFast
-                </button>
+                <>
+                  {!user && (
+                    <p className="font-sans text-primary/70 text-sm mt-4">Sign in above to pay with PayFast. Your order will appear in Admin → Orders once payment is complete.</p>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handlePayment}
+                    disabled={loading || cart.length === 0 || !user}
+                    className="btn-primary font-sans w-full py-4 text-base mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  >
+                    Pay with PayFast
+                  </button>
+                </>
               )}
               <p className="font-sans mt-3 text-center text-xs text-primary/60">
                 {!enableEcommerce
-                  ? 'No payment now. We will contact you when your reserved items arrive.'
+                  ? 'No payment now. We will contact you when your pre-order items arrive.'
                   : hasOutOfStockItems
-                    ? 'Reserve your pre-order items. We will contact you when stock arrives to arrange payment and delivery.'
+                    ? 'Pre-order now. We will contact you when stock arrives to arrange payment and delivery.'
                     : 'Secure payment via PayFast. We will ship your order after payment confirmation.'}
               </p>
             </form>

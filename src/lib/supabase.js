@@ -54,7 +54,7 @@ export const getProducts = async () => {
     return list.map((p) => ({
       ...p,
       price: Number(p.price) || 0,
-      quantityAvailable: Number(p.quantity_available ?? p.quantityAvailable) || 0,
+      quantityAvailable: Number(p.stock_quantity ?? p.quantity_available ?? p.quantityAvailable) || 0,
     }));
   } catch (err) {
     console.error("Supabase getProducts:", err);
@@ -76,7 +76,7 @@ export const getProductById = async (id) => {
     return {
       ...data,
       price: Number(data.price) || 0,
-      quantityAvailable: Number(data.quantity_available ?? data.quantityAvailable) || 0,
+      quantityAvailable: Number(data.stock_quantity ?? data.quantity_available ?? data.quantityAvailable) || 0,
     };
   } catch (err) {
     console.error("Supabase getProductById:", err);
