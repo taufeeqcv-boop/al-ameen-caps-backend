@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
@@ -9,24 +9,28 @@ import { COLLECTION_PRODUCTS } from "../data/collection";
 export default function Shop() {
   const [products, setProducts] = useState(COLLECTION_PRODUCTS);
   const [loading, setLoading] = useState(false);
+  const fetchIdRef = useRef(0);
 
   useEffect(() => {
+    const thisFetch = ++fetchIdRef.current;
     let cancelled = false;
+
     getProducts()
       .then((list) => {
-        if (cancelled) return;
-        if (list && list.length > 0) {
+        if (cancelled || thisFetch !== fetchIdRef.current) return;
+        if (Array.isArray(list) && list.length > 0) {
           setProducts(list);
         } else {
           setProducts(COLLECTION_PRODUCTS);
         }
       })
       .catch(() => {
-        if (!cancelled) setProducts(COLLECTION_PRODUCTS);
+        if (!cancelled && thisFetch === fetchIdRef.current) setProducts(COLLECTION_PRODUCTS);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (thisFetch === fetchIdRef.current) setLoading(false);
       });
+
     return () => { cancelled = true; };
   }, []);
 
@@ -48,7 +52,7 @@ export default function Shop() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} />
+              <ProductCard key={p.sku ?? p.id ?? i} product={p} index={i} />
             ))}
           </div>
         )}
