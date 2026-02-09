@@ -1,6 +1,6 @@
 /**
  * SEO utilities — JSON-LD schema injection and meta helpers
- * Compatible with Netlify and South African ecommerce
+ * Target: first-page Google for Islamic fashion, kufi, fez, taj, Cape Town, South Africa, Ramadaan, Eid, Sufi
  */
 
 const BASE_URL = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 'https://al-ameen-caps.netlify.app';
@@ -8,6 +8,35 @@ const BASE_URL = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL |
 export function getBaseUrl() {
   return BASE_URL.replace(/\/$/, '');
 }
+
+/** Comma-separated meta keywords for key pages (Islamic fashion, location, occasions, Sufi) */
+export const SEO_KEYWORDS =
+  'Islamic fashion, fez, kufi, kufiyah, taj, Ashrafi, turban, salaah cap, South Africa, Cape Town, Durban, Johannesburg, PE, Port Elizabeth, Northern suburbs, Southern suburbs, Winelands, Mitchells Plain, Gatesville, Rylands, Athlone, Goodwood, Kensington, Maitland, Salt River, Woodstock, Bo-Kaap, Tableview, Bellville, Durbanville, online shop, Ramadaan, Eid, quality kufi, best price, Rumal, perfume, Al Hasan, Naqshbandi, Qadri, Chishti, Shadhili, Ba Alawiya, Sufi fashion, Sufi clothing, Nalain cap, Azhari cap, Muslim headwear, prayer cap, Servants creation, top boutique';
+
+/** Areas for LocalBusiness areaServed (Cape Town, major cities, suburbs, regions) */
+const AREAS_SERVED = [
+  'South Africa',
+  'Cape Town',
+  'Durban',
+  'Johannesburg',
+  'Port Elizabeth',
+  'Northern suburbs',
+  'Southern suburbs',
+  'Winelands',
+  'Mitchells Plain',
+  'Gatesville',
+  'Rylands',
+  'Athlone',
+  'Goodwood',
+  'Kensington',
+  'Maitland',
+  'Salt River',
+  'Woodstock',
+  'Bo-Kaap',
+  'Tableview',
+  'Bellville',
+  'Durbanville',
+];
 
 /**
  * Inject JSON-LD script into document head
@@ -88,28 +117,33 @@ export function getBreadcrumbSchema(items) {
 }
 
 /**
- * LocalBusiness schema for homepage (South Africa)
- * Update NAP when address/phone are available
+ * LocalBusiness schema for homepage (South Africa, Cape Town areas)
+ * Helps local search for Cape Town, Mitchells Plain, Gatesville, Rylands, Athlone, Goodwood
  */
 export function getLocalBusinessSchema() {
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Al-Ameen Caps',
-    description: 'Premium handcrafted Islamic headwear. Kufi caps, Azhari caps, Na\'lain caps, Syrian Shami, Fez, and more. South Africa.',
+    description: 'Premium Islamic fashion and handcrafted headwear: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville, Durbanville. Top boutique. South Africa online shop.',
     url: getBaseUrl(),
     image: `${getBaseUrl()}/favicon.png`,
     priceRange: 'R',
     address: {
       '@type': 'PostalAddress',
       addressCountry: 'ZA',
+      addressRegion: 'Western Cape',
     },
-    // Add when available: telephone: '+27 XX XXX XXXX', address.streetAddress, etc.
+    areaServed: AREAS_SERVED.map((name) =>
+      name === 'South Africa'
+        ? { '@type': 'Country', name: 'South Africa' }
+        : { '@type': 'Place', name }
+    ),
   };
 }
 
 /**
- * WebSite schema for homepage
+ * WebSite schema for homepage (keywords for Islamic fashion, kufi, fez, Cape Town)
  */
 export function getWebSiteSchema() {
   return {
@@ -117,7 +151,7 @@ export function getWebSiteSchema() {
     '@type': 'WebSite',
     name: 'Al-Ameen Caps',
     url: getBaseUrl(),
-    description: 'Premium handcrafted Islamic headwear. Restoring the Crown of the Believer. Spirituality meets luxury.',
+    description: 'Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, Al Hasan perfume. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa.',
     potentialAction: {
       '@type': 'SearchAction',
       target: {

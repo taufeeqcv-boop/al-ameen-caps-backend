@@ -27,11 +27,16 @@ export default function ProductCard({ product, index = 0 }) {
       transition={{ duration: 0.5, delay: index * 0.08, ease: "easeOut" }}
     >
       <Link to={`/product/${id}`} className="block">
-        <div className="aspect-square bg-primary/5">
+        <div className="aspect-square bg-primary/5 relative">
           {imageURL ? (
             <img src={imageURL} alt={name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-primary/30 font-serif">Image</div>
+          )}
+          {available <= 0 && (
+            <span className="absolute top-2 right-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">
+              Out of stock
+            </span>
           )}
         </div>
         <div className="p-5">

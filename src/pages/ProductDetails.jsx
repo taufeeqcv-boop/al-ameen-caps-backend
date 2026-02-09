@@ -60,7 +60,7 @@ export default function ProductDetails() {
     <div className="min-h-screen flex flex-col">
       <Seo
         title={product.name}
-        description={(product.description || "").replace(/\n/g, " ").slice(0, 160)}
+        description={((product.description || "").replace(/\n/g, " ").slice(0, 120) + " Cape Town, South Africa.").slice(0, 160)}
         image={product.imageURL}
         url={`/product/${product.id}`}
         product={product}

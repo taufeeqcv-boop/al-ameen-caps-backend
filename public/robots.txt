@@ -5,5 +5,7 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /success
+Disallow: /checkout
+Disallow: /login
 
 Sitemap: https://al-ameen-caps.netlify.app/sitemap.xml

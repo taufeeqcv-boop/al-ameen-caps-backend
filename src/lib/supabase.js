@@ -38,26 +38,72 @@ export async function upsertProfile(user) {
   }
 }
 
+function norm(s) {
+  return String(s ?? '').toLowerCase().trim().replace(/\s+/g, ' ');
+}
+
+// Fallback stock from collection when Supabase has 0 / invalid (match by sku or case-insensitive name)
+function getQuantityAvailable(p, collectionProducts) {
+  const fromDb = Number(p.stock_quantity ?? p.quantity_available ?? p.quantityAvailable);
+  const match = findCollectionMatch(p, collectionProducts);
+  const fromCollection = match?.quantityAvailable != null ? Math.max(0, Number(match.quantityAvailable)) : 0;
+  if (fromDb > 0 && !Number.isNaN(fromDb)) return fromDb;
+  return fromCollection;
+}
+
+function findCollectionMatch(p, collectionProducts) {
+  if (!collectionProducts?.length) return null;
+  const pName = norm(p.name);
+  const pSku = String(p.sku ?? '').trim();
+  return collectionProducts.find((c) => {
+    if (pSku && pSku === String(c.id ?? '').trim()) return true;
+    const cName = norm(c.name);
+    return cName && pName && cName === pName;
+  }) || null;
+}
+
+// Normalize image URL: ensure paths like "collection/nalain-cap.png" become "/collection/nalain-cap.png"
+// so they resolve to public/collection/ when served by Vite. Reject localhost URLs (broken after deploy).
+function normalizeImageUrl(url) {
+  if (!url || typeof url !== 'string') return null;
+  const s = url.trim();
+  if (s.startsWith('http://localhost') || s.startsWith('https://localhost')) return null;
+  if (s.startsWith('http://') || s.startsWith('https://')) return s;
+  return s.startsWith('/') ? s : `/${s}`;
+}
+
 // Fetch All Products (Ordered by Price High-to-Low)
 export const getProducts = async () => {
-  if (!supabase) return [];
+  if (!supabase) {
+    console.warn("[Supabase getProducts] Not configured: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY missing. Check .env.local or Netlify env.");
+    return [];
+  }
   try {
     const { data, error } = await supabase
       .from('products')
       .select('*')
       .order('price', { ascending: false });
     if (error) {
-      console.error("Supabase Error:", error);
+      console.error("[Supabase getProducts] Connection/query failed – exact error:", error?.message ?? error, error);
       return [];
     }
     const list = data ?? [];
-    return list.map((p) => ({
-      ...p,
-      price: Number(p.price) || 0,
-      quantityAvailable: Number(p.stock_quantity ?? p.quantity_available ?? p.quantityAvailable) || 0,
-    }));
+    console.log("[Supabase getProducts] OK – rows:", list.length, "(products table, stock_quantity used for availability)");
+    const collectionProducts = await import('../data/collection.js').then((m) => m.COLLECTION_PRODUCTS ?? []);
+    return list.map((p) => {
+      const match = findCollectionMatch(p, collectionProducts);
+      const quantityAvailable = getQuantityAvailable(p, collectionProducts);
+      const rawImage = p.image_url || (match?.imageURL ?? null);
+      const imageURL = normalizeImageUrl(rawImage) || (match?.imageURL ? normalizeImageUrl(match.imageURL) : null) || undefined;
+      return {
+        ...p,
+        price: Number(p.price) || 0,
+        quantityAvailable,
+        imageURL,
+      };
+    });
   } catch (err) {
-    console.error("Supabase getProducts:", err);
+    console.error("[Supabase getProducts] Unexpected error (e.g. stuck worker / network):", err?.message ?? err, err);
     return [];
   }
 };
@@ -73,13 +119,18 @@ export const getProductById = async (id) => {
       .single();
     if (error) return null;
     if (!data) return null;
+    const collectionProducts = await import('../data/collection.js').then((m) => m.COLLECTION_PRODUCTS ?? []);
+    const match = findCollectionMatch(data, collectionProducts);
+    const rawImage = data.image_url || (match?.imageURL ?? null);
+    const imageURL = normalizeImageUrl(rawImage) || (match?.imageURL ? normalizeImageUrl(match.imageURL) : null) || undefined;
     return {
       ...data,
       price: Number(data.price) || 0,
-      quantityAvailable: Number(data.stock_quantity ?? data.quantity_available ?? data.quantityAvailable) || 0,
+      quantityAvailable: getQuantityAvailable(data, collectionProducts),
+      imageURL,
     };
   } catch (err) {
-    console.error("Supabase getProductById:", err);
+    console.error("[Supabase getProductById] Error:", err?.message ?? err, err);
     return null;
   }
 };

@@ -9,16 +9,18 @@ import {
   getProductSchema,
   getBreadcrumbSchema,
   getBaseUrl,
+  SEO_KEYWORDS,
 } from '../lib/seo';
 
 const BASE_URL = getBaseUrl();
 const SITE_NAME = 'Al-Ameen Caps';
-const DEFAULT_TITLE = 'Premium Nalain Caps & Royal Fezzes';
-const DEFAULT_DESCRIPTION = 'Exquisite, handcrafted Islamic headwear. From Nalain caps to Azhari hard caps, Al-Ameen Caps restores the crown of the believer.';
+const DEFAULT_TITLE = 'Islamic Fashion, Kufi, Fez, Taj – Cape Town & South Africa';
+const DEFAULT_DESCRIPTION = 'Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa.';
 
 export default function Seo({
   title,
   description = DEFAULT_DESCRIPTION,
+  keywords,
   image,
   url,
   product,
@@ -26,6 +28,7 @@ export default function Seo({
 }) {
   const fullUrl = url ? `${BASE_URL}${url}` : BASE_URL;
   const ogImage = image?.startsWith('http') ? image : `${BASE_URL}${image || '/favicon.png'}`;
+  const metaKeywords = keywords ?? SEO_KEYWORDS;
 
   useEffect(() => {
     // Title
@@ -40,6 +43,15 @@ export default function Seo({
     }
     metaDesc.content = description.slice(0, 160);
 
+    // Meta keywords (optional; default from central list)
+    let metaKw = document.querySelector('meta[name="keywords"]');
+    if (!metaKw) {
+      metaKw = document.createElement('meta');
+      metaKw.name = 'keywords';
+      document.head.appendChild(metaKw);
+    }
+    metaKw.content = (metaKeywords || '').slice(0, 500);
+
     // Canonical
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
@@ -50,8 +62,10 @@ export default function Seo({
     canonical.href = fullUrl;
 
     // Open Graph
+    const pageTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | ${DEFAULT_TITLE}`;
     const ogTags = [
-      ['og:title', title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | ${DEFAULT_TITLE}`],
+      ['og:locale', 'en_ZA'],
+      ['og:title', pageTitle],
       ['og:description', description.slice(0, 160)],
       ['og:url', fullUrl],
       ['og:image', ogImage],
@@ -71,7 +85,7 @@ export default function Seo({
     // Twitter Card
     const twTags = [
       ['twitter:card', 'summary_large_image'],
-      ['twitter:title', title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | ${DEFAULT_TITLE}`],
+      ['twitter:title', pageTitle],
       ['twitter:description', description.slice(0, 160)],
       ['twitter:image', ogImage],
     ];
@@ -84,7 +98,7 @@ export default function Seo({
       }
       twTag.content = twContent;
     });
-  }, [title, description, fullUrl, ogImage]);
+  }, [title, description, metaKeywords, fullUrl, ogImage]);
 
   // JSON-LD: Product schema
   useEffect(() => {

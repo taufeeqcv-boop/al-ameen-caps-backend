@@ -20,7 +20,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <Seo
         url="/"
-        description="Exquisite, handcrafted Islamic headwear. From Nalain caps to Azhari hard caps, Al-Ameen Caps restores the crown of the believer. South Africa."
+        description="Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa."
       />
       <Navbar />
       <main className="flex-1 pt-32">

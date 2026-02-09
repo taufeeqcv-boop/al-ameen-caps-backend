@@ -9,7 +9,7 @@ export default function About() {
     <div className="min-h-screen flex flex-col">
       <Seo
         title="About"
-        description="Learn about Al-Ameen Caps — premium handcrafted Islamic headwear. Restoring the crown of the believer in South Africa."
+        description="Al-Ameen Caps: Islamic fashion and Sufi clothing. Kufi, fez, taj, turban. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. South Africa."
         url="/about"
       />
       <Navbar />

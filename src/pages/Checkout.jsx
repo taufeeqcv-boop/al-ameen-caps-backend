@@ -180,8 +180,13 @@ const Checkout = () => {
       });
 
       if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || 'Pre-order failed');
+        const text = await res.text();
+        let msg = text || 'Pre-order failed';
+        try {
+          const j = JSON.parse(text);
+          if (j?.error) msg = j.error;
+        } catch (_) {}
+        throw new Error(msg);
       }
       setPreOrderName([formData.name_first, formData.name_last].filter(Boolean).join(' ') || 'Valued Customer');
       setPreOrderPhone(formData.cell_number?.trim() || '');

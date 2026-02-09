@@ -26,8 +26,8 @@ export default function Shop() {
   return (
     <div className="min-h-screen flex flex-col">
       <Seo
-        title="Shop the Collection"
-        description="Premium Islamic headwear: Azhari caps, Na'lain caps, Syrian Shami, Fez, and more. Kufi hats, toppies, and traditional Muslim headwear in South Africa."
+        title="Shop – Kufi, Fez, Taj, Turban, Rumal"
+        description="Buy kufi, fez, taj, turban, Rumal, Nalain cap, Azhari cap. Islamic fashion, top boutique. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville, Durbanville."
         url="/shop"
         breadcrumbs={[{ name: "Home", url: "/" }, { name: "Shop", url: null }]}
       />

@@ -22,7 +22,7 @@ export default function Contact() {
     <div className="min-h-screen flex flex-col">
       <Seo
         title="Contact"
-        description="Contact Al-Ameen Caps. Questions about Islamic headwear, orders, or our collection? We're here to help."
+        description="Contact Al-Ameen Caps. Kufi, fez, taj, Islamic fashion. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. South Africa."
         url="/contact"
       />
       <Navbar />

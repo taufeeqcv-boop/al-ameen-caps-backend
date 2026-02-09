@@ -112,7 +112,12 @@ export default function AdminReservations() {
           </table>
         </div>
         {reservations.length === 0 && !error && (
-          <p className="px-6 py-8 text-center text-primary/60">No pre-orders yet.</p>
+          <div className="px-6 py-8 text-center text-primary/60 space-y-3 max-w-lg mx-auto">
+            <p>No pre-orders yet.</p>
+            <p className="text-sm text-left">
+              <strong>Reservations save and emails send, but nothing here?</strong> The server saves to the project in <code className="bg-secondary/30 px-1 rounded">SUPABASE_URL</code>. This page reads from <code className="bg-secondary/30 px-1 rounded">VITE_SUPABASE_URL</code>. In Netlify → Environment variables, set <strong>VITE_SUPABASE_URL</strong> and <strong>VITE_SUPABASE_ANON_KEY</strong> to the <em>same</em> Supabase project as SUPABASE_URL, then trigger a new deploy so the site uses that project.
+            </p>
+          </div>
         )}
       </div>
     </div>

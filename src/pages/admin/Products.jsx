@@ -99,20 +99,19 @@ export default function AdminProducts() {
     setSearchParams({});
   };
 
-  /** Populate Inventory from frontend collection; missing quantity becomes 0 */
+  /** Populate Inventory from frontend collection; missing quantity becomes 0. Image stored as relative path so it works in any environment. */
   const seedFromCollection = async () => {
     if (!supabase || !COLLECTION_PRODUCTS?.length) return;
     setSeeding(true);
     setError(null);
     setSeedMessage(null);
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
     const rows = COLLECTION_PRODUCTS.map((item) => ({
       sku: String(item.id ?? "").trim() || `sku-${item.name?.slice(0, 20)}`,
       name: String(item.name ?? "").trim() || "Unnamed",
       description: item.description?.trim() || null,
       price: Number(item.price) || 0,
-      stock_quantity: Math.max(0, Number(item.quantityAvailable) ?? 0),
-      image_url: item.imageURL ? `${origin}${item.imageURL.startsWith("/") ? "" : "/"}${item.imageURL}` : null,
+      stock_quantity: Math.max(0, Number(item.quantityAvailable) || 0),
+      image_url: item.imageURL ? (item.imageURL.startsWith("/") ? item.imageURL : `/${item.imageURL}`) : null,
       is_active: true,
     }));
     const { error: e } = await supabase.from("products").upsert(rows, { onConflict: "sku" });
