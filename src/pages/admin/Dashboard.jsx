@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
-import { DollarSign, Clock, AlertTriangle, Loader2 } from "lucide-react";
+import { DollarSign, ShoppingBag, Inbox, AlertTriangle, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -9,6 +9,7 @@ const LOW_STOCK_THRESHOLD = 5;
 export default function AdminDashboard() {
   const [revenue, setRevenue] = useState(null);
   const [pendingCount, setPendingCount] = useState(null);
+  const [inquiriesCount, setInquiriesCount] = useState(null);
   const [lowStock, setLowStock] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,9 +22,10 @@ export default function AdminDashboard() {
         return;
       }
       try {
-        const [paidRes, pendingRes, lowRes] = await Promise.all([
+        const [paidRes, paidCountRes, inquiriesRes, lowRes] = await Promise.all([
           supabase.from("orders").select("total_amount").eq("status", "PAID"),
-          supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "PENDING"),
+          supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "PAID"),
+          supabase.from("reservations").select("id", { count: "exact", head: true }).eq("status", "pending"),
           supabase
             .from("products")
             .select("id, name, stock_quantity, sku")
@@ -35,7 +37,8 @@ export default function AdminDashboard() {
         if (cancelled) return;
         const totalRevenue = (paidRes.data ?? []).reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
         setRevenue(totalRevenue);
-        setPendingCount(pendingRes.count ?? 0);
+        setPendingCount(paidCountRes.count ?? 0);
+        setInquiriesCount(inquiriesRes.count ?? 0);
         setLowStock(lowRes.data ?? []);
       } catch (e) {
         if (!cancelled) setError(e.message);
@@ -66,7 +69,7 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       <h1 className="font-serif text-2xl font-semibold text-primary">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
           <div className="flex items-center gap-3 text-primary/70">
             <DollarSign className="w-8 h-8 text-accent" />
@@ -79,12 +82,22 @@ export default function AdminDashboard() {
         </div>
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
           <div className="flex items-center gap-3 text-primary/70">
-            <Clock className="w-8 h-8 text-amber-600" />
-            <span className="font-medium">Pending Orders</span>
+            <ShoppingBag className="w-8 h-8 text-accent" />
+            <span className="font-medium">Paid Orders</span>
           </div>
           <p className="mt-2 text-2xl font-semibold text-primary">{pendingCount}</p>
-          <Link to="/admin/orders?status=PENDING" className="text-sm text-accent hover:underline">
+          <Link to="/admin/orders?status=PAID" className="text-sm text-accent hover:underline">
             View orders →
+          </Link>
+        </div>
+        <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
+          <div className="flex items-center gap-3 text-primary/70">
+            <Inbox className="w-8 h-8 text-amber-600" />
+            <span className="font-medium">New Inquiries</span>
+          </div>
+          <p className="mt-2 text-2xl font-semibold text-primary">{inquiriesCount ?? 0}</p>
+          <Link to="/admin/reservations" className="text-sm text-accent hover:underline">
+            View reservations →
           </Link>
         </div>
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">

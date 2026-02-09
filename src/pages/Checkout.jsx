@@ -18,6 +18,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [reserved, setReserved] = useState(false);
   const [reservedName, setReservedName] = useState('');
+  const [reservedPhone, setReservedPhone] = useState('');
   const [error, setError] = useState('');
   const subtotal = cartTotal;
   const delivery = cart.length > 0 ? DELIVERY_FEE : 0;
@@ -145,6 +146,7 @@ const Checkout = () => {
         throw new Error(msg || 'Reservation failed');
       }
       setReservedName([formData.name_first, formData.name_last].filter(Boolean).join(' ') || 'Valued Customer');
+      setReservedPhone(formData.cell_number?.trim() || '');
       setReserved(true);
       clearCart();
     } catch (err) {
@@ -162,7 +164,7 @@ const Checkout = () => {
           <main className="flex-1 pt-32 pb-24" />
           <Footer />
         </div>
-        <SuccessModal customerName={reservedName} />
+        <SuccessModal customerName={reservedName} reservationPhone={reservedPhone} />
       </>
     );
   }

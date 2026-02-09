@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { CheckCircle } from "lucide-react";
 
-export default function SuccessModal({ customerName, onClose }) {
+export default function SuccessModal({ customerName, reservationPhone, onClose }) {
   const navigate = useNavigate();
   const firstName = (customerName || "").trim().split(/\s+/)[0] || "Valued Customer";
+  const isReservation = reservationPhone !== undefined && reservationPhone !== null;
 
   const handleDismiss = () => {
     onClose?.();
@@ -27,10 +28,18 @@ export default function SuccessModal({ customerName, onClose }) {
           <CheckCircle className="w-20 h-20 text-accent" strokeWidth={1.5} />
         </div>
         <h2 id="success-modal-title" className="font-serif text-2xl font-bold text-white mb-2">
-          Reservation Confirmed
+          {isReservation ? "Reservation Received!" : "Reservation Confirmed"}
         </h2>
         <p className="font-sans text-primary/90 text-base leading-relaxed mb-8">
-          Jazakallah khair, {firstName}. We have added you to the priority queue.
+          {isReservation ? (
+            <>
+              We have your details and will contact you on{" "}
+              <strong className="text-accent">{reservationPhone || "your provided number"}</strong> shortly to
+              finalize your order.
+            </>
+          ) : (
+            <>Jazakallah khair, {firstName}. We have added you to the priority queue.</>
+          )}
         </p>
         <button
           type="button"

@@ -1,10 +1,18 @@
 /**
  * Reservation Handler
  * Receives POST with JSON: { formData, cart, total }
- * Sends "NEW RESERVATION" email to sales/admin.
+ * 1. Persists to public.reservations (Supabase, service role).
+ * 2. Sends "NEW RESERVATION" email to admin and confirmation to customer.
  */
 
 const nodemailer = require("nodemailer");
+const { createClient } = require("@supabase/supabase-js");
+
+const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = supabaseUrl && serviceRoleKey
+  ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
+  : null;
 
 function getReservationEmailHtml(data) {
   const { formData, cart, total } = data;
@@ -122,6 +130,27 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: "Missing formData or email" };
   }
 
+  // 1. Persist to database (if Supabase is configured)
+  if (supabase) {
+    const customerName = [formData.name_first, formData.name_last].filter(Boolean).join(" ").trim() || null;
+    const notes = formData.message || (formData.address_line_1 ? [formData.address_line_1, formData.address_line_2, formData.city, formData.postal_code].filter(Boolean).join(", ") : "") || "";
+    const { error: dbError } = await supabase
+      .from("reservations")
+      .insert([{
+        customer_name: customerName,
+        customer_email: formData.email_address,
+        customer_phone: formData.cell_number || "",
+        items: cart || [],
+        total_amount: Number(total) || 0,
+        notes: notes,
+        status: "pending",
+      }]);
+    if (dbError) {
+      console.error("Reservation: DB insert failed", dbError);
+      return { statusCode: 500, body: JSON.stringify({ error: dbError.message }) };
+    }
+  }
+
   if (!emailUser || !emailPass) {
     console.error("Reservation: EMAIL_USER or EMAIL_PASS not set");
     return { statusCode: 500, body: "Email not configured" };
@@ -155,8 +184,8 @@ exports.handler = async (event) => {
     });
   } catch (err) {
     console.error("Reservation: Email send failed", err);
-    return { statusCode: 500, body: "Failed to send reservation" };
+    return { statusCode: 500, body: JSON.stringify({ error: "Failed to send reservation" }) };
   }
 
-  return { statusCode: 200, body: JSON.stringify({ ok: true }) };
+  return { statusCode: 200, body: JSON.stringify({ message: "Success", ok: true }) };
 };

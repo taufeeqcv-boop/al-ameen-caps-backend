@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -9,6 +9,7 @@ import { supabase } from "../lib/supabase";
 export default function Login() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -42,24 +43,36 @@ export default function Login() {
       return;
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("is_admin")
       .eq("id", data.user.id)
       .single();
 
+    if (profileError) {
+      setError("Login succeeded but could not load your profile. Check Supabase RLS and that a profile row exists for your user.");
+      return;
+    }
+
     if (profile?.is_admin) {
+      navigate("/admin/dashboard", { replace: true });
+    } else {
+      setError("This account does not have admin access. Set is_admin = true for your user in Supabase → Table Editor → profiles.");
+      return;
+    }
+  };
+
+  // Redirect already-logged-in users away from login (send back to where they came from)
+  const from = location.state?.from?.pathname || "/";
+  useEffect(() => {
+    if (authLoading || !user) return;
+    // If the user was trying to go to Admin, send them there. Otherwise, Home.
+    if (from.includes("/admin")) {
       navigate("/admin/dashboard", { replace: true });
     } else {
       navigate("/", { replace: true });
     }
-  };
-
-  useEffect(() => {
-    if (!authLoading && user) {
-      navigate("/", { replace: true });
-    }
-  }, [authLoading, user, navigate]);
+  }, [authLoading, user, navigate, from]);
 
   if (authLoading) {
     return (
