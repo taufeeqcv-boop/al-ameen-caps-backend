@@ -15,12 +15,19 @@ export function AuthProvider({ children }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
+    }).catch((err) => {
+      if (err?.name !== "AbortError") console.error("getSession:", err);
+      setLoading(false); // always stop loading so app doesn't hang
     });
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) await upsertProfile(session.user);
+      if (session?.user) {
+        upsertProfile(session.user).catch((err) => {
+          if (err?.name !== "AbortError") console.error("upsertProfile:", err);
+        });
+      }
     });
     return () => subscription.unsubscribe();
   }, []);

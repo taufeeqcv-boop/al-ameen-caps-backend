@@ -33,6 +33,7 @@ export async function upsertProfile(user) {
       { onConflict: "id" }
     );
   } catch (err) {
+    if (err?.name === "AbortError") return;
     console.error("Supabase upsertProfile:", err);
   }
 }

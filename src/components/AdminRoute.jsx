@@ -18,13 +18,14 @@ const AdminRoute = ({ children }) => {
   const graceTimerRef = useRef(null);
   const profileTimeoutRef = useRef(null);
 
-  // WAIT 600ms before redirecting to login so auth state can settle after client-side nav
+  // When coming from Login (justLoggedIn), wait longer so AuthContext has definitely updated
+  const settleMs = location.state?.justLoggedIn ? 2500 : 600;
   useEffect(() => {
     const timer = setTimeout(() => {
       setAllowRedirect(true);
-    }, 600);
+    }, settleMs);
     return () => clearTimeout(timer);
-  }, []);
+  }, [settleMs]);
 
   // Safety: stop showing spinner if profile check takes too long (e.g. network hang)
   useEffect(() => {
@@ -81,6 +82,7 @@ const AdminRoute = ({ children }) => {
       if (error) throw error;
       setIsAdmin(profile?.is_admin);
     } catch (error) {
+      if (error?.name === "AbortError") return; // nav/unmount cancelled request
       console.error("Error checking admin status:", error);
       setIsAdmin(false);
     } finally {

@@ -70,17 +70,22 @@ export default function Login() {
   // Redirect when we have a user: either already logged in (from) or just logged in (pendingRedirectToAdmin)
   useEffect(() => {
     if (authLoading || !user) return;
+    const state = { justLoggedIn: true };
     if (pendingRedirectToAdmin) {
       setPendingRedirectToAdmin(false);
-      navigate("/admin/dashboard", { replace: true });
-      return;
+      // Brief delay so React commits auth state before we mount AdminRoute (reduces redirect loop)
+      const t = setTimeout(() => {
+        navigate("/admin/dashboard", { replace: true, state });
+      }, 150);
+      return () => clearTimeout(t);
     }
-    // Already logged in: send back to where they came from
     if (from.includes("/admin")) {
-      navigate("/admin/dashboard", { replace: true });
-    } else {
-      navigate("/", { replace: true });
+      const t = setTimeout(() => {
+        navigate("/admin/dashboard", { replace: true, state });
+      }, 150);
+      return () => clearTimeout(t);
     }
+    navigate("/", { replace: true });
   }, [authLoading, user, navigate, from, pendingRedirectToAdmin]);
 
   if (authLoading || pendingRedirectToAdmin) {
