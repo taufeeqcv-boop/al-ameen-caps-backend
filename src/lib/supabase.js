@@ -142,19 +142,27 @@ export function normalizeImageUrl(url) {
   return path;
 }
 
-/** Force collection images to same-origin path so they always load from current deploy (no CORS). */
+const IMAGE_BACKEND_BASE = 'https://al-ameen-caps-backend.netlify.app';
+
+/** Force collection images to load from backend URL (no env/hydration dependency). */
 export function sameOriginImageSrc(url) {
   if (!url || typeof url !== 'string') return url;
   const s = url.trim();
   if (s.startsWith('http://') || s.startsWith('https://')) {
     try {
-      const path = new URL(s).pathname;
-      if (path.startsWith('/collection')) return `${path}?v=${IMAGE_VERSION}`;
+      const u = new URL(s);
+      const path = u.pathname || '/';
+      if (!path.startsWith('/collection')) return url;
+      const query = u.search || `?v=${IMAGE_VERSION}`;
+      return `${IMAGE_BACKEND_BASE}${path}${query}`;
     } catch {
       return url;
     }
   }
-  if (s.startsWith('/collection')) return s.includes('?') ? s : `${s}?v=${IMAGE_VERSION}`;
+  if (s.startsWith('/collection')) {
+    const pathWithQuery = s.includes('?') ? s : `${s}?v=${IMAGE_VERSION}`;
+    return `${IMAGE_BACKEND_BASE}${pathWithQuery}`;
+  }
   return url;
 }
 
