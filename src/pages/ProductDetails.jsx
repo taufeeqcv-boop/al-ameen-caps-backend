@@ -1,65 +1,42 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { ArrowLeft, Truck, ShieldCheck } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
-import { useCart } from "../context/CartContext";
-import { getProductById, sameOriginImageSrc } from "../lib/supabase";
-import { COLLECTION_PRODUCTS, getCollectionImageUrl } from "../data/collection";
 import { formatPrice } from "../lib/format";
-import { motion } from "framer-motion";
-import defaultProductImg from "../assets/caps-collection.png";
 
-export default function ProductDetails() {
+import { COLLECTION_PRODUCTS, getCollectionImageUrl } from "../data/collection";
+
+const ProductDetails = () => {
   const { id } = useParams();
   const { addToCart, cart } = useCart();
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    const fromCollection = COLLECTION_PRODUCTS.find((p) => p.id === id);
-    if (fromCollection) {
-      // Normalize image URL so it works in all contexts (incognito, different deploy)
-      const imageURL = normalizeImageUrl(fromCollection.imageURL) || fromCollection.imageURL;
-      setProduct({ ...fromCollection, imageURL });
-      setLoading(false);
-      return;
-    }
-    getProductById(id)
-      .then((p) => {
-        if (!cancelled) setProduct(p ?? { id, name: "Product", price: 0, description: "", imageURL: "", category: "" });
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, [id]);
+  const staticProduct = COLLECTION_PRODUCTS.find((item) => item.id === id);
+  const [product, setProduct] = useState(staticProduct || null);
 
-  const collectionFallback = COLLECTION_PRODUCTS.find(
-    (c) => c.id === product?.id || c.id === `collection-${product?.id}` || (product?.sku && c.id === product.sku)
-  );
-  const quantityAvailable = product?.quantityAvailable ?? collectionFallback?.quantityAvailable ?? 0;
+  const imageSrc = product ? getCollectionImageUrl(product) : null;
   const inCart = cart.filter((item) => item.id === product?.id).reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const quantityAvailable = product?.quantityAvailable ?? 0;
   const available = Math.max(0, quantityAvailable - inCart);
   const canAdd = available > 0;
 
-  const displayImage =
-    getCollectionImageUrl(product) ||
-    sameOriginImageSrc(product?.imageURL || collectionFallback?.imageURL) ||
-    defaultProductImg;
-
   const handleAddToCart = () => {
-    if (product && canAdd) addToCart({ ...product, quantity: 1 });
+    if (product && canAdd) addToCart({ ...product, quantity: 1, quantityAvailable: product.quantityAvailable });
   };
 
-  if (loading) {
+  if (!product) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-1 max-w-7xl mx-auto px-4 pt-32 pb-24">
-          <p className="text-primary/70">Loading...</p>
+        <main className="flex-1 flex items-center justify-center px-4 pt-32">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-primary">Product Not Found</h2>
+            <Link to="/shop" className="text-accent mt-4 block hover:underline">
+              Return to Shop
+            </Link>
+          </div>
         </main>
         <Footer />
       </div>
@@ -67,13 +44,11 @@ export default function ProductDetails() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-secondary/30 pb-20">
       <Seo
         title={product.name}
         description={((product.description || "").replace(/\n/g, " ").slice(0, 120) + " Cape Town, South Africa.").slice(0, 160)}
-        image={product.imageURL}
         url={`/product/${product.id}`}
-        product={product}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Shop", url: "/shop" },
@@ -81,45 +56,57 @@ export default function ProductDetails() {
         ]}
       />
       <Navbar />
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24">
-        <motion.div
-          className="grid md:grid-cols-2 gap-12 items-start"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-        >
-          <div>
-            <div className="aspect-square bg-primary/5 rounded-lg overflow-hidden shadow-premium">
-              <img src={displayImage} alt={product.name} className="w-full h-full object-cover" />
+
+      <div className="max-w-4xl mx-auto px-4 pt-6 flex-1">
+        <Link to="/shop" className="inline-flex items-center text-primary/70 hover:text-accent mb-6 transition-colors">
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to Shop
+        </Link>
+
+        <div className="bg-secondary rounded-2xl shadow-premium overflow-hidden grid md:grid-cols-2 gap-0 border border-black/5">
+          <div className="aspect-square bg-primary/5 relative">
+            <img src={imageSrc} alt={product.name} className="w-full h-full object-cover" />
+          </div>
+
+          <div className="p-8 flex flex-col justify-center">
+            <div className="mb-2">
+              <span className="inline-block bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full font-medium">
+                Premium Collection
+              </span>
             </div>
+
+            <h1 className="text-3xl font-serif text-primary mb-2">{product.name}</h1>
+            <p className="text-2xl font-bold text-amber-700 mb-6">{formatPrice(product.price)}</p>
+
+            <p className="text-primary/80 mb-8 leading-relaxed whitespace-pre-line">
+              {product.description || "Authentic Naqshbandi craftsmanship. Premium quality."}
+            </p>
+
             <button
               type="button"
               onClick={handleAddToCart}
               disabled={!canAdd}
-              className="btn-primary mt-6 w-full py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              className="btn-primary w-full py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {canAdd ? "Add to Cart" : "Out of stock"}
             </button>
-            <Link to="/shop" className="block mt-4 text-center text-primary/70 hover:text-accent transition-colors">
-              ← Back to Shop
-            </Link>
+
+            <div className="grid grid-cols-2 gap-4 text-sm text-primary/60 mt-6">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-accent" />
+                <span>Fast Delivery</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-accent" />
+                <span>Secure Payment</span>
+              </div>
+            </div>
           </div>
-          <div>
-            <h1 className="font-serif text-3xl font-semibold text-primary">{product.name}</h1>
-            <p className="mt-4 text-primary/70">
-              {available <= 0 ? "Out of stock" : `${available} available`}
-            </p>
-            {Number(product.price) > 0 && (
-              <p className="mt-3 text-2xl font-extrabold text-amber-700 border-b border-amber-700/20 pb-3">{formatPrice(product.price)}</p>
-            )}
-            <div className="mt-6 text-primary/80 whitespace-pre-line leading-relaxed">{product.description || "Description coming soon."}</div>
-            <p className="mt-6 text-sm text-primary/70 italic border-l-2 border-accent/50 pl-4">
-              To ensure the highest quality, our items are handcrafted and imported. By pre-ordering now, you secure your place in our first delivery queue.
-            </p>
-          </div>
-        </motion.div>
-      </main>
+        </div>
+      </div>
+
       <Footer />
     </div>
   );
-}
+};
+
+export default ProductDetails;
