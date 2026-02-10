@@ -3,11 +3,28 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import ProductCard from "../components/ProductCard";
-import { getProducts, mergeProductsWithCollection } from "../lib/supabase";
+import { getProducts, normalizeImageUrl } from "../lib/supabase";
 import { COLLECTION_PRODUCTS } from "../data/collection";
 
+// Always display from collection so images never disappear. Only overlay price/quantity from API.
+function buildDisplayList(apiList) {
+  const list = Array.isArray(apiList) ? apiList : [];
+  return COLLECTION_PRODUCTS.map((c) => {
+    const fromApi = list.find((p) => p.id === c.id || p.sku === c.id);
+    const imageURL = normalizeImageUrl(c.imageURL) || (c.imageURL?.startsWith("/") ? c.imageURL : c.imageURL ? `/${c.imageURL}` : undefined);
+    return {
+      ...c,
+      imageURL: imageURL || c.imageURL,
+      price: fromApi != null ? Number(fromApi.price) || 0 : Number(c.price) || 0,
+      quantityAvailable: fromApi != null ? Math.max(0, Number(fromApi.quantityAvailable) || 0) : Math.max(0, Number(c.quantityAvailable) || 0),
+      product_id: fromApi?.product_id,
+      sku: fromApi?.sku ?? c.id,
+    };
+  });
+}
+
 export default function Shop() {
-  const [products, setProducts] = useState(COLLECTION_PRODUCTS);
+  const [products, setProducts] = useState(() => buildDisplayList([]));
   const [loading, setLoading] = useState(false);
   const fetchIdRef = useRef(0);
 
@@ -17,22 +34,10 @@ export default function Shop() {
     getProducts()
       .then((list) => {
         if (cancelled || thisFetch !== fetchIdRef.current) return;
-        if (!Array.isArray(list) || list.length === 0) {
-          setProducts(COLLECTION_PRODUCTS);
-          return;
-        }
-        const anyBroken = list.some(
-          (p) => (p.quantityAvailable ?? 0) <= 0 || (p.imageURL == null || p.imageURL === '')
-        );
-        const merged = anyBroken ? mergeProductsWithCollection(list, COLLECTION_PRODUCTS) : list;
-        // After merge, if any product still has no image or zero stock (e.g. after login on localhost, bad env), use collection so UI never breaks
-        const stillBroken = merged.some(
-          (p) => (p.quantityAvailable ?? 0) <= 0 || (p.imageURL == null || p.imageURL === '')
-        );
-        setProducts(stillBroken ? COLLECTION_PRODUCTS : merged);
+        setProducts(buildDisplayList(list));
       })
       .catch(() => {
-        if (!cancelled && thisFetch === fetchIdRef.current) setProducts(COLLECTION_PRODUCTS);
+        if (!cancelled && thisFetch === fetchIdRef.current) setProducts(buildDisplayList([]));
       })
       .finally(() => {
         if (thisFetch === fetchIdRef.current) setLoading(false);
