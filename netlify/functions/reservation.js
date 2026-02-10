@@ -120,7 +120,7 @@ function getCustomerConfirmationEmailHtml(data) {
 
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
-    return withCors({ statusCode: 204, body: "" });
+    return withCors({ statusCode: 200, body: "" });
   }
   if (event.httpMethod !== "POST") {
     return withCors({ statusCode: 405, body: "Method Not Allowed" });
