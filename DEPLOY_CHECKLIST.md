@@ -23,6 +23,7 @@ Set these (same Supabase project for all four):
 | **VITE_PAYFAST_PASSPHRASE** | If using PayFast | Same as PAYFAST_PASSPHRASE |
 | **VITE_ENABLE_ECOMMERCE** | Optional | `true` to show Pay Fast / checkout |
 | **VITE_SITE_URL** | Optional | e.g. `https://al-ameen-caps.netlify.app` — PayFast return URLs; Netlify sets URL automatically |
+| **VITE_IMAGE_BASE_URL** | Optional | If you have two deploys (frontend + backend) and images only work on one: set this on the **frontend** site to the backend URL (e.g. `https://al-ameen-caps-backend.netlify.app`) so product images load from there. Then redeploy frontend. |
 | **VITE_DELIVERY_FEE** | Optional | Default 99 (ZAR) |
 
 **Critical:** If Pre-Orders (reservations) save but don’t show in Admin, **VITE_SUPABASE_URL** and **VITE_SUPABASE_ANON_KEY** are from a different project. Set them to the **same** Supabase project as **SUPABASE_URL**, then **redeploy** (build bakes these into the frontend).

@@ -18,11 +18,18 @@ export default function Shop() {
     getProducts()
       .then((list) => {
         if (cancelled || thisFetch !== fetchIdRef.current) return;
-        if (Array.isArray(list) && list.length > 0) {
-          setProducts(list);
-        } else {
+        if (!Array.isArray(list) || list.length === 0) {
           setProducts(COLLECTION_PRODUCTS);
+          return;
         }
+        const allBroken = list.every(
+          (p) => (p.quantityAvailable ?? 0) <= 0 && (p.imageURL == null || p.imageURL === '')
+        );
+        if (allBroken) {
+          setProducts(COLLECTION_PRODUCTS);
+          return;
+        }
+        setProducts(list);
       })
       .catch(() => {
         if (!cancelled && thisFetch === fetchIdRef.current) setProducts(COLLECTION_PRODUCTS);

@@ -58,21 +58,30 @@ function findCollectionMatch(p, collectionProducts) {
   if (!collectionProducts?.length) return null;
   const pName = norm(p.name);
   const pSku = String(p.sku ?? '').trim();
+  const pId = p.id != null ? Number(p.id) : NaN;
   return collectionProducts.find((c) => {
     if (pSku && pSku === String(c.id ?? '').trim()) return true;
+    if (!Number.isNaN(pId) && String(c.id ?? '').trim() === `collection-${pId}`) return true;
     const cName = norm(c.name);
     return cName && pName && cName === pName;
   }) || null;
 }
 
+// Optional: when frontend is a different deploy that doesn't serve /collection/, set this to the
+// URL of the site that does (e.g. backend). Relative paths will become absolute so images load.
+const IMAGE_BASE_URL = (import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_SITE_URL || '').replace(/\/$/, '');
+
 // Normalize image URL: ensure paths like "collection/nalain-cap.png" become "/collection/nalain-cap.png"
 // so they resolve to public/collection/ when served by Vite. Reject localhost URLs (broken after deploy).
+// If VITE_IMAGE_BASE_URL (or VITE_SITE_URL) is set, relative paths become absolute so another deploy can load them.
 function normalizeImageUrl(url) {
   if (!url || typeof url !== 'string') return null;
   const s = url.trim();
   if (s.startsWith('http://localhost') || s.startsWith('https://localhost')) return null;
   if (s.startsWith('http://') || s.startsWith('https://')) return s;
-  return s.startsWith('/') ? s : `/${s}`;
+  const path = s.startsWith('/') ? s : `/${s}`;
+  if (IMAGE_BASE_URL) return `${IMAGE_BASE_URL}${path}`;
+  return path;
 }
 
 // Fetch All Products (Ordered by Price High-to-Low)
