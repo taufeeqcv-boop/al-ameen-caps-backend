@@ -18,15 +18,16 @@ export const COLLECTION_IMAGE_FILENAMES = {
   "collection-12": "royal-ottoman-fez.png",
 };
 
-const IMG_V = "4";
+const IMG_V = "5";
 
-/** Returns absolute same-origin URL for collection product image (guaranteed to work). */
+/** Returns absolute URL for collection image. Uses VITE_IMAGE_BASE_URL (backend) when set so images load even if this deploy has no /collection/. */
 export function getCollectionImageUrl(product) {
   if (typeof window === "undefined") return null;
   const id = product?.id != null ? String(product.id) : product?.sku != null ? String(product.sku) : "";
   const filename = COLLECTION_IMAGE_FILENAMES[id] || (id.startsWith("collection-") ? null : null);
   if (!filename) return null;
-  const base = window.location.origin.replace(/\/$/, "");
+  const envBase = (import.meta.env.VITE_IMAGE_BASE_URL || "").replace(/\/$/, "");
+  const base = envBase && !envBase.includes("localhost") ? envBase : window.location.origin.replace(/\/$/, "");
   return `${base}/collection/${filename}?v=${IMG_V}`;
 }
 
