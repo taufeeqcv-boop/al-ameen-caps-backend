@@ -1,16 +1,21 @@
 // ProductCard – white card, image, exact name, quantity available, Add to Cart
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/format";
+import defaultProductImg from "../assets/caps-collection.png";
 
 export default function ProductCard({ product, index = 0 }) {
   const { id, name, price, imageURL, quantityAvailable = 0 } = product || {};
   const { addToCart, cart } = useCart();
+  const [imgError, setImgError] = useState(false);
   const inCart = cart.filter((item) => item.id === id).reduce((sum, item) => sum + (item.quantity || 1), 0);
   const available = Math.max(0, (quantityAvailable ?? 0) - inCart);
   const canAdd = available > 0;
+
+  const displaySrc = imageURL && !imgError ? imageURL : defaultProductImg;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -28,11 +33,12 @@ export default function ProductCard({ product, index = 0 }) {
     >
       <Link to={`/product/${id}`} className="block">
         <div className="aspect-square bg-primary/5 relative">
-          {imageURL ? (
-            <img src={imageURL} alt={name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-primary/30 font-serif">Image</div>
-          )}
+          <img
+            src={displaySrc}
+            alt={name}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
           {available <= 0 && (
             <span className="absolute top-2 right-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">
               Out of stock

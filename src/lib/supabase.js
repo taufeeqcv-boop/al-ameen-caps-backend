@@ -102,6 +102,9 @@ export function mergeProductsWithCollection(list, collectionProducts) {
 const _rawBase = (import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_SITE_URL || '').replace(/\/$/, '');
 const IMAGE_BASE_URL = typeof window === 'undefined' ? (_rawBase && !_rawBase.toLowerCase().includes('localhost') ? _rawBase : '') : '';
 
+// Cache-bust for collection images so normal/mobile browsers don't keep serving cached 404s from old deploys.
+const IMAGE_VERSION = '2';
+
 // Normalize image URL: paths like "collection/nalain-cap.png" → "/collection/nalain-cap.png".
 // Reject localhost URLs. In browser always return relative path so images load from current origin.
 export function normalizeImageUrl(url) {
@@ -113,7 +116,8 @@ export function normalizeImageUrl(url) {
     if (typeof window !== 'undefined') {
       try {
         const u = new URL(s);
-        return u.pathname || '/';
+        const path = u.pathname || '/';
+        return path.startsWith('/collection') ? `${path}?v=${IMAGE_VERSION}` : path;
       } catch {
         return null;
       }
@@ -121,7 +125,9 @@ export function normalizeImageUrl(url) {
     return s;
   }
   const path = s.startsWith('/') ? s : `/${s}`;
-  if (typeof window !== 'undefined') return path;
+  if (typeof window !== 'undefined') {
+    return path.startsWith('/collection') ? `${path}?v=${IMAGE_VERSION}` : path;
+  }
   if (IMAGE_BASE_URL) return `${IMAGE_BASE_URL}${path}`;
   return path;
 }
