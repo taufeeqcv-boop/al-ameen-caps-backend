@@ -55,13 +55,14 @@ export function AuthProvider({ children }) {
       if (!settled) {
         settled = true;
         clearTimeout(timeout);
+        setUser(null);
         setLoading(false);
       }
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         upsertProfile(session.user).catch((err) => {

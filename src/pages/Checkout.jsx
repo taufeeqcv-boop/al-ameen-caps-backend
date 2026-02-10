@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SuccessModal from '../components/SuccessModal';
@@ -265,12 +264,7 @@ const Checkout = () => {
           <div className="bg-secondary p-6 shadow-premium rounded-lg border border-accent/20">
             {authConfigured && (
               <div className="mb-6 text-center">
-                {authLoading && enableEcommerce && !hasOutOfStockItems ? (
-                  <div className="flex flex-col items-center justify-center gap-3 py-4">
-                    <Loader2 className="w-10 h-10 text-accent animate-spin" aria-hidden />
-                    <p className="font-sans text-sm text-primary/80">Checking sign-in…</p>
-                  </div>
-                ) : user ? (
+                {user ? (
                   <div className="flex items-center justify-center gap-2">
                     {user.user_metadata?.avatar_url && (
                       <img src={user.user_metadata.avatar_url} alt="" className="w-8 h-8 rounded-full" />
