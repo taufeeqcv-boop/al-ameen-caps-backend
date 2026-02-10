@@ -20,7 +20,7 @@ export default function ProductCard({ product, index = 0 }) {
   const handleAddToCart = (e) => {
     e.preventDefault();
     if (!canAdd) return;
-    addToCart({ id, name, price, imageURL, quantity: 1, quantityAvailable });
+    addToCart({ id, name, price, imageURL, quantity: 1, quantityAvailable, product_id: product?.product_id });
   };
 
   return (

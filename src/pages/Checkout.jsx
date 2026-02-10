@@ -133,8 +133,8 @@ const Checkout = () => {
 
       // Add order_items for cart items that have a numeric product id (from products table)
       for (const item of cart) {
-        const productId = typeof item.id === 'number' ? item.id : parseInt(item.id, 10);
-        if (Number.isNaN(productId)) continue;
+        const productId = item.product_id ?? (typeof item.id === 'number' ? item.id : parseInt(String(item.id || '').replace(/^collection-/, ''), 10));
+        if (productId == null || Number.isNaN(productId)) continue;
         const unitPrice = getItemPrice(item);
         await supabase.from('order_items').insert({
           order_id: order.id,

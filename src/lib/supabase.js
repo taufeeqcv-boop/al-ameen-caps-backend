@@ -80,6 +80,15 @@ export function findCollectionMatch(p, collectionProducts) {
   }) || null;
 }
 
+/** Find a Supabase product that matches this collection product (for overlay price/quantity). */
+function findSupabaseMatch(collectionProduct, supabaseList) {
+  if (!Array.isArray(supabaseList) || !collectionProduct) return null;
+  for (const p of supabaseList) {
+    if (findCollectionMatch(p, [collectionProduct])) return p;
+  }
+  return null;
+}
+
 /** Fill image and stock from collection for products that are missing them (e.g. after auth or wrong env). */
 export function mergeProductsWithCollection(list, collectionProducts) {
   if (!Array.isArray(list) || !collectionProducts?.length) return list ?? [];
@@ -132,64 +141,44 @@ export function normalizeImageUrl(url) {
   return path;
 }
 
-// Fetch All Products (Ordered by Price High-to-Low)
+// Fetch All Products — collection-first so images always work on all browsers/auth states.
+// Build list from COLLECTION_PRODUCTS (single source of truth for images), overlay Supabase price/quantity when matched.
 export const getProducts = async () => {
-  if (!supabase) {
-    console.warn("[Supabase getProducts] Not configured: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY missing. Check .env.local or Netlify env.");
-    return [];
-  }
-  try {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('price', { ascending: false });
-    if (error) {
-      const msg = error?.message ?? String(error);
-      console.error("[Supabase getProducts] Connection/query failed – exact error:", msg, error);
-      if (/invalid.*api key|jwt|unauthorized|401|403/i.test(msg)) {
-        console.warn("[Supabase getProducts] If you see Invalid API key on localhost, use the anon key (not service_role) in .env as VITE_SUPABASE_ANON_KEY and restart the dev server. See docs/SUPABASE_AUTH_SETUP.md");
+  const collectionProducts = await import('../data/collection.js').then((m) => m.COLLECTION_PRODUCTS ?? []);
+  if (!collectionProducts.length) return [];
+
+  let supabaseList = [];
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('products').select('*').order('price', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        supabaseList = data;
+        console.log("[Supabase getProducts] OK – rows:", data.length, "(overlay on collection for price/quantity)");
+      } else if (error) {
+        console.warn("[Supabase getProducts] Skipping overlay:", error?.message ?? error);
       }
-      return [];
+    } catch (err) {
+      console.warn("[Supabase getProducts] Skipping overlay:", err?.message ?? err);
     }
-    const list = data ?? [];
-    console.log("[Supabase getProducts] OK – rows:", list.length, "(products table, stock_quantity used for availability)");
-    const collectionProducts = await import('../data/collection.js').then((m) => m.COLLECTION_PRODUCTS ?? []);
-    // When we have a collection match, always use collection image and quantity so images never disappear
-    // (Supabase image_url can 404 or differ by auth; collection is our single source of truth for display.)
-    const out = list.map((p) => {
-      const match = findCollectionMatch(p, collectionProducts);
-      let imageURL;
-      let qty;
-      if (match) {
-        imageURL = normalizeImageUrl(match.imageURL) || undefined;
-        qty = Math.max(0, Number(match.quantityAvailable) || 0);
-      } else {
-        const quantityAvailable = getQuantityAvailable(p, collectionProducts);
-        const rawImage = p.image_url ?? null;
-        imageURL = normalizeImageUrl(rawImage) || undefined;
-        qty = quantityAvailable;
-      }
-      return {
-        ...p,
-        price: Number(p.price) || 0,
-        quantityAvailable: qty,
-        imageURL,
-      };
-    });
-    out.forEach((p) => {
-      if ((p.imageURL == null || p.imageURL === '') || (p.quantityAvailable ?? 0) <= 0) {
-        const m = findCollectionMatch(p, collectionProducts);
-        if (m) {
-          if (p.imageURL == null || p.imageURL === '') p.imageURL = normalizeImageUrl(m.imageURL) || undefined;
-          if ((p.quantityAvailable ?? 0) <= 0) p.quantityAvailable = Math.max(0, Number(m.quantityAvailable) || 0);
-        }
-      }
-    });
-    return out;
-  } catch (err) {
-    console.error("[Supabase getProducts] Unexpected error (e.g. stuck worker / network):", err?.message ?? err, err);
-    return [];
   }
+
+  return collectionProducts.map((c) => {
+    const sb = findSupabaseMatch(c, supabaseList);
+    const imageURL = normalizeImageUrl(c.imageURL) || undefined;
+    const quantityAvailable = sb != null ? Math.max(0, getQuantityAvailable(sb, [c])) : Math.max(0, Number(c.quantityAvailable) || 0);
+    const price = sb != null ? Number(sb.price) || 0 : Number(c.price) || 0;
+    return {
+      id: c.id,
+      name: c.name,
+      description: c.description,
+      sku: sb?.sku ?? c.id,
+      price,
+      quantityAvailable,
+      imageURL,
+      category: c.category,
+      product_id: sb?.id ?? (typeof c.id === 'string' ? parseInt(c.id.replace(/^collection-/, ''), 10) : c.id),
+    };
+  });
 };
 
 // Fetch Single Product (same fallbacks as getProducts for incognito / strict RLS)
