@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import { useCart } from "../context/CartContext";
-import { getProductById } from "../lib/supabase";
+import { getProductById, normalizeImageUrl } from "../lib/supabase";
 import { COLLECTION_PRODUCTS } from "../data/collection";
 import { formatPrice } from "../lib/format";
 import { motion } from "framer-motion";
@@ -39,6 +39,12 @@ export default function ProductDetails() {
   const inCart = cart.filter((item) => item.id === product?.id).reduce((sum, item) => sum + (item.quantity || 1), 0);
   const available = Math.max(0, quantityAvailable - inCart);
   const canAdd = available > 0;
+
+  const collectionFallback = COLLECTION_PRODUCTS.find(
+    (c) => c.id === product?.id || c.id === `collection-${product?.id}` || (product?.sku && c.id === product.sku)
+  );
+  const fallbackImg = collectionFallback?.imageURL ? normalizeImageUrl(collectionFallback.imageURL) : null;
+  const displayImage = product?.imageURL || fallbackImg || defaultProductImg;
 
   const handleAddToCart = () => {
     if (product && canAdd) addToCart({ ...product, quantity: 1 });
@@ -81,7 +87,7 @@ export default function ProductDetails() {
           <div>
             <div className="aspect-square bg-primary/5 rounded-lg overflow-hidden shadow-premium">
               <img
-                src={product.imageURL || defaultProductImg}
+                src={displayImage}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />

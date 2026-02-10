@@ -58,12 +58,30 @@ function findCollectionMatch(p, collectionProducts) {
   if (!collectionProducts?.length) return null;
   const pName = norm(p.name);
   const pSku = String(p.sku ?? '').trim();
-  const pId = p.id != null ? Number(p.id) : NaN;
-  return collectionProducts.find((c) => {
-    if (pSku && pSku === String(c.id ?? '').trim()) return true;
-    if (!Number.isNaN(pId) && String(c.id ?? '').trim() === `collection-${pId}`) return true;
+  const rawId = p.id != null ? p.id : p.product_id;
+  const pId = typeof rawId === 'number' ? rawId : parseInt(String(rawId ?? ''), 10);
+  const idStr = `collection-${pId}`;
+
+  if (!Number.isNaN(pId) && pId >= 1 && pId <= 20) {
+    const byId = collectionProducts.find((c) => String(c.id ?? '').trim() === idStr);
+    if (byId) return byId;
+  }
+  if (pSku) {
+    const bySku = collectionProducts.find((c) => String(c.id ?? '').trim() === pSku);
+    if (bySku) return bySku;
+  }
+  const byName = collectionProducts.find((c) => {
     const cName = norm(c.name);
     return cName && pName && cName === pName;
+  });
+  if (byName) return byName;
+  if (!pName) return null;
+  return collectionProducts.find((c) => {
+    const cName = norm(c.name);
+    if (!cName) return false;
+    const cFirst = (cName.split(/\s+/)[0] || '').slice(0, 15);
+    const pFirst = (pName.split(/\s+/)[0] || '').slice(0, 15);
+    return cFirst && pFirst && (pName.includes(cName) || cName.includes(pName) || cFirst === pFirst);
   }) || null;
 }
 
@@ -74,7 +92,7 @@ const IMAGE_BASE_URL = (import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.V
 // Normalize image URL: ensure paths like "collection/nalain-cap.png" become "/collection/nalain-cap.png"
 // so they resolve to public/collection/ when served by Vite. Reject localhost URLs (broken after deploy).
 // If VITE_IMAGE_BASE_URL (or VITE_SITE_URL) is set, relative paths become absolute so another deploy can load them.
-function normalizeImageUrl(url) {
+export function normalizeImageUrl(url) {
   if (!url || typeof url !== 'string') return null;
   const s = url.trim();
   if (s.startsWith('http://localhost') || s.startsWith('https://localhost')) return null;
@@ -102,25 +120,40 @@ export const getProducts = async () => {
     const list = data ?? [];
     console.log("[Supabase getProducts] OK – rows:", list.length, "(products table, stock_quantity used for availability)");
     const collectionProducts = await import('../data/collection.js').then((m) => m.COLLECTION_PRODUCTS ?? []);
-    return list.map((p) => {
+    const out = list.map((p) => {
       const match = findCollectionMatch(p, collectionProducts);
       const quantityAvailable = getQuantityAvailable(p, collectionProducts);
       const rawImage = p.image_url || (match?.imageURL ?? null);
-      const imageURL = normalizeImageUrl(rawImage) || (match?.imageURL ? normalizeImageUrl(match.imageURL) : null) || undefined;
+      let imageURL = normalizeImageUrl(rawImage) || (match?.imageURL ? normalizeImageUrl(match.imageURL) : null) || undefined;
+      let qty = quantityAvailable;
+      if (match) {
+        if (qty <= 0) qty = Math.max(0, Number(match.quantityAvailable) || 0);
+        if (imageURL == null || imageURL === '') imageURL = normalizeImageUrl(match.imageURL) || undefined;
+      }
       return {
         ...p,
         price: Number(p.price) || 0,
-        quantityAvailable,
+        quantityAvailable: qty,
         imageURL,
       };
     });
+    out.forEach((p) => {
+      if ((p.imageURL == null || p.imageURL === '') || (p.quantityAvailable ?? 0) <= 0) {
+        const m = findCollectionMatch(p, collectionProducts);
+        if (m) {
+          if (p.imageURL == null || p.imageURL === '') p.imageURL = normalizeImageUrl(m.imageURL) || undefined;
+          if ((p.quantityAvailable ?? 0) <= 0) p.quantityAvailable = Math.max(0, Number(m.quantityAvailable) || 0);
+        }
+      }
+    });
+    return out;
   } catch (err) {
     console.error("[Supabase getProducts] Unexpected error (e.g. stuck worker / network):", err?.message ?? err, err);
     return [];
   }
 };
 
-// Fetch Single Product
+// Fetch Single Product (same fallbacks as getProducts for incognito / strict RLS)
 export const getProductById = async (id) => {
   if (!supabase || !id) return null;
   try {
@@ -133,12 +166,17 @@ export const getProductById = async (id) => {
     if (!data) return null;
     const collectionProducts = await import('../data/collection.js').then((m) => m.COLLECTION_PRODUCTS ?? []);
     const match = findCollectionMatch(data, collectionProducts);
-    const rawImage = data.image_url || (match?.imageURL ?? null);
-    const imageURL = normalizeImageUrl(rawImage) || (match?.imageURL ? normalizeImageUrl(match.imageURL) : null) || undefined;
+    let quantityAvailable = getQuantityAvailable(data, collectionProducts);
+    let rawImage = data.image_url || (match?.imageURL ?? null);
+    let imageURL = normalizeImageUrl(rawImage) || (match?.imageURL ? normalizeImageUrl(match.imageURL) : null) || undefined;
+    if (match) {
+      if (quantityAvailable <= 0) quantityAvailable = Math.max(0, Number(match.quantityAvailable) || 0);
+      if (imageURL == null || imageURL === '') imageURL = normalizeImageUrl(match.imageURL) || undefined;
+    }
     return {
       ...data,
       price: Number(data.price) || 0,
-      quantityAvailable: getQuantityAvailable(data, collectionProducts),
+      quantityAvailable,
       imageURL,
     };
   } catch (err) {

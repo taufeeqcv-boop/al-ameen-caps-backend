@@ -13,6 +13,29 @@ import { supabase } from '../lib/supabase';
 const DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 const enableEcommerce = import.meta.env.VITE_ENABLE_ECOMMERCE === 'true';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_MIN_DIGITS = 9;
+
+function validateCheckoutForm(formData, requireAddress = true) {
+  const first = (formData.name_first ?? '').trim();
+  const last = (formData.name_last ?? '').trim();
+  const email = (formData.email_address ?? '').trim();
+  const phone = (formData.cell_number ?? '').trim();
+  if (!first) return { valid: false, message: 'Please enter your first name.' };
+  if (!last) return { valid: false, message: 'Please enter your last name.' };
+  if (!email) return { valid: false, message: 'Please enter your email address.' };
+  if (!EMAIL_REGEX.test(email)) return { valid: false, message: 'Please enter a valid email address.' };
+  if (!phone) return { valid: false, message: 'Please enter your phone number.' };
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < PHONE_MIN_DIGITS) return { valid: false, message: 'Please enter a valid phone number (at least 9 digits).' };
+  if (requireAddress) {
+    if (!(formData.address_line_1 ?? '').trim()) return { valid: false, message: 'Please enter your address.' };
+    if (!(formData.city ?? '').trim()) return { valid: false, message: 'Please enter your city.' };
+    if (!(formData.postal_code ?? '').trim()) return { valid: false, message: 'Please enter your postal code.' };
+  }
+  return { valid: true, message: '' };
+}
+
 const Checkout = () => {
   const { cart, cartTotal, clearCart, getItemPrice } = useCart();
   const { user, loading: authLoading, signInWithGoogle, signOut, isConfigured: authConfigured } = useAuth();
@@ -61,12 +84,11 @@ const Checkout = () => {
   const handlePayment = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (!formData.name_first?.trim() || !formData.name_last?.trim() || !formData.email_address?.trim()) {
-      setError('Please enter your first name, last name, and email before paying.');
+    const validation = validateCheckoutForm(formData, true);
+    if (!validation.valid) {
+      setError(validation.message);
       return;
     }
-
     if (!user?.id) {
       setError('Please sign in to pay with PayFast. You can use Pre-Order Now without signing in.');
       return;
@@ -165,6 +187,11 @@ const Checkout = () => {
   const handlePreOrder = async (e) => {
     e.preventDefault();
     setError('');
+    const validation = validateCheckoutForm(formData, true);
+    if (!validation.valid) {
+      setError(validation.message);
+      return;
+    }
     setLoading(true);
 
     try {
@@ -230,10 +257,10 @@ const Checkout = () => {
           <div className="bg-secondary p-6 shadow-premium rounded-lg border border-accent/20">
             {authConfigured && (
               <div className="mb-6 text-center">
-                {authLoading ? (
+                {authLoading && enableEcommerce && !hasOutOfStockItems ? (
                   <div className="flex flex-col items-center justify-center gap-3 py-4">
                     <Loader2 className="w-10 h-10 text-accent animate-spin" aria-hidden />
-                    <p className="font-sans text-sm text-primary/80">Signing you in…</p>
+                    <p className="font-sans text-sm text-primary/80">Checking sign-in…</p>
                   </div>
                 ) : user ? (
                   <div className="flex items-center justify-center gap-2">

@@ -12,13 +12,30 @@ export function AuthProvider({ children }) {
       setLoading(false);
       return;
     }
+    let settled = false;
+    const timeout = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        setLoading(false);
+      }
+    }, 2500);
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
+      if (!settled) {
+        settled = true;
+        clearTimeout(timeout);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
     }).catch((err) => {
       if (err?.name !== "AbortError") console.error("getSession:", err);
-      setLoading(false); // always stop loading so app doesn't hang
+      if (!settled) {
+        settled = true;
+        clearTimeout(timeout);
+        setLoading(false);
+      }
     });
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -29,7 +46,10 @@ export function AuthProvider({ children }) {
         });
       }
     });
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = async () => {
