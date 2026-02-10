@@ -20,15 +20,15 @@ export const COLLECTION_IMAGE_FILENAMES = {
 
 const IMG_V = "5";
 
-/** Returns absolute URL for collection image. Uses VITE_IMAGE_BASE_URL (backend) when set so images load even if this deploy has no /collection/. */
+const IMAGE_BACKEND_BASE = "https://al-ameen-caps-backend.netlify.app";
+
+/** Returns absolute URL for collection image. Hardcoded backend (no env/hydration). */
 export function getCollectionImageUrl(product) {
-  if (typeof window === "undefined") return null;
-  const id = product?.id != null ? String(product.id) : product?.sku != null ? String(product.sku) : "";
+  if (!product) return null;
+  const id = product.id != null ? String(product.id) : product.sku != null ? String(product.sku) : "";
   const filename = COLLECTION_IMAGE_FILENAMES[id] || (id.startsWith("collection-") ? null : null);
   if (!filename) return null;
-  const envBase = (import.meta.env.VITE_IMAGE_BASE_URL || "").replace(/\/$/, "");
-  const base = envBase && !envBase.includes("localhost") ? envBase : window.location.origin.replace(/\/$/, "");
-  return `${base}/collection/${filename}?v=${IMG_V}`;
+  return `${IMAGE_BACKEND_BASE}/collection/${filename}?v=${IMG_V}`;
 }
 
 export const COLLECTION_PRODUCTS = [

@@ -1,6 +1,5 @@
 // ProductCard – white card, image, exact name, quantity available, Add to Cart
 
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
@@ -12,14 +11,11 @@ import defaultProductImg from "../assets/caps-collection.png";
 export default function ProductCard({ product, index = 0 }) {
   const { id, name, price, imageURL, quantityAvailable = 0 } = product || {};
   const { addToCart, cart } = useCart();
-  const [imgError, setImgError] = useState(false);
   const inCart = cart.filter((item) => item.id === id).reduce((sum, item) => sum + (item.quantity || 1), 0);
   const available = Math.max(0, (quantityAvailable ?? 0) - inCart);
   const canAdd = available > 0;
 
-  const hardwiredSrc = getCollectionImageUrl(product);
-  const fallbackSrc = imageURL && !imgError ? sameOriginImageSrc(imageURL) : null;
-  const displaySrc = (imgError ? null : (hardwiredSrc || fallbackSrc)) || defaultProductImg;
+  const displaySrc = getCollectionImageUrl(product) || sameOriginImageSrc(imageURL) || defaultProductImg;
 
   const handleAddToCart = (e) => {
     e.preventDefault();
@@ -37,12 +33,7 @@ export default function ProductCard({ product, index = 0 }) {
     >
       <Link to={`/product/${id}`} className="block">
         <div className="aspect-square bg-primary/5 relative">
-          <img
-            src={displaySrc}
-            alt={name}
-            className="w-full h-full object-cover"
-            onError={() => setImgError(true)}
-          />
+          <img src={displaySrc} alt={name} className="w-full h-full object-cover" />
           {available <= 0 && (
             <span className="absolute top-2 right-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">
               Out of stock

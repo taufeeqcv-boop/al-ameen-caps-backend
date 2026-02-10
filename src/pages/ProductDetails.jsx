@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import { useCart } from "../context/CartContext";
-import { getProductById, normalizeImageUrl, sameOriginImageSrc } from "../lib/supabase";
+import { getProductById, sameOriginImageSrc } from "../lib/supabase";
 import { COLLECTION_PRODUCTS, getCollectionImageUrl } from "../data/collection";
 import { formatPrice } from "../lib/format";
 import { motion } from "framer-motion";
@@ -15,12 +15,10 @@ export default function ProductDetails() {
   const { addToCart, cart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    setImgError(false);
     const fromCollection = COLLECTION_PRODUCTS.find((p) => p.id === id);
     if (fromCollection) {
       // Normalize image URL so it works in all contexts (incognito, different deploy)
@@ -47,10 +45,10 @@ export default function ProductDetails() {
   const available = Math.max(0, quantityAvailable - inCart);
   const canAdd = available > 0;
 
-  const hardwiredImg = getCollectionImageUrl(product);
-  const fallbackImg = collectionFallback?.imageURL ? normalizeImageUrl(collectionFallback.imageURL) : null;
-  const rawDisplayImage = product?.imageURL ? normalizeImageUrl(product.imageURL) : null;
-  const displayImage = imgError ? defaultProductImg : (hardwiredImg || sameOriginImageSrc(rawDisplayImage || fallbackImg) || defaultProductImg);
+  const displayImage =
+    getCollectionImageUrl(product) ||
+    sameOriginImageSrc(product?.imageURL || collectionFallback?.imageURL) ||
+    defaultProductImg;
 
   const handleAddToCart = () => {
     if (product && canAdd) addToCart({ ...product, quantity: 1 });
@@ -92,12 +90,7 @@ export default function ProductDetails() {
         >
           <div>
             <div className="aspect-square bg-primary/5 rounded-lg overflow-hidden shadow-premium">
-              <img
-                src={displayImage}
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={() => setImgError(true)}
-              />
+              <img src={displayImage} alt={product.name} className="w-full h-full object-cover" />
             </div>
             <button
               type="button"
