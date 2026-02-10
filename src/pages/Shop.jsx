@@ -22,10 +22,10 @@ export default function Shop() {
           setProducts(COLLECTION_PRODUCTS);
           return;
         }
-        const allBroken = list.every(
-          (p) => (p.quantityAvailable ?? 0) <= 0 && (p.imageURL == null || p.imageURL === '')
+        const anyBroken = list.some(
+          (p) => (p.quantityAvailable ?? 0) <= 0 || (p.imageURL == null || p.imageURL === '')
         );
-        if (allBroken) {
+        if (anyBroken) {
           setProducts(COLLECTION_PRODUCTS);
           return;
         }
