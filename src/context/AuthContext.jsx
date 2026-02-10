@@ -68,12 +68,11 @@ export function AuthProvider({ children }) {
 
   const signOut = async () => {
     if (!supabase) return;
+    setUser(null);
     try {
-      await supabase.auth.signOut({ scope: "local" });
-      setUser(null);
+      await supabase.auth.signOut();
     } catch (err) {
       console.error("Sign out error:", err);
-      setUser(null);
     }
   };
 

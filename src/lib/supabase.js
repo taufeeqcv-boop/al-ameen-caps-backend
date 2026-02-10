@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { COLLECTION_PRODUCTS as STATIC_COLLECTION } from '../data/collection.js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -141,44 +142,59 @@ export function normalizeImageUrl(url) {
   return path;
 }
 
-// Fetch All Products — collection-first so images always work on all browsers/auth states.
-// Build list from COLLECTION_PRODUCTS (single source of truth for images), overlay Supabase price/quantity when matched.
+// Fetch All Products — collection-first so images always work with or without login.
+// Uses static collection (no dynamic import) so list and images never depend on auth or chunk loading.
 export const getProducts = async () => {
-  const collectionProducts = await import('../data/collection.js').then((m) => m.COLLECTION_PRODUCTS ?? []);
+  const collectionProducts = STATIC_COLLECTION ?? [];
   if (!collectionProducts.length) return [];
 
-  let supabaseList = [];
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.from('products').select('*').order('price', { ascending: false });
-      if (!error && Array.isArray(data)) {
-        supabaseList = data;
-        console.log("[Supabase getProducts] OK – rows:", data.length, "(overlay on collection for price/quantity)");
-      } else if (error) {
-        console.warn("[Supabase getProducts] Skipping overlay:", error?.message ?? error);
+  try {
+    let supabaseList = [];
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('products').select('*').order('price', { ascending: false });
+        if (!error && Array.isArray(data)) {
+          supabaseList = data;
+          console.log("[Supabase getProducts] OK – rows:", data.length, "(overlay on collection for price/quantity)");
+        } else if (error) {
+          console.warn("[Supabase getProducts] Skipping overlay:", error?.message ?? error);
+        }
+      } catch (err) {
+        console.warn("[Supabase getProducts] Skipping overlay:", err?.message ?? err);
       }
-    } catch (err) {
-      console.warn("[Supabase getProducts] Skipping overlay:", err?.message ?? err);
     }
-  }
 
-  return collectionProducts.map((c) => {
-    const sb = findSupabaseMatch(c, supabaseList);
-    const imageURL = normalizeImageUrl(c.imageURL) || undefined;
-    const quantityAvailable = sb != null ? Math.max(0, getQuantityAvailable(sb, [c])) : Math.max(0, Number(c.quantityAvailable) || 0);
-    const price = sb != null ? Number(sb.price) || 0 : Number(c.price) || 0;
-    return {
+    return collectionProducts.map((c) => {
+      const sb = findSupabaseMatch(c, supabaseList);
+      const imageURL = normalizeImageUrl(c.imageURL) || (c.imageURL ? (c.imageURL.startsWith('/') ? c.imageURL : `/${c.imageURL}`) : undefined) || undefined;
+      const quantityAvailable = sb != null ? Math.max(0, getQuantityAvailable(sb, [c])) : Math.max(0, Number(c.quantityAvailable) || 0);
+      const price = sb != null ? Number(sb.price) || 0 : Number(c.price) || 0;
+      return {
+        id: c.id,
+        name: c.name,
+        description: c.description,
+        sku: sb?.sku ?? c.id,
+        price,
+        quantityAvailable,
+        imageURL,
+        category: c.category,
+        product_id: sb?.id ?? (typeof c.id === 'string' ? parseInt(c.id.replace(/^collection-/, ''), 10) : c.id),
+      };
+    });
+  } catch (err) {
+    console.warn("[Supabase getProducts] Using static collection after error:", err?.message ?? err);
+    return collectionProducts.map((c) => ({
       id: c.id,
       name: c.name,
       description: c.description,
-      sku: sb?.sku ?? c.id,
-      price,
-      quantityAvailable,
-      imageURL,
+      sku: c.id,
+      price: Number(c.price) || 0,
+      quantityAvailable: Math.max(0, Number(c.quantityAvailable) || 0),
+      imageURL: normalizeImageUrl(c.imageURL) || (c.imageURL ? (c.imageURL.startsWith('/') ? c.imageURL : `/${c.imageURL}`) : undefined) || undefined,
       category: c.category,
-      product_id: sb?.id ?? (typeof c.id === 'string' ? parseInt(c.id.replace(/^collection-/, ''), 10) : c.id),
-    };
-  });
+      product_id: typeof c.id === 'string' ? parseInt(c.id.replace(/^collection-/, ''), 10) : c.id,
+    }));
+  }
 };
 
 // Fetch Single Product (same fallbacks as getProducts for incognito / strict RLS)
