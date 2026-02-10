@@ -22,17 +22,33 @@ In **Supabase Dashboard → Authentication → URL Configuration**:
    `https://al-ameen-caps.netlify.app`
 
 2. **Redirect URLs** (allowed OAuth redirect targets):  
-   Add:
+   Add **all** environments where users sign in, or Google will redirect to Site URL (production) instead of localhost:
    - `https://al-ameen-caps.netlify.app/**`
-   - `http://localhost:5173/**` (for local dev)
+   - `http://localhost:8888/**` (for **netlify dev**)
+   - `http://localhost:5173/**` (for **npm run dev** / Vite only)
 
-   Use `al-ameen-caps.netlify.app` (without `-app` in the name).
+   If localhost is missing, signing in with Google will send users to the production URL after login.
 
 ## Google Provider
 
 1. In **Authentication → Providers**, enable Google.
 2. Add your Google OAuth Client ID and Secret (from [Google Cloud Console](https://console.cloud.google.com/) credentials).
 3. In Google Cloud Console, add `https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback` to **Authorized redirect URIs**.
+
+## “Invalid API key” on localhost:8888 (or after Google login)
+
+- **Frontend (shop / login):** Use the **anon** key in `.env` as `VITE_SUPABASE_ANON_KEY` (from Supabase → Project Settings → API → anon public). Do **not** use the service_role key here. Remove any extra spaces or quotes around the key. Restart the dev server (`npm run dev` or `netlify dev`) after changing `.env`.
+- **Reservation / serverless function:** The reservation function needs `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env` (service_role key, not anon). Restart `netlify dev` after changing `.env`.
+
+## “Invalid API key” when placing a reservation (localhost or Netlify)
+
+- **Local (netlify dev):** The reservation function needs `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in your project `.env`. Get the **service_role** key from Supabase Dashboard → Project Settings → API → Project API keys (not the anon key). Restart `netlify dev` after changing `.env`.
+- **Production (Netlify):** In Netlify → Site configuration → Environment variables, add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` (same values as your Supabase project), then trigger a new deploy.
+
+## Shop shows “Out of stock” or no images after sign-in or on production
+
+- **Redirecting to production after Google sign-in:** Add `http://localhost:8888/**` and `http://localhost:5173/**` to Supabase Redirect URLs (see above). Otherwise Supabase sends users to the Site URL (production) after OAuth.
+- **Production: no images / out of stock:** Ensure Netlify has **VITE_SUPABASE_URL** and **VITE_SUPABASE_ANON_KEY** set (same Supabase project as `SUPABASE_URL`), then **redeploy**. The build bakes these into the frontend; without them the shop can’t load products and images.
 
 ## DNS_PROBE_FINISHED_NXDOMAIN
 

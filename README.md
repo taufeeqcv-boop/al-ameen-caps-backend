@@ -32,6 +32,7 @@ npm install
 cp .env.example .env
 # Edit .env with your Supabase and PayFast keys (when ready)
 npm run dev
+# Pre-order/reservation: works with `npm run dev` (Vite + @netlify/vite-plugin serves functions). Alternatively: npm run dev:netlify
 ```
 
 Build for production (e.g. Netlify):

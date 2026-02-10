@@ -132,10 +132,12 @@ exports.handler = async (event) => {
 
   // 1. Persist to database (required — otherwise reservation never shows in admin)
   if (!supabase) {
-    console.error("Reservation: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set in Netlify");
+    console.error("Reservation: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set");
     return {
       statusCode: 503,
-      body: JSON.stringify({ error: "Reservation service not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Netlify." }),
+      body: JSON.stringify({
+        error: "Reservation service not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Netlify (Site settings → Environment variables), or in .env when using netlify dev.",
+      }),
     };
   }
 

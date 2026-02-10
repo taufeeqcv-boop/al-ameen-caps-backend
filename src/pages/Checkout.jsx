@@ -12,6 +12,9 @@ import { supabase } from '../lib/supabase';
 
 const DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 const enableEcommerce = import.meta.env.VITE_ENABLE_ECOMMERCE === 'true';
+// Base URL for Netlify functions. If VITE_SITE_URL is localhost, use relative so the request goes to current origin (avoids ERR_CONNECTION_REFUSED to wrong port).
+const rawBase = (import.meta.env.VITE_SITE_URL || '').replace(/\/$/, '');
+const functionsBase = /localhost/i.test(rawBase) ? '' : rawBase;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_MIN_DIGITS = 9;
@@ -195,7 +198,7 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('/.netlify/functions/reservation', {
+      const res = await fetch(`${functionsBase}/.netlify/functions/reservation`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

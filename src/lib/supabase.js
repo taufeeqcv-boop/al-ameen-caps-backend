@@ -11,24 +11,19 @@ if (supabaseUrl && supabaseKey) {
 
 export { supabase };
 
-/** Upsert user profile (Name, Email, Avatar) and mark marketing_opt_in. Call after sign-in. */
+/** Upsert user profile. Uses only columns present in base schema (id, first_name, last_name) so it works before/after 20250209_profiles_columns migration. */
 export async function upsertProfile(user) {
   if (!supabase || !user?.id) return;
   const fullName = user.user_metadata?.full_name || user.email?.split("@")[0] || "";
   const parts = fullName.trim().split(/\s+/);
-  const nameFirst = parts[0] || "";
-  const nameLast = parts.slice(1).join(" ") || "";
+  const first = parts[0] || "";
+  const last = parts.slice(1).join(" ") || "";
   try {
     await supabase.from("profiles").upsert(
       {
         id: user.id,
-        email: user.email || "",
-        full_name: fullName,
-        name_first: nameFirst,
-        name_last: nameLast,
-        avatar_url: user.user_metadata?.avatar_url || null,
-        marketing_opt_in: true,
-        updated_at: new Date().toISOString(),
+        first_name: first,
+        last_name: last,
       },
       { onConflict: "id" }
     );
@@ -54,7 +49,7 @@ function getQuantityAvailable(p, collectionProducts) {
   return fromCollection;
 }
 
-function findCollectionMatch(p, collectionProducts) {
+export function findCollectionMatch(p, collectionProducts) {
   if (!collectionProducts?.length) return null;
   const pName = norm(p.name);
   const pSku = String(p.sku ?? '').trim();
@@ -85,9 +80,28 @@ function findCollectionMatch(p, collectionProducts) {
   }) || null;
 }
 
+/** Fill image and stock from collection for products that are missing them (e.g. after auth or wrong env). */
+export function mergeProductsWithCollection(list, collectionProducts) {
+  if (!Array.isArray(list) || !collectionProducts?.length) return list ?? [];
+  return list.map((p) => {
+    const needsImage = (p.imageURL == null || p.imageURL === '');
+    const needsStock = (p.quantityAvailable ?? 0) <= 0;
+    if (!needsImage && !needsStock) return p;
+    const match = findCollectionMatch(p, collectionProducts);
+    if (!match) return p;
+    return {
+      ...p,
+      imageURL: needsImage ? (normalizeImageUrl(match.imageURL) || p.imageURL) : p.imageURL,
+      quantityAvailable: needsStock ? Math.max(0, Number(match.quantityAvailable) || 0) : (p.quantityAvailable ?? 0),
+    };
+  });
+}
+
 // Optional: when frontend is a different deploy that doesn't serve /collection/, set this to the
 // URL of the site that does (e.g. backend). Relative paths will become absolute so images load.
-const IMAGE_BASE_URL = (import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_SITE_URL || '').replace(/\/$/, '');
+// Never use localhost as base so deployed/incognito don't request localhost (ERR_CONNECTION_REFUSED).
+const _rawBase = (import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_SITE_URL || '').replace(/\/$/, '');
+const IMAGE_BASE_URL = _rawBase && !_rawBase.toLowerCase().includes('localhost') ? _rawBase : '';
 
 // Normalize image URL: ensure paths like "collection/nalain-cap.png" become "/collection/nalain-cap.png"
 // so they resolve to public/collection/ when served by Vite. Reject localhost URLs (broken after deploy).
@@ -114,7 +128,11 @@ export const getProducts = async () => {
       .select('*')
       .order('price', { ascending: false });
     if (error) {
-      console.error("[Supabase getProducts] Connection/query failed – exact error:", error?.message ?? error, error);
+      const msg = error?.message ?? String(error);
+      console.error("[Supabase getProducts] Connection/query failed – exact error:", msg, error);
+      if (/invalid.*api key|jwt|unauthorized|401|403/i.test(msg)) {
+        console.warn("[Supabase getProducts] If you see Invalid API key on localhost, use the anon key (not service_role) in .env as VITE_SUPABASE_ANON_KEY and restart the dev server. See docs/SUPABASE_AUTH_SETUP.md");
+      }
       return [];
     }
     const list = data ?? [];

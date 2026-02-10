@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import ProductCard from "../components/ProductCard";
-import { getProducts } from "../lib/supabase";
+import { getProducts, mergeProductsWithCollection } from "../lib/supabase";
 import { COLLECTION_PRODUCTS } from "../data/collection";
 
 export default function Shop() {
@@ -14,7 +14,6 @@ export default function Shop() {
   useEffect(() => {
     const thisFetch = ++fetchIdRef.current;
     let cancelled = false;
-
     getProducts()
       .then((list) => {
         if (cancelled || thisFetch !== fetchIdRef.current) return;
@@ -25,11 +24,12 @@ export default function Shop() {
         const anyBroken = list.some(
           (p) => (p.quantityAvailable ?? 0) <= 0 || (p.imageURL == null || p.imageURL === '')
         );
-        if (anyBroken) {
-          setProducts(COLLECTION_PRODUCTS);
-          return;
-        }
-        setProducts(list);
+        const merged = anyBroken ? mergeProductsWithCollection(list, COLLECTION_PRODUCTS) : list;
+        // After merge, if any product still has no image or zero stock (e.g. after login on localhost, bad env), use collection so UI never breaks
+        const stillBroken = merged.some(
+          (p) => (p.quantityAvailable ?? 0) <= 0 || (p.imageURL == null || p.imageURL === '')
+        );
+        setProducts(stillBroken ? COLLECTION_PRODUCTS : merged);
       })
       .catch(() => {
         if (!cancelled && thisFetch === fetchIdRef.current) setProducts(COLLECTION_PRODUCTS);
