@@ -3,9 +3,32 @@ import { supabase, upsertProfile } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
+function getRedirectAuthError() {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  const hash = window.location.hash ? new URLSearchParams(window.location.hash.replace(/^#/, "")) : null;
+  const error = params.get("error") || hash?.get("error");
+  const code = params.get("error_code") || hash?.get("error_code");
+  const desc = params.get("error_description") || hash?.get("error_description");
+  if (error === "access_denied" && (code === "signup_disabled" || /signup.*disabled/i.test(desc || ""))) {
+    return "Sign-ups are disabled for this site. If you already have an account, try signing in. Otherwise contact the site owner.";
+  }
+  if (error) return desc || code || "Sign-in was not completed.";
+  return null;
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState(null);
+
+  useEffect(() => {
+    const msg = getRedirectAuthError();
+    if (msg) {
+      setAuthError(msg);
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     if (!supabase) {
@@ -76,8 +99,10 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const clearAuthError = () => setAuthError(null);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut, isConfigured: !!supabase }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut, isConfigured: !!supabase, authError, clearAuthError }}>
       {children}
     </AuthContext.Provider>
   );

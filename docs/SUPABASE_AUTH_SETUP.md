@@ -36,6 +36,14 @@ In **Supabase Dashboard → Authentication → URL Configuration**:
 2. Add your Google OAuth Client ID and Secret (from [Google Cloud Console](https://console.cloud.google.com/) credentials).
 3. In Google Cloud Console, add `https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback` to **Authorized redirect URIs**.
 
+## “Signups not allowed” / access_denied (signup_disabled)
+
+If users are redirected to your site with `?error=access_denied&error_code=signup_disabled` (or similar in the hash), **sign-ups are disabled** in Supabase for that provider.
+
+**Fix:** In **Supabase Dashboard → Authentication → Providers → Google** (or the provider you use), ensure **“Enable Sign ups”** is turned **on** so new users can register. If you want only existing users to sign in, leave it off and add users manually in **Authentication → Users** (e.g. by email invite).
+
+The app will show a short message when this error is present and clean the URL after redirect.
+
 ## “Invalid API key” on localhost:8888 (or after Google login)
 
 - **Frontend (shop / login):** Use the **anon** key in `.env` as `VITE_SUPABASE_ANON_KEY` (from Supabase → Project Settings → API → anon public). Do **not** use the service_role key here. Remove any extra spaces or quotes around the key. Restart the dev server (`npm run dev` or `netlify dev`) after changing `.env`.
