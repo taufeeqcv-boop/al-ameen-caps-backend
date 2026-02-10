@@ -154,15 +154,20 @@ export const getProducts = async () => {
     const list = data ?? [];
     console.log("[Supabase getProducts] OK – rows:", list.length, "(products table, stock_quantity used for availability)");
     const collectionProducts = await import('../data/collection.js').then((m) => m.COLLECTION_PRODUCTS ?? []);
+    // When we have a collection match, always use collection image and quantity so images never disappear
+    // (Supabase image_url can 404 or differ by auth; collection is our single source of truth for display.)
     const out = list.map((p) => {
       const match = findCollectionMatch(p, collectionProducts);
-      const quantityAvailable = getQuantityAvailable(p, collectionProducts);
-      const rawImage = p.image_url || (match?.imageURL ?? null);
-      let imageURL = normalizeImageUrl(rawImage) || (match?.imageURL ? normalizeImageUrl(match.imageURL) : null) || undefined;
-      let qty = quantityAvailable;
+      let imageURL;
+      let qty;
       if (match) {
-        if (qty <= 0) qty = Math.max(0, Number(match.quantityAvailable) || 0);
-        if (imageURL == null || imageURL === '') imageURL = normalizeImageUrl(match.imageURL) || undefined;
+        imageURL = normalizeImageUrl(match.imageURL) || undefined;
+        qty = Math.max(0, Number(match.quantityAvailable) || 0);
+      } else {
+        const quantityAvailable = getQuantityAvailable(p, collectionProducts);
+        const rawImage = p.image_url ?? null;
+        imageURL = normalizeImageUrl(rawImage) || undefined;
+        qty = quantityAvailable;
       }
       return {
         ...p,
