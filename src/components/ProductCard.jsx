@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/format";
+import { sameOriginImageSrc } from "../lib/supabase";
 import defaultProductImg from "../assets/caps-collection.png";
 
 export default function ProductCard({ product, index = 0 }) {
@@ -15,7 +16,7 @@ export default function ProductCard({ product, index = 0 }) {
   const available = Math.max(0, (quantityAvailable ?? 0) - inCart);
   const canAdd = available > 0;
 
-  const displaySrc = imageURL && !imgError ? imageURL : defaultProductImg;
+  const displaySrc = imageURL && !imgError ? sameOriginImageSrc(imageURL) : defaultProductImg;
 
   const handleAddToCart = (e) => {
     e.preventDefault();

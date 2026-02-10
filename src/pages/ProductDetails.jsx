@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import { useCart } from "../context/CartContext";
-import { getProductById, normalizeImageUrl } from "../lib/supabase";
+import { getProductById, normalizeImageUrl, sameOriginImageSrc } from "../lib/supabase";
 import { COLLECTION_PRODUCTS } from "../data/collection";
 import { formatPrice } from "../lib/format";
 import { motion } from "framer-motion";
@@ -49,7 +49,7 @@ export default function ProductDetails() {
 
   const fallbackImg = collectionFallback?.imageURL ? normalizeImageUrl(collectionFallback.imageURL) : null;
   const rawDisplayImage = product?.imageURL ? normalizeImageUrl(product.imageURL) : null;
-  const displayImage = imgError ? defaultProductImg : (rawDisplayImage || fallbackImg || defaultProductImg);
+  const displayImage = imgError ? defaultProductImg : (sameOriginImageSrc(rawDisplayImage || fallbackImg) || defaultProductImg);
 
   const handleAddToCart = () => {
     if (product && canAdd) addToCart({ ...product, quantity: 1 });

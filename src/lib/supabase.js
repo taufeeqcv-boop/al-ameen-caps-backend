@@ -113,7 +113,7 @@ const _rawBase = (import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_SI
 const IMAGE_BASE_URL = typeof window === 'undefined' ? (_rawBase && !_rawBase.toLowerCase().includes('localhost') ? _rawBase : '') : '';
 
 // Cache-bust for collection images so normal/mobile browsers don't keep serving cached 404s from old deploys.
-const IMAGE_VERSION = '2';
+const IMAGE_VERSION = '3';
 
 // Normalize image URL: paths like "collection/nalain-cap.png" → "/collection/nalain-cap.png".
 // Reject localhost URLs. In browser always return relative path so images load from current origin.
@@ -140,6 +140,22 @@ export function normalizeImageUrl(url) {
   }
   if (IMAGE_BASE_URL) return `${IMAGE_BASE_URL}${path}`;
   return path;
+}
+
+/** Force collection images to same-origin path so they always load from current deploy (no CORS). */
+export function sameOriginImageSrc(url) {
+  if (!url || typeof url !== 'string') return url;
+  const s = url.trim();
+  if (s.startsWith('http://') || s.startsWith('https://')) {
+    try {
+      const path = new URL(s).pathname;
+      if (path.startsWith('/collection')) return `${path}?v=${IMAGE_VERSION}`;
+    } catch {
+      return url;
+    }
+  }
+  if (s.startsWith('/collection')) return s.includes('?') ? s : `${s}?v=${IMAGE_VERSION}`;
+  return url;
 }
 
 // Fetch All Products — collection-first so images always work with or without login.
