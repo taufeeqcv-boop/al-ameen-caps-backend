@@ -97,21 +97,31 @@ export function mergeProductsWithCollection(list, collectionProducts) {
   });
 }
 
-// Optional: when frontend is a different deploy that doesn't serve /collection/, set this to the
-// URL of the site that does (e.g. backend). Relative paths will become absolute so images load.
-// Never use localhost as base so deployed/incognito don't request localhost (ERR_CONNECTION_REFUSED).
+// In the browser we always use relative image URLs so each deploy (frontend vs backend) loads
+// images from its own origin. Avoids images disappearing when frontend and backend are different Netlify URLs.
 const _rawBase = (import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_SITE_URL || '').replace(/\/$/, '');
-const IMAGE_BASE_URL = _rawBase && !_rawBase.toLowerCase().includes('localhost') ? _rawBase : '';
+const IMAGE_BASE_URL = typeof window === 'undefined' ? (_rawBase && !_rawBase.toLowerCase().includes('localhost') ? _rawBase : '') : '';
 
-// Normalize image URL: ensure paths like "collection/nalain-cap.png" become "/collection/nalain-cap.png"
-// so they resolve to public/collection/ when served by Vite. Reject localhost URLs (broken after deploy).
-// If VITE_IMAGE_BASE_URL (or VITE_SITE_URL) is set, relative paths become absolute so another deploy can load them.
+// Normalize image URL: paths like "collection/nalain-cap.png" → "/collection/nalain-cap.png".
+// Reject localhost URLs. In browser always return relative path so images load from current origin.
 export function normalizeImageUrl(url) {
   if (!url || typeof url !== 'string') return null;
   const s = url.trim();
   if (s.startsWith('http://localhost') || s.startsWith('https://localhost')) return null;
-  if (s.startsWith('http://') || s.startsWith('https://')) return s;
+  if (s.startsWith('http://') || s.startsWith('https://')) {
+    // Strip to path when in browser so images load from current site (fixes frontend vs backend deploy)
+    if (typeof window !== 'undefined') {
+      try {
+        const u = new URL(s);
+        return u.pathname || '/';
+      } catch {
+        return null;
+      }
+    }
+    return s;
+  }
   const path = s.startsWith('/') ? s : `/${s}`;
+  if (typeof window !== 'undefined') return path;
   if (IMAGE_BASE_URL) return `${IMAGE_BASE_URL}${path}`;
   return path;
 }

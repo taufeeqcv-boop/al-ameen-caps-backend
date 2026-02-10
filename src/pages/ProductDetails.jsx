@@ -15,13 +15,17 @@ export default function ProductDetails() {
   const { addToCart, cart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setImgError(false);
     const fromCollection = COLLECTION_PRODUCTS.find((p) => p.id === id);
     if (fromCollection) {
-      setProduct(fromCollection);
+      // Normalize image URL so it works in all contexts (incognito, different deploy)
+      const imageURL = normalizeImageUrl(fromCollection.imageURL) || fromCollection.imageURL;
+      setProduct({ ...fromCollection, imageURL });
       setLoading(false);
       return;
     }
@@ -35,16 +39,17 @@ export default function ProductDetails() {
     return () => { cancelled = true; };
   }, [id]);
 
-  const quantityAvailable = product?.quantityAvailable ?? 0;
+  const collectionFallback = COLLECTION_PRODUCTS.find(
+    (c) => c.id === product?.id || c.id === `collection-${product?.id}` || (product?.sku && c.id === product.sku)
+  );
+  const quantityAvailable = product?.quantityAvailable ?? collectionFallback?.quantityAvailable ?? 0;
   const inCart = cart.filter((item) => item.id === product?.id).reduce((sum, item) => sum + (item.quantity || 1), 0);
   const available = Math.max(0, quantityAvailable - inCart);
   const canAdd = available > 0;
 
-  const collectionFallback = COLLECTION_PRODUCTS.find(
-    (c) => c.id === product?.id || c.id === `collection-${product?.id}` || (product?.sku && c.id === product.sku)
-  );
   const fallbackImg = collectionFallback?.imageURL ? normalizeImageUrl(collectionFallback.imageURL) : null;
-  const displayImage = product?.imageURL || fallbackImg || defaultProductImg;
+  const rawDisplayImage = product?.imageURL ? normalizeImageUrl(product.imageURL) : null;
+  const displayImage = imgError ? defaultProductImg : (rawDisplayImage || fallbackImg || defaultProductImg);
 
   const handleAddToCart = () => {
     if (product && canAdd) addToCart({ ...product, quantity: 1 });
@@ -90,6 +95,7 @@ export default function ProductDetails() {
                 src={displayImage}
                 alt={product.name}
                 className="w-full h-full object-cover"
+                onError={() => setImgError(true)}
               />
             </div>
             <button
