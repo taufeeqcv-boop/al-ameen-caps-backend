@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import { useCart } from "../context/CartContext";
 import { getProductById, normalizeImageUrl, sameOriginImageSrc } from "../lib/supabase";
-import { COLLECTION_PRODUCTS } from "../data/collection";
+import { COLLECTION_PRODUCTS, getCollectionImageUrl } from "../data/collection";
 import { formatPrice } from "../lib/format";
 import { motion } from "framer-motion";
 import defaultProductImg from "../assets/caps-collection.png";
@@ -47,9 +47,10 @@ export default function ProductDetails() {
   const available = Math.max(0, quantityAvailable - inCart);
   const canAdd = available > 0;
 
+  const hardwiredImg = getCollectionImageUrl(product);
   const fallbackImg = collectionFallback?.imageURL ? normalizeImageUrl(collectionFallback.imageURL) : null;
   const rawDisplayImage = product?.imageURL ? normalizeImageUrl(product.imageURL) : null;
-  const displayImage = imgError ? defaultProductImg : (sameOriginImageSrc(rawDisplayImage || fallbackImg) || defaultProductImg);
+  const displayImage = imgError ? defaultProductImg : (hardwiredImg || sameOriginImageSrc(rawDisplayImage || fallbackImg) || defaultProductImg);
 
   const handleAddToCart = () => {
     if (product && canAdd) addToCart({ ...product, quantity: 1 });

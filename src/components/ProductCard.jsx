@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/format";
+import { getCollectionImageUrl } from "../data/collection";
 import { sameOriginImageSrc } from "../lib/supabase";
 import defaultProductImg from "../assets/caps-collection.png";
 
@@ -16,7 +17,9 @@ export default function ProductCard({ product, index = 0 }) {
   const available = Math.max(0, (quantityAvailable ?? 0) - inCart);
   const canAdd = available > 0;
 
-  const displaySrc = imageURL && !imgError ? sameOriginImageSrc(imageURL) : defaultProductImg;
+  const hardwiredSrc = getCollectionImageUrl(product);
+  const fallbackSrc = imageURL && !imgError ? sameOriginImageSrc(imageURL) : null;
+  const displaySrc = (imgError ? null : (hardwiredSrc || fallbackSrc)) || defaultProductImg;
 
   const handleAddToCart = (e) => {
     e.preventDefault();

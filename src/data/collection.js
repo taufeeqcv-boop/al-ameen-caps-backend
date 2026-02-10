@@ -2,6 +2,34 @@
 // Image mapping (original labels): cap-03=Nalain, cap-08=Afgani/Winter, cap-04=Prayer, cap-05=Red Velvet,
 // cap-09=Ornate Taj, cap-07=Turban/Rumal, cap-06=Navy, cap-12=Military, cap-14=perfume placeholder
 
+/** Hardwired id → filename so images always load from same origin (no API/CORS). */
+export const COLLECTION_IMAGE_FILENAMES = {
+  "collection-1": "nalain-cap.png",
+  "collection-2": "afgani-star-cap.png",
+  "collection-3": "saqib-shami-cap.png",
+  "collection-4": "azhari-hard-cap.png",
+  "collection-5": "naqshbandi-taj.png",
+  "collection-6": "luxury-arabic-rumal.png",
+  "collection-7": "special-ashrafi-taj.png",
+  "collection-8": "geuvara-military-cap.png",
+  "collection-9": "al-hassan-perfume.png",
+  "collection-10": "mufti-cap.png",
+  "collection-11": "ertugral-winter-cap.png",
+  "collection-12": "royal-ottoman-fez.png",
+};
+
+const IMG_V = "4";
+
+/** Returns absolute same-origin URL for collection product image (guaranteed to work). */
+export function getCollectionImageUrl(product) {
+  if (typeof window === "undefined") return null;
+  const id = product?.id != null ? String(product.id) : product?.sku != null ? String(product.sku) : "";
+  const filename = COLLECTION_IMAGE_FILENAMES[id] || (id.startsWith("collection-") ? null : null);
+  if (!filename) return null;
+  const base = window.location.origin.replace(/\/$/, "");
+  return `${base}/collection/${filename}?v=${IMG_V}`;
+}
+
 export const COLLECTION_PRODUCTS = [
   { id: "collection-1", name: "Na'lain Cap premium quality", quantityAvailable: 50, price: 145, description: "Na'lain Premium Cap — Signature Collection\n\nCrafted for those who carry tradition with quiet confidence, the Na'lain Premium Cap blends timeless Islamic heritage with refined modern craftsmanship.\n\nInspired by sacred geometry and classical artistry, the elegant embroidered motif crowns a cap designed for comfort, dignity, and everyday wear — whether for Jumu'ah, special gatherings, or daily devotion.\n\nEach piece reflects meticulous attention to detail: clean stitching, breathable fabric, and a structured form that maintains its shape while offering all-day comfort.\n\nWhy customers love it\n• Premium woven construction for durability and comfort\n• Elegant embroidered design inspired by sacred tradition\n• Lightweight and breathable for daily wear\n• Maintains shape and structure over time\n• Suitable for masjid, events, and everyday use\n\nMore than just headwear, the Na'lain Premium Cap is a statement of identity — honoring heritage while embracing modern style.\n\nWear it with dignity. Carry tradition with pride.\n\n🛒 Limited stock available — add yours to cart today.", imageURL: "/collection/nalain-cap.png", category: "Caps" },
   { id: "collection-2", name: "Afgani Star Cap Premium quality", quantityAvailable: 20, price: 135, description: "Afgani Star Cap — Premium Collection\n\nDesigned for men who value heritage and refined simplicity, the Afgani Star Cap brings together classic Afghan-inspired style with modern craftsmanship.\n\nIts structured form, soft premium fabric, and clean finish make it ideal for Jumu'ah, gatherings, or daily wear. Available in a range of elegant tones, each cap complements both traditional and modern attire.\n\nBuilt for comfort and durability, the Afgani Star Cap maintains its shape while remaining breathable for all-day use.\n\nWhy customers choose it\n• Premium fabric with soft, durable finish\n• Classic structured Afghan design\n• Comfortable and breathable for daily wear\n• Maintains shape over time\n• Suitable for masjid, events, and everyday style\n\nMore than headwear, the Afgani Star Cap reflects dignity, heritage, and confident style.\n\n🛒 Limited stock available — add yours to cart today.", imageURL: "/collection/afgani-star-cap.png", category: "Caps" },
