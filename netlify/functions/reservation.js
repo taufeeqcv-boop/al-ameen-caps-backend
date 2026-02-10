@@ -3,10 +3,21 @@
  * Receives POST with JSON: { formData, cart, total }
  * 1. Persists to public.reservations (Supabase, service role).
  * 2. Sends "NEW RESERVATION" email to admin and confirmation to customer.
+ * CORS headers: * allows browser requests from any origin (localhost, www.alameencaps.com, legacy Netlify subdomain).
  */
 
 const nodemailer = require("nodemailer");
 const { createClient } = require("@supabase/supabase-js");
+
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+function withCors(res) {
+  return { ...res, headers: { ...CORS_HEADERS, ...(res.headers || {}) } };
+}
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -108,8 +119,11 @@ function getCustomerConfirmationEmailHtml(data) {
 }
 
 exports.handler = async (event) => {
+  if (event.httpMethod === "OPTIONS") {
+    return withCors({ statusCode: 204, body: "" });
+  }
   if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+    return withCors({ statusCode: 405, body: "Method Not Allowed" });
   }
 
   const adminEmail = process.env.ADMIN_EMAIL || process.env.RESERVATION_EMAIL || "sales@alameencaps.com";
@@ -122,23 +136,23 @@ exports.handler = async (event) => {
   try {
     data = JSON.parse(event.body || "{}");
   } catch {
-    return { statusCode: 400, body: "Invalid JSON" };
+    return withCors({ statusCode: 400, body: "Invalid JSON" });
   }
 
   const { formData, cart, total } = data;
   if (!formData || !formData.email_address) {
-    return { statusCode: 400, body: "Missing formData or email" };
+    return withCors({ statusCode: 400, body: "Missing formData or email" });
   }
 
   // 1. Persist to database (required — otherwise reservation never shows in admin)
   if (!supabase) {
     console.error("Reservation: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set");
-    return {
+    return withCors({
       statusCode: 503,
       body: JSON.stringify({
         error: "Reservation service not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in Netlify (Site settings → Environment variables), or in .env when using netlify dev.",
       }),
-    };
+    });
   }
 
   const customerName = [formData.name_first, formData.name_last].filter(Boolean).join(" ").trim() || null;
@@ -156,7 +170,7 @@ exports.handler = async (event) => {
     }]);
   if (dbError) {
     console.error("Reservation: DB insert failed", dbError);
-    return { statusCode: 500, body: JSON.stringify({ error: dbError.message }) };
+    return withCors({ statusCode: 500, body: JSON.stringify({ error: dbError.message }) });
   }
 
   // 2. Send emails (optional — reservation is already saved to DB)
@@ -190,5 +204,5 @@ exports.handler = async (event) => {
     console.warn("Reservation: EMAIL_USER/EMAIL_PASS not set — reservation saved to DB only");
   }
 
-  return { statusCode: 200, body: JSON.stringify({ message: "Success", ok: true }) };
+  return withCors({ statusCode: 200, body: JSON.stringify({ message: "Success", ok: true }) });
 };

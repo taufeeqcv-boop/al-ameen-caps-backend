@@ -23,16 +23,23 @@ Use this **before you push to Git** and **after you deploy to Netlify**, so noth
    [search.google.com/search-console](https://search.google.com/search-console)
 
 2. **Add property** (if not already)  
-   - URL prefix: `https://al-ameen-caps.netlify.app` (or your custom domain).  
+   - URL prefix: `https://www.alameencaps.com` (or your custom domain).  
    - Verify via HTML tag (add the meta tag to `index.html` if GSC gives you one) or DNS.
 
 3. **Submit sitemap**  
    - In GSC: **Sitemaps** → Add new sitemap.  
-   - Enter: `https://al-ameen-caps.netlify.app/sitemap.xml`  
+   - Enter: `https://www.alameencaps.com/sitemap.xml`  
    - Submit. Status will show “Success” once Google has read it.
 
 4. **Request indexing (optional)**  
    - **URL Inspection** → paste your homepage URL → **Request indexing** for a faster first crawl.
+
+5. **"Discovered – currently not indexed" (e.g. 18 pages)**  
+   Google has found your URLs but has not yet crawled and indexed them. Normal for new or low-traffic sites.
+   - **Submit the sitemap** in GSC (Sitemaps → add `sitemap.xml`) if you haven't.
+   - **Request indexing** for key URLs: URL Inspection → enter e.g. `/` and `/shop` → Request indexing.
+   - **Redeploy** after changes so sitemap `lastmod` updates.
+   - **Wait** — indexing often takes days to a few weeks. No code change required.
 
 ---
 

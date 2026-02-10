@@ -13,7 +13,7 @@ import { COLLECTION_PRODUCTS } from '../src/data/collection.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Base URL: strip trailing slash to avoid double slashes. Must match Search Console property.
-const rawBase = process.env.VITE_SITE_URL || process.env.VITE_APP_URL || 'https://al-ameen-caps.netlify.app';
+const rawBase = process.env.VITE_SITE_URL || process.env.VITE_APP_URL || 'https://www.alameencaps.com';
 const baseUrl = String(rawBase).trim().replace(/\/+$/, '');
 
 const staticPages = [

@@ -13,6 +13,7 @@
       "dependencies": [
         "npm:@eslint/js@^9.39.1",
         "npm:@netlify/functions@^5.1.2",
+        "npm:@netlify/vite-plugin@^2.9.0",
         "npm:@supabase/supabase-js@^2.94.1",
         "npm:@types/react-dom@^19.2.3",
         "npm:@types/react@^19.2.5",

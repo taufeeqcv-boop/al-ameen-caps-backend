@@ -3,7 +3,7 @@
  * Target: first-page Google for Islamic fashion, kufi, fez, taj, Cape Town, South Africa, Ramadaan, Eid, Sufi
  */
 
-const BASE_URL = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 'https://al-ameen-caps.netlify.app';
+const BASE_URL = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 'https://www.alameencaps.com';
 
 export function getBaseUrl() {
   return BASE_URL.replace(/\/$/, '');

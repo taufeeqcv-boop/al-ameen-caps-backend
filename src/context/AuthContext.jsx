@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
   const signInWithGoogle = async () => {
     if (!supabase) return;
     // Use current origin so localhost vs production is correct (matches Supabase Redirect URLs)
-    const origin = typeof window !== "undefined" ? window.location.origin : (import.meta.env.VITE_SITE_URL || "https://al-ameen-caps.netlify.app").replace(/\/$/, "");
+    const origin = typeof window !== "undefined" ? window.location.origin : (import.meta.env.VITE_SITE_URL || "https://www.alameencaps.com").replace(/\/$/, "");
     const baseUrl = origin.replace(/\/$/, "");
     // After login: /checkout if they came from cart, otherwise /shop
     const returnPath = typeof window !== "undefined" && window.location?.pathname === "/checkout" ? "/checkout" : "/shop";

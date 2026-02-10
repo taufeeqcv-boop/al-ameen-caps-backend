@@ -67,16 +67,17 @@ const Checkout = () => {
     postal_code: ''
   });
 
-  // Auto-fill form from signed-in user (only empty fields)
+  // Auto-fill form from signed-in user (only empty fields). Prefer Google given_name/family_name when present.
   useEffect(() => {
     if (!user) return;
-    const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || '';
-    const parts = fullName.trim().split(/\s+/);
+    const meta = user.user_metadata || {};
+    const first = meta.given_name || meta.first_name || (meta.full_name && meta.full_name.trim().split(/\s+/)[0]) || user.email?.split('@')[0] || '';
+    const last = meta.family_name || meta.last_name || (meta.full_name && meta.full_name.trim().split(/\s+/).slice(1).join(' ')) || '';
     setFormData((prev) => ({
       ...prev,
-      name_first: prev.name_first || parts[0] || '',
-      name_last: prev.name_last || parts.slice(1).join(' ') || '',
-      email_address: prev.email_address || user.email || '',
+      name_first: (prev.name_first || '').trim() || first,
+      name_last: (prev.name_last || '').trim() || last,
+      email_address: (prev.email_address || '').trim() || user.email || '',
     }));
   }, [user?.id]);
 
@@ -223,7 +224,11 @@ const Checkout = () => {
       setIsPreOrder(true);
       clearCart();
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again or contact us.');
+      const msg = err?.message || '';
+      const isNetwork = /failed to fetch|network error|load failed/i.test(msg) || err?.name === 'TypeError';
+      setError(isNetwork
+        ? 'Could not reach the server. Check your connection and try again, or contact us to place your pre-order.'
+        : (msg || 'Something went wrong. Please try again or contact us.'));
     } finally {
       setLoading(false);
     }

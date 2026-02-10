@@ -38,9 +38,9 @@ Checkout already sends:
 
 - `notify_url: ${VITE_SITE_URL}/.netlify/functions/itn-listener`
 
-So when `VITE_SITE_URL` is your live site (e.g. `https://al-ameen-caps.netlify.app`), PayFast will POST ITNs to:
+So when `VITE_SITE_URL` is your live site (e.g. `https://www.alameencaps.com`), PayFast will POST ITNs to:
 
-- `https://al-ameen-caps.netlify.app/.netlify/functions/itn-listener`
+- `https://www.alameencaps.com/.netlify/functions/itn-listener`
 
 No change needed in code if your live URL is set correctly in Netlify (or in build env) as `VITE_SITE_URL`.
 
