@@ -230,7 +230,7 @@ export const getProductById = async (id) => {
       .single();
     if (error) return null;
     if (!data) return null;
-    const collectionProducts = await import('../data/collection.js').then((m) => m.COLLECTION_PRODUCTS ?? []);
+    const collectionProducts = STATIC_COLLECTION ?? [];
     const match = findCollectionMatch(data, collectionProducts);
     let quantityAvailable = getQuantityAvailable(data, collectionProducts);
     let rawImage = data.image_url || (match?.imageURL ?? null);
