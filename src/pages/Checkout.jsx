@@ -178,8 +178,7 @@ const Checkout = () => {
       form.submit();
       document.body.removeChild(form);
     } catch (err) {
-      console.error('PayFast handlePayment error:', err);
-      setError(err?.message || 'Payment submission failed. Check the console for details.');
+      setError(err?.message || 'Payment submission failed. Please try again or use Pre-Order Now.');
     } finally {
       setLoading(false);
     }

@@ -18,16 +18,15 @@ export const COLLECTION_IMAGE_FILENAMES = {
   "collection-12": "royal-ottoman-fez.png",
 };
 
-const IMG_V = "6";
 const IMAGE_BASE = "https://www.alameencaps.com";
 
-/** Returns image URL. Hardcoded base, no env. */
+/** Returns image URL. Hardcoded base, no env. No cache-bust param so browser can cache. */
 export function getCollectionImageUrl(product) {
   if (!product) return null;
   const id = product.id != null ? String(product.id) : product.sku != null ? String(product.sku) : "";
   const filename = COLLECTION_IMAGE_FILENAMES[id] || (id.startsWith("collection-") ? null : null);
   if (!filename) return null;
-  return `${IMAGE_BASE}/collection/${filename}?v=${IMG_V}`;
+  return `${IMAGE_BASE}/collection/${filename}`;
 }
 
 export const COLLECTION_PRODUCTS = [

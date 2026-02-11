@@ -66,8 +66,15 @@ const ProductDetails = () => {
 
         <div className="bg-secondary rounded-2xl shadow-premium overflow-hidden grid md:grid-cols-2 gap-0 border border-black/5">
           <div className="flex flex-col">
-            <div className="aspect-square bg-primary/5 relative">
-              <img src={imageSrc} alt={product.name} className="w-full h-full object-cover" />
+            <div className="aspect-square bg-primary/5 relative size-full min-h-[280px]">
+              <img
+                src={imageSrc}
+                alt={product.name}
+                width={600}
+                height={600}
+                loading="eager"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="p-6 border-t border-black/5">
               <p className="flex items-center gap-2 text-primary/70 text-sm mb-4">

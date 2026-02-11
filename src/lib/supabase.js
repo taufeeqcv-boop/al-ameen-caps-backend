@@ -112,9 +112,6 @@ export function mergeProductsWithCollection(list, collectionProducts) {
 const _rawBase = (import.meta.env.VITE_IMAGE_BASE_URL || import.meta.env.VITE_SITE_URL || '').replace(/\/$/, '');
 const IMAGE_BASE_URL = typeof window === 'undefined' ? (_rawBase && !_rawBase.toLowerCase().includes('localhost') ? _rawBase : '') : '';
 
-// Cache-bust for collection images so normal/mobile browsers don't keep serving cached 404s from old deploys.
-const IMAGE_VERSION = '3';
-
 // Normalize image URL: paths like "collection/nalain-cap.png" → "/collection/nalain-cap.png".
 // Reject localhost URLs. In browser always return relative path so images load from current origin.
 export function normalizeImageUrl(url) {
@@ -122,12 +119,10 @@ export function normalizeImageUrl(url) {
   const s = url.trim();
   if (s.startsWith('http://localhost') || s.startsWith('https://localhost')) return null;
   if (s.startsWith('http://') || s.startsWith('https://')) {
-    // Strip to path when in browser so images load from current site (fixes frontend vs backend deploy)
     if (typeof window !== 'undefined') {
       try {
         const u = new URL(s);
-        const path = u.pathname || '/';
-        return path.startsWith('/collection') ? `${path}?v=${IMAGE_VERSION}` : path;
+        return u.pathname || '/';
       } catch {
         return null;
       }
@@ -135,9 +130,6 @@ export function normalizeImageUrl(url) {
     return s;
   }
   const path = s.startsWith('/') ? s : `/${s}`;
-  if (typeof window !== 'undefined') {
-    return path.startsWith('/collection') ? `${path}?v=${IMAGE_VERSION}` : path;
-  }
   if (IMAGE_BASE_URL) return `${IMAGE_BASE_URL}${path}`;
   return path;
 }
@@ -149,14 +141,13 @@ export function sameOriginImageSrc(url) {
   if (!url || typeof url !== 'string') return url;
   const s = url.trim();
   if (s.startsWith('/collection')) {
-    const pathWithQuery = s.includes('?') ? s : `${s}?v=${IMAGE_VERSION}`;
-    return `${IMAGE_BASE_HARDCODED}${pathWithQuery}`;
+    const path = s.includes('?') ? s.split('?')[0] : s;
+    return `${IMAGE_BASE_HARDCODED}${path}`;
   }
   if (s.startsWith('http://') || s.startsWith('https://')) {
     try {
       const u = new URL(s);
-      const path = u.pathname || '/';
-      if (path.startsWith('/collection')) return `${IMAGE_BASE_HARDCODED}${path}${u.search || `?v=${IMAGE_VERSION}`}`;
+      if (u.pathname.startsWith('/collection')) return `${IMAGE_BASE_HARDCODED}${u.pathname}`;
     } catch {
       return url;
     }
@@ -175,15 +166,8 @@ export const getProducts = async () => {
     if (supabase) {
       try {
         const { data, error } = await supabase.from('products').select('*').order('price', { ascending: false });
-        if (!error && Array.isArray(data)) {
-          supabaseList = data;
-          console.log("[Supabase getProducts] OK – rows:", data.length, "(overlay on collection for price/quantity)");
-        } else if (error) {
-          console.warn("[Supabase getProducts] Skipping overlay:", error?.message ?? error);
-        }
-      } catch (err) {
-        console.warn("[Supabase getProducts] Skipping overlay:", err?.message ?? err);
-      }
+        if (!error && Array.isArray(data)) supabaseList = data;
+      } catch (_) {}
     }
 
     return collectionProducts.map((c) => {
@@ -203,8 +187,7 @@ export const getProducts = async () => {
         product_id: sb?.id ?? (typeof c.id === 'string' ? parseInt(c.id.replace(/^collection-/, ''), 10) : c.id),
       };
     });
-  } catch (err) {
-    console.warn("[Supabase getProducts] Using static collection after error:", err?.message ?? err);
+  } catch {
     return collectionProducts.map((c) => ({
       id: c.id,
       name: c.name,
@@ -245,8 +228,7 @@ export const getProductById = async (id) => {
       quantityAvailable,
       imageURL,
     };
-  } catch (err) {
-    console.error("[Supabase getProductById] Error:", err?.message ?? err, err);
+  } catch {
     return null;
   }
 };
