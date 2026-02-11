@@ -64,7 +64,7 @@ export default function ImageMagnifier({ src, alt, className = "", imgClassName 
         loading="eager"
         width={600}
         height={600}
-        className={`w-full h-full object-contain ${imgClassName}`}
+        className={`w-full h-full object-contain object-center ${imgClassName}`}
         draggable={false}
       />
       {hovering && src && (

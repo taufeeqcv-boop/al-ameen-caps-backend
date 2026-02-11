@@ -67,11 +67,11 @@ const ProductDetails = () => {
 
         <div className="bg-secondary rounded-2xl shadow-premium overflow-hidden grid md:grid-cols-2 gap-0 border border-black/5">
           <div className="flex flex-col">
-            <div className="bg-primary/5 relative min-h-[280px] max-h-[85vh] flex items-center justify-center">
+            <div className="bg-primary/5 relative flex items-center justify-center pt-10 pb-4 min-h-[500px]" style={{ aspectRatio: 'auto' }}>
               <ImageMagnifier
                 src={imageSrc}
                 alt={product.name}
-                className="w-full h-full min-h-[280px] max-h-[85vh]"
+                className="w-full h-full min-h-[460px] max-h-[75vh]"
               />
             </div>
             <div className="p-6 border-t border-black/5">

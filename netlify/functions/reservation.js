@@ -25,12 +25,15 @@ const supabase = supabaseUrl && serviceRoleKey
   ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
   : null;
 
-function getReservationEmailHtml(data) {
+function getReservationEmailHtml(data, supabaseDashboardUrl) {
   const { formData, cart, total } = data;
   const name = [formData.name_first, formData.name_last].filter(Boolean).join(" ") || "Customer";
   const items = (cart || [])
     .map((i) => `• ${i.name} × ${i.quantity || 1} — R${((i.price || 0) * (i.quantity || 1)).toFixed(2)}`)
     .join("\n");
+  const dashboardLink = supabaseDashboardUrl
+    ? `<p style="margin-top: 20px;"><a href="${supabaseDashboardUrl}" style="color: #D4AF37; font-weight: bold;">View in Supabase Dashboard →</a></p>`
+    : "";
   return `
 <!DOCTYPE html>
 <html>
@@ -43,28 +46,28 @@ function getReservationEmailHtml(data) {
     .header h1 { margin: 0; font-size: 1.5rem; }
     .body { padding: 32px 24px; line-height: 1.6; }
     .total { font-size: 1.25rem; color: #D4AF37; font-weight: bold; margin: 16px 0; }
+    .phone { font-family: ui-monospace, monospace; font-size: 1.1rem; }
     .footer { padding: 16px 24px; background: #f9f9f9; font-size: 0.875rem; color: #666; text-align: center; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>NEW RESERVATION — Al-Ameen Caps</h1>
+      <h1>NEW ORDER ALERT — Al-Ameen Caps</h1>
       <p style="margin: 0.25rem 0 0; font-size: 0.9rem; color: rgba(255,255,255,0.9);">Inaugural Collection</p>
     </div>
     <div class="body">
       <p><strong>Customer:</strong> ${name}</p>
       <p><strong>Email:</strong> ${formData.email_address || "—"}</p>
-      <p><strong>Phone:</strong> ${formData.cell_number || "—"}</p>
+      <p><strong>Phone:</strong> <span class="phone">${formData.cell_number || "—"}</span></p>
       <p><strong>Address:</strong><br>${formData.address_line_1 || ""}${formData.address_line_2 ? "<br>" + formData.address_line_2 : ""}<br>${formData.city || ""} ${formData.postal_code || ""}</p>
       <p><strong>Items:</strong></p>
       <pre style="white-space: pre-wrap; font-family: inherit;">${items || "—"}</pre>
       <p><strong>Total:</strong> <span class="total">R ${Number(total || 0).toFixed(2)}</span></p>
-      <p>We will contact this customer when the inaugural collection arrives.</p>
+      <p>Contact this customer to finalize delivery.</p>
+      ${dashboardLink}
     </div>
-    <div class="footer">
-      © ${new Date().getFullYear()} Al-Ameen Caps. All rights reserved.
-    </div>
+    <div class="footer">© ${new Date().getFullYear()} Al-Ameen Caps. All rights reserved.</div>
   </div>
 </body>
 </html>
@@ -72,46 +75,54 @@ function getReservationEmailHtml(data) {
 }
 
 function getCustomerConfirmationEmailHtml(data) {
-  const { formData, cart } = data;
+  const { formData, cart, total } = data;
   const name = [formData.name_first, formData.name_last].filter(Boolean).join(" ") || "Valued Customer";
   const itemsList = (cart || [])
-    .map((i) => `• ${i.name} × ${i.quantity || 1}`)
+    .map((i) => `• ${i.name} × ${i.quantity || 1} — R${((i.price || 0) * (i.quantity || 1)).toFixed(2)}`)
     .join("\n") || "—";
+  const totalFormatted = `R ${Number(total || 0).toFixed(2)}`;
   return `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <style>
-    body { font-family: Georgia, serif; background: #f5f5f5; margin: 0; padding: 24px; color: #333; }
-    .container { max-width: 560px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    .header { background: #000; color: #D4AF37; padding: 24px; text-align: center; }
-    .header h1 { margin: 0; font-size: 1.5rem; }
-    .body { padding: 32px 24px; line-height: 1.7; }
-    .items { white-space: pre-wrap; font-family: inherit; background: #f9f9f9; padding: 16px; border-radius: 6px; margin: 12px 0; }
-    .footer { padding: 16px 24px; background: #f9f9f9; font-size: 0.875rem; color: #666; text-align: center; }
+    body { font-family: Georgia, serif; background: #0a0a0a; margin: 0; padding: 24px; color: #e5e5e5; }
+    .container { max-width: 480px; margin: 0 auto; background: #18181b; border: 1px solid rgba(202,138,4,0.5); border-radius: 12px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    .gold-bar { height: 8px; width: 100%; background: #ca8a04; border-radius: 12px 12px 0 0; }
+    .header { padding: 28px 24px; text-align: center; }
+    .header h1 { margin: 0; font-size: 1.75rem; color: #fff; }
+    .header .sub { margin-top: 8px; font-size: 0.7rem; letter-spacing: 0.25em; color: #a1a1aa; text-transform: uppercase; }
+    .body { padding: 24px; line-height: 1.65; }
+    .receipt-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 16px; margin: 16px 0; }
+    .receipt-box .label { font-size: 10px; color: #71717a; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .receipt-box .value { font-family: ui-monospace, monospace; font-size: 1.1rem; color: #eab308; }
+    .items { white-space: pre-wrap; font-family: ui-monospace, monospace; font-size: 0.9rem; color: #d4d4d8; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 6px; margin: 12px 0; }
+    .total-line { font-size: 1.15rem; color: #eab308; font-weight: bold; margin-top: 12px; }
+    .footer { padding: 16px 24px; font-size: 0.75rem; color: #71717a; text-align: center; border-top: 1px solid rgba(255,255,255,0.06); }
   </style>
 </head>
 <body>
   <div class="container">
+    <div class="gold-bar"></div>
     <div class="header">
-      <h1>Al-Ameen Caps</h1>
-      <p style="margin: 0.25rem 0 0; font-size: 0.9rem; color: rgba(255,255,255,0.9);">Restoring the Crown of the Believer</p>
+      <h1>Reservation Confirmed</h1>
+      <p class="sub">Al-Ameen Caps · Inaugural Collection</p>
     </div>
     <div class="body">
       <p>Assalamu alaikum ${name},</p>
-      <p>Thank you for your interest in the Al-Ameen Caps Inaugural Collection. We have successfully recorded your reservation.</p>
-      <p><strong>Items Reserved:</strong></p>
+      <p>Thank you for your reservation. We have secured your place in our priority queue.</p>
+      <div class="receipt-box">
+        <div class="label">Contact number</div>
+        <div class="value">${formData.cell_number || "—"}</div>
+      </div>
+      <p><strong>Items reserved</strong></p>
       <div class="items">${itemsList}</div>
-      <p><strong>What happens next?</strong></p>
-      <p>Our collection is currently being handcrafted and imported. As soon as your items arrive at our boutique in Cape Town, we will contact you personally via this email address to finalize your order and arrange delivery.</p>
-      <p>No payment is required at this stage. You have secured your place in our priority delivery queue.</p>
-      <p>Jazakallah khair for your patience and for choosing Al-Ameen Caps.</p>
-      <p>Warm regards,<br><strong>The Al-Ameen Caps Team</strong><br>"Restoring the Crown of the Believer"</p>
+      <p class="total-line">Total: ${totalFormatted}</p>
+      <p>Our team will contact you shortly to finalize your order. No payment is required at this stage.</p>
+      <p>Jazakallah khair — The Al-Ameen Caps Team</p>
     </div>
-    <div class="footer">
-      © ${new Date().getFullYear()} Al-Ameen Caps. All rights reserved.
-    </div>
+    <div class="footer">© ${new Date().getFullYear()} Al-Ameen Caps. All rights reserved.</div>
   </div>
 </body>
 </html>
@@ -173,7 +184,30 @@ exports.handler = async (event) => {
     return withCors({ statusCode: 500, body: JSON.stringify({ error: dbError.message }) });
   }
 
-  // 2. Send emails (optional — reservation is already saved to DB)
+  // 1b. Decrement stock in products table for each cart item (match by sku or id)
+  const cartItems = Array.isArray(cart) ? cart : [];
+  for (const item of cartItems) {
+    const qty = Math.max(0, Number(item.quantity) || 1);
+    if (qty <= 0) continue;
+    const sku = item.id != null ? String(item.id) : item.sku != null ? String(item.sku) : null;
+    const productId = typeof item.product_id === "number" ? item.product_id : null;
+    let productRow = null;
+    if (productId != null) {
+      const { data } = await supabase.from("products").select("id, stock_quantity").eq("id", productId).single();
+      productRow = data;
+    }
+    if (!productRow && sku) {
+      const { data } = await supabase.from("products").select("id, stock_quantity").eq("sku", sku).single();
+      productRow = data;
+    }
+    if (productRow != null) {
+      const current = Math.max(0, Number(productRow.stock_quantity) || 0);
+      const newStock = Math.max(0, current - qty);
+      await supabase.from("products").update({ stock_quantity: newStock }).eq("id", productRow.id);
+    }
+  }
+
+  // 2. Send emails via EMAIL_USER / EMAIL_PASS (Netlify env)
   if (emailUser && emailPass) {
     try {
       const transporter = nodemailer.createTransport({
@@ -182,12 +216,15 @@ exports.handler = async (event) => {
         secure: emailPort === 465,
         auth: { user: emailUser, pass: emailPass },
       });
+      const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
+      const projectRef = supabaseUrl.replace(/^https:\/\//, "").split(".supabase.co")[0] || "";
+      const supabaseDashboardUrl = projectRef ? `https://supabase.com/dashboard/project/${projectRef}/editor` : "";
       await transporter.sendMail({
         from: `"Al-Ameen Caps" <${emailUser}>`,
         to: adminEmail,
-        subject: "NEW RESERVATION — Al-Ameen Caps",
-        html: getReservationEmailHtml(data),
-        text: `NEW RESERVATION from ${formData.name_first} ${formData.name_last} (${formData.email_address}). Total: R${Number(total || 0).toFixed(2)}.`,
+        subject: "NEW ORDER ALERT — Al-Ameen Caps",
+        html: getReservationEmailHtml(data, supabaseDashboardUrl),
+        text: `NEW RESERVATION from ${formData.name_first} ${formData.name_last} (${formData.email_address}). Phone: ${formData.cell_number || "—"}. Total: R${Number(total || 0).toFixed(2)}.`,
       });
       const customerItems = (cart || []).map((i) => `• ${i.name} × ${i.quantity || 1}`).join("\n") || "—";
       await transporter.sendMail({

@@ -53,11 +53,11 @@ export default function SuccessModal({ customerName, preOrderPhone, onClose }) {
             )}
           </p>
 
-          {/* Details box */}
+          {/* Reference number (luxury ticket style) */}
           {isPreOrder && preOrderPhone && (
             <div className="bg-zinc-900/50 p-4 rounded-lg border border-white/5 mx-auto max-w-sm mb-5">
               <p className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
-                Contact Number
+                Reference Number
               </p>
               <p className="font-mono text-xl text-yellow-500">
                 {preOrderPhone}
