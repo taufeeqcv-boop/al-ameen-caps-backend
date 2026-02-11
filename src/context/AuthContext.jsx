@@ -68,6 +68,11 @@ export function AuthProvider({ children }) {
         upsertProfile(session.user).catch((err) => {
           if (err?.name !== "AbortError") console.error("upsertProfile:", err);
         });
+        // Reload after OAuth redirect so cart and other state reinitialize correctly
+        if (typeof window !== "undefined" && window.location.hash?.includes("access_token")) {
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+          window.location.reload();
+        }
       }
     });
     return () => {
