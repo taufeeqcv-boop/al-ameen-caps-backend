@@ -19,8 +19,8 @@ function withCors(res) {
   return { ...res, headers: { ...CORS_HEADERS, ...(res.headers || {}) } };
 }
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = (process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim();
+const serviceRoleKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
 const supabase = supabaseUrl && serviceRoleKey
   ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } })
   : null;

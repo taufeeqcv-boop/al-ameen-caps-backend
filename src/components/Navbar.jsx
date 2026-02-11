@@ -121,7 +121,7 @@ export default function Navbar() {
                   </div>
                 ) : (
                   <Link
-                    to="/login"
+                    to="/account"
                     className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-accent hover:underline"
                   >
                     Sign In
@@ -179,7 +179,7 @@ export default function Navbar() {
                 </div>
               )}
               {authConfigured && !user && (
-                <Link to="/login" onClick={() => setMenuOpen(false)} className="block py-2 text-accent font-medium">
+                <Link to="/account" onClick={() => setMenuOpen(false)} className="block py-2 text-accent font-medium">
                   Sign In
                 </Link>
               )}

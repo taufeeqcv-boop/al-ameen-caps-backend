@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/format";
 import { getCollectionImageUrl } from "../data/collection";
+import { COLLECTION_IMAGE_IMPORTS } from "../data/collectionImages";
 import { sameOriginImageSrc } from "../lib/supabase";
 import defaultProductImg from "../assets/caps-collection.png";
 
@@ -15,7 +16,8 @@ export default function ProductCard({ product, index = 0 }) {
   const available = Math.max(0, (quantityAvailable ?? 0) - inCart);
   const canAdd = available > 0;
 
-  const displaySrc = getCollectionImageUrl(product) || sameOriginImageSrc(imageURL) || defaultProductImg;
+  const bundledImg = product ? (COLLECTION_IMAGE_IMPORTS[id] || COLLECTION_IMAGE_IMPORTS[product.sku]) : null;
+  const displaySrc = bundledImg || getCollectionImageUrl(product) || sameOriginImageSrc(imageURL) || defaultProductImg;
 
   const handleAddToCart = (e) => {
     e.preventDefault();

@@ -142,26 +142,24 @@ export function normalizeImageUrl(url) {
   return path;
 }
 
-const IMAGE_BACKEND_BASE = 'https://al-ameen-caps-backend.netlify.app';
+const IMAGE_BASE_HARDCODED = 'https://www.alameencaps.com';
 
-/** Force collection images to load from backend URL (no env/hydration dependency). */
+/** Force collection images to load from hardcoded URL. */
 export function sameOriginImageSrc(url) {
   if (!url || typeof url !== 'string') return url;
   const s = url.trim();
+  if (s.startsWith('/collection')) {
+    const pathWithQuery = s.includes('?') ? s : `${s}?v=${IMAGE_VERSION}`;
+    return `${IMAGE_BASE_HARDCODED}${pathWithQuery}`;
+  }
   if (s.startsWith('http://') || s.startsWith('https://')) {
     try {
       const u = new URL(s);
       const path = u.pathname || '/';
-      if (!path.startsWith('/collection')) return url;
-      const query = u.search || `?v=${IMAGE_VERSION}`;
-      return `${IMAGE_BACKEND_BASE}${path}${query}`;
+      if (path.startsWith('/collection')) return `${IMAGE_BASE_HARDCODED}${path}${u.search || `?v=${IMAGE_VERSION}`}`;
     } catch {
       return url;
     }
-  }
-  if (s.startsWith('/collection')) {
-    const pathWithQuery = s.includes('?') ? s : `${s}?v=${IMAGE_VERSION}`;
-    return `${IMAGE_BACKEND_BASE}${pathWithQuery}`;
   }
   return url;
 }

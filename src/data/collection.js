@@ -18,17 +18,16 @@ export const COLLECTION_IMAGE_FILENAMES = {
   "collection-12": "royal-ottoman-fez.png",
 };
 
-const IMG_V = "5";
+const IMG_V = "6";
+const IMAGE_BASE = "https://www.alameencaps.com";
 
-const IMAGE_BACKEND_BASE = "https://al-ameen-caps-backend.netlify.app";
-
-/** Returns absolute URL for collection image. Hardcoded backend (no env/hydration). */
+/** Returns image URL. Hardcoded base, no env. */
 export function getCollectionImageUrl(product) {
   if (!product) return null;
   const id = product.id != null ? String(product.id) : product.sku != null ? String(product.sku) : "";
   const filename = COLLECTION_IMAGE_FILENAMES[id] || (id.startsWith("collection-") ? null : null);
   if (!filename) return null;
-  return `${IMAGE_BACKEND_BASE}/collection/${filename}?v=${IMG_V}`;
+  return `${IMAGE_BASE}/collection/${filename}?v=${IMG_V}`;
 }
 
 export const COLLECTION_PRODUCTS = [
