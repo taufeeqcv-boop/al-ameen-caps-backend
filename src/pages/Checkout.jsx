@@ -8,12 +8,10 @@ import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../lib/format';
 import { generateSignature } from '../utils/payfast';
 import { supabase } from '../lib/supabase';
+import { getFunctionUrl, getFunctionUrlAbsolute } from '../lib/config';
 
 const DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 const enableEcommerce = import.meta.env.VITE_ENABLE_ECOMMERCE === 'true';
-// Base URL for Netlify functions. If VITE_SITE_URL is localhost, use relative so the request goes to current origin (avoids ERR_CONNECTION_REFUSED to wrong port).
-const rawBase = (import.meta.env.VITE_SITE_URL || '').replace(/\/$/, '');
-const functionsBase = /localhost/i.test(rawBase) ? '' : rawBase;
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_MIN_DIGITS = 9;
@@ -150,7 +148,7 @@ const Checkout = () => {
         merchant_key: merchantKey,
         return_url: `${origin}/success`,
         cancel_url: `${origin}/checkout`,
-        notify_url: `${origin}/.netlify/functions/itn-listener`,
+        notify_url: getFunctionUrlAbsolute('itn-listener'),
         name_first: formData.name_first?.trim() || 'Guest',
         name_last: formData.name_last?.trim() || 'User',
         email_address: formData.email_address?.trim() || '',
@@ -198,7 +196,7 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${functionsBase}/.netlify/functions/reservation`, {
+      const res = await fetch(getFunctionUrl('reservation'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
