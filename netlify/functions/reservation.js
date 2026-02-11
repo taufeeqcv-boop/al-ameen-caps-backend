@@ -207,7 +207,7 @@ exports.handler = async (event) => {
     }
   }
 
-  // 2. Send emails via EMAIL_USER / EMAIL_PASS (Netlify env)
+  // 2. Send emails via EMAIL_USER / EMAIL_PASS (Netlify env). Stock decrement above runs before this.
   if (emailUser && emailPass) {
     try {
       const transporter = nodemailer.createTransport({
@@ -216,24 +216,31 @@ exports.handler = async (event) => {
         secure: emailPort === 465,
         auth: { user: emailUser, pass: emailPass },
       });
+      const clientTo = (formData.email_address || "").trim();
       const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
       const projectRef = supabaseUrl.replace(/^https:\/\//, "").split(".supabase.co")[0] || "";
       const supabaseDashboardUrl = projectRef ? `https://supabase.com/dashboard/project/${projectRef}/editor` : "";
-      await transporter.sendMail({
+      const customerItems = (cart || []).map((i) => `• ${i.name} × ${i.quantity || 1}`).join("\n") || "—";
+
+      const adminPromise = transporter.sendMail({
         from: `"Al-Ameen Caps" <${emailUser}>`,
         to: adminEmail,
         subject: "NEW ORDER ALERT — Al-Ameen Caps",
         html: getReservationEmailHtml(data, supabaseDashboardUrl),
         text: `NEW RESERVATION from ${formData.name_first} ${formData.name_last} (${formData.email_address}). Phone: ${formData.cell_number || "—"}. Total: R${Number(total || 0).toFixed(2)}.`,
       });
-      const customerItems = (cart || []).map((i) => `• ${i.name} × ${i.quantity || 1}`).join("\n") || "—";
-      await transporter.sendMail({
+      const clientOptions = {
         from: `"Al-Ameen Caps" <${emailUser}>`,
-        to: formData.email_address,
+        to: clientTo,
         subject: "Reservation Confirmed: Al-Ameen Caps Inaugural Collection",
         html: getCustomerConfirmationEmailHtml(data),
         text: `Assalamu alaikum ${[formData.name_first, formData.name_last].filter(Boolean).join(" ") || "Valued Customer"},\n\nThank you for your interest in the Al-Ameen Caps Inaugural Collection. We have successfully recorded your reservation.\n\nItems Reserved:\n${customerItems}\n\nWhat happens next?\nOur collection is currently being handcrafted and imported. As soon as your items arrive at our boutique in Cape Town, we will contact you personally via this email address to finalize your order and arrange delivery.\n\nNo payment is required at this stage. You have secured your place in our priority delivery queue.\n\nJazakallah khair for your patience and for choosing Al-Ameen Caps.\n\nWarm regards,\nThe Al-Ameen Caps Team\n"Restoring the Crown of the Believer"`,
-      });
+      };
+      const clientPromise = clientTo ? transporter.sendMail(clientOptions) : Promise.resolve();
+
+      await Promise.all([adminPromise, clientPromise]);
+      if (clientTo) console.log("Client email sent to:", clientTo);
+      else console.warn("Reservation: No client email in formData — client email skipped");
     } catch (err) {
       console.error("Reservation: Email send failed (reservation was saved)", err);
     }

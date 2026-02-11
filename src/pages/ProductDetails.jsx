@@ -60,12 +60,12 @@ const ProductDetails = () => {
       />
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 pt-6 flex-1">
+      <div className="max-w-4xl mx-auto px-4 pt-32 flex-1">
         <Link to="/shop" className="inline-flex items-center text-primary/70 hover:text-accent mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Shop
         </Link>
 
-        <div className="bg-secondary rounded-2xl shadow-premium overflow-hidden grid md:grid-cols-2 gap-0 border border-black/5">
+        <div className="bg-secondary rounded-2xl shadow-premium overflow-hidden grid md:grid-cols-2 gap-0 border border-black/5 mt-2">
           <div className="flex flex-col">
             <div className="bg-primary/5 relative flex items-center justify-center pt-10 pb-4 min-h-[500px]" style={{ aspectRatio: 'auto' }}>
               <ImageMagnifier
