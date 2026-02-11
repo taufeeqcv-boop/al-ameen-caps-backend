@@ -9,6 +9,7 @@ import { formatPrice } from "../lib/format";
 
 import { COLLECTION_PRODUCTS, getCollectionImageUrl } from "../data/collection";
 import { COLLECTION_IMAGE_IMPORTS } from "../data/collectionImages";
+import ImageMagnifier from "../components/ImageMagnifier";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -66,14 +67,11 @@ const ProductDetails = () => {
 
         <div className="bg-secondary rounded-2xl shadow-premium overflow-hidden grid md:grid-cols-2 gap-0 border border-black/5">
           <div className="flex flex-col">
-            <div className="aspect-square bg-primary/5 relative size-full min-h-[280px]">
-              <img
+            <div className="bg-primary/5 relative min-h-[280px] max-h-[85vh] flex items-center justify-center">
+              <ImageMagnifier
                 src={imageSrc}
                 alt={product.name}
-                width={600}
-                height={600}
-                loading="eager"
-                className="w-full h-full object-cover"
+                className="w-full h-full min-h-[280px] max-h-[85vh]"
               />
             </div>
             <div className="p-6 border-t border-black/5">
