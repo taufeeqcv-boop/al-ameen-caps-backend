@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import Seo from "../components/Seo";
 import { useAuth } from "../context/AuthContext";
 
 function getFirstName(user) {
@@ -15,6 +16,7 @@ export default function Account() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
+        <Seo noindex title="Account" url="/account" />
         <Navbar />
         <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24 flex flex-col items-center justify-center gap-4">
           <Loader2 className="w-12 h-12 text-accent animate-spin" aria-hidden />
@@ -28,6 +30,7 @@ export default function Account() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col">
+        <Seo noindex title="Account" url="/account" />
         <Navbar />
         <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24 text-center">
           <p className="font-sans text-primary/80">Please sign in to view your account.</p>
@@ -48,6 +51,7 @@ export default function Account() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Seo noindex title="Account" url="/account" />
       <Navbar />
       <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24">
         <h1 className="font-serif text-2xl font-bold text-accent mb-6 text-center">

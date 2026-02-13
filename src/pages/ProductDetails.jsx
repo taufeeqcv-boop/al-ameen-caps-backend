@@ -10,6 +10,7 @@ import { formatPrice } from "../lib/format";
 import { COLLECTION_PRODUCTS, getCollectionImageUrl } from "../data/collection";
 import { COLLECTION_IMAGE_IMPORTS } from "../data/collectionImages";
 import ImageMagnifier from "../components/ImageMagnifier";
+import ProductCard from "../components/ProductCard";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -52,6 +53,8 @@ const ProductDetails = () => {
         title={product.name}
         description={((product.description || "").replace(/\n/g, " ").slice(0, 120) + " Cape Town, South Africa.").slice(0, 160)}
         url={`/product/${product.id}`}
+        product={product}
+        image={imageSrc}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Shop", url: "/shop" },
@@ -120,6 +123,22 @@ const ProductDetails = () => {
             </p>
           </div>
         </div>
+
+        {/* Related products — internal linking for SEO */}
+        {(() => {
+          const related = COLLECTION_PRODUCTS.filter((p) => p.id !== product.id).slice(0, 3);
+          if (related.length === 0) return null;
+          return (
+            <section className="mt-16">
+              <h2 className="font-serif text-2xl font-semibold text-primary mb-6">You may also like</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {related.map((p, i) => (
+                  <ProductCard key={p.id} product={p} index={i} />
+                ))}
+              </div>
+            </section>
+          );
+        })()}
       </div>
 
       <Footer />

@@ -25,9 +25,10 @@ export default function Seo({
   url,
   product,
   breadcrumbs,
+  noindex = false,
 }) {
   const fullUrl = url ? `${BASE_URL}${url}` : BASE_URL;
-  const ogImage = image?.startsWith('http') ? image : `${BASE_URL}${image || '/favicon.png'}`;
+  const ogImage = image?.startsWith('http') ? image : `${BASE_URL}${image || '/collection/nalain-cap.png'}`;
   const metaKeywords = keywords ?? SEO_KEYWORDS;
 
   useEffect(() => {
@@ -51,6 +52,19 @@ export default function Seo({
       document.head.appendChild(metaKw);
     }
     metaKw.content = (metaKeywords || '').slice(0, 500);
+
+    // Robots (noindex for checkout, account)
+    let metaRobots = document.querySelector('meta[name="robots"]');
+    if (noindex) {
+      if (!metaRobots) {
+        metaRobots = document.createElement('meta');
+        metaRobots.name = 'robots';
+        document.head.appendChild(metaRobots);
+      }
+      metaRobots.content = 'noindex, nofollow';
+    } else if (metaRobots && metaRobots.content === 'noindex, nofollow') {
+      metaRobots.remove();
+    }
 
     // Canonical
     let canonical = document.querySelector('link[rel="canonical"]');
@@ -98,7 +112,7 @@ export default function Seo({
       }
       twTag.content = twContent;
     });
-  }, [title, description, metaKeywords, fullUrl, ogImage]);
+  }, [title, description, metaKeywords, fullUrl, ogImage, noindex]);
 
   // JSON-LD: Product schema
   useEffect(() => {

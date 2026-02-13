@@ -55,10 +55,10 @@ export function injectJsonLd(json) {
 const DEFAULT_DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 
 export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE) {
-  const url = `${getBaseUrl()}/product/${product.id}`;
-  const imageUrl = product.imageURL?.startsWith('http')
-    ? product.imageURL
-    : `${getBaseUrl()}${product.imageURL || ''}`;
+  const base = getBaseUrl();
+  const url = `${base}/product/${product.id}`;
+  const rawImg = product.imageURL || '';
+  const imageUrl = rawImg.startsWith('http') ? rawImg : rawImg ? `${base}${rawImg.startsWith('/') ? '' : '/'}${rawImg}` : '';
 
   const price = Number(product.price) || 0;
   return {
@@ -120,6 +120,8 @@ export function getBreadcrumbSchema(items) {
  * LocalBusiness schema for homepage (South Africa, Cape Town areas)
  * Helps local search for Cape Town, Mitchells Plain, Gatesville, Rylands, Athlone, Goodwood
  */
+const FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61587066161054';
+
 export function getLocalBusinessSchema() {
   return {
     '@context': 'https://schema.org',
@@ -127,12 +129,14 @@ export function getLocalBusinessSchema() {
     name: 'Al-Ameen Caps',
     description: 'Premium Islamic fashion and handcrafted headwear: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville, Durbanville. Top boutique. South Africa online shop.',
     url: getBaseUrl(),
-    image: `${getBaseUrl()}/favicon.png`,
+    image: `${getBaseUrl()}/collection/nalain-cap.png`,
     priceRange: 'R',
+    sameAs: [FACEBOOK_URL],
     address: {
       '@type': 'PostalAddress',
       addressCountry: 'ZA',
       addressRegion: 'Western Cape',
+      addressLocality: 'Cape Town',
     },
     areaServed: AREAS_SERVED.map((name) =>
       name === 'South Africa'
@@ -152,13 +156,5 @@ export function getWebSiteSchema() {
     name: 'Al-Ameen Caps',
     url: getBaseUrl(),
     description: 'Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, Al Hasan perfume. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa.',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${getBaseUrl()}/shop?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
   };
 }
