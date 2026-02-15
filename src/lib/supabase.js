@@ -185,6 +185,7 @@ export const getProducts = async () => {
         imageURL,
         category: c.category,
         product_id: sb?.id ?? (typeof c.id === 'string' ? parseInt(c.id.replace(/^collection-/, ''), 10) : c.id),
+        preOrderOnly: c.preOrderOnly ?? false,
       };
     });
   } catch {
@@ -198,6 +199,7 @@ export const getProducts = async () => {
       imageURL: normalizeImageUrl(c.imageURL) || (c.imageURL ? (c.imageURL.startsWith('/') ? c.imageURL : `/${c.imageURL}`) : undefined) || undefined,
       category: c.category,
       product_id: typeof c.id === 'string' ? parseInt(c.id.replace(/^collection-/, ''), 10) : c.id,
+      preOrderOnly: c.preOrderOnly ?? false,
     }));
   }
 };

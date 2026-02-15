@@ -11,6 +11,8 @@ import alHassanPerfume from "../assets/collection/al-hassan-perfume.png";
 import muftiCap from "../assets/collection/mufti-cap.png";
 import ertugralWinterCap from "../assets/collection/ertugral-winter-cap.png";
 import royalOttomanFez from "../assets/collection/royal-ottoman-fez.png";
+import emeraldSultanCrown from "../assets/collection/emerald-sultan-crown.png";
+import turkishNaqshbandiTaj from "../assets/collection/turkish-naqshbandi-taj.png";
 
 export const COLLECTION_IMAGE_IMPORTS = {
   "collection-1": nalainCap,
@@ -25,4 +27,6 @@ export const COLLECTION_IMAGE_IMPORTS = {
   "collection-10": muftiCap,
   "collection-11": ertugralWinterCap,
   "collection-12": royalOttomanFez,
+  "collection-13": emeraldSultanCrown,
+  "collection-14": turkishNaqshbandiTaj,
 };

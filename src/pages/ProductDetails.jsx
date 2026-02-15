@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { ArrowLeft, Truck, ShieldCheck, ShoppingCart } from "lucide-react";
@@ -19,15 +19,24 @@ const ProductDetails = () => {
   const staticProduct = COLLECTION_PRODUCTS.find((item) => item.id === id);
   const [product, setProduct] = useState(staticProduct || null);
 
+  // Ensure product page always opens at the top (below nav)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
   const bundledImg = product ? (COLLECTION_IMAGE_IMPORTS[product.id] || COLLECTION_IMAGE_IMPORTS[product.sku]) : null;
   const imageSrc = bundledImg || (product ? getCollectionImageUrl(product) : null);
   const inCart = cart.filter((item) => item.id === product?.id).reduce((sum, item) => sum + (item.quantity || 1), 0);
   const quantityAvailable = product?.quantityAvailable ?? 0;
   const available = Math.max(0, quantityAvailable - inCart);
-  const canAdd = available > 0;
+  const isReservationOnly = product?.preOrderOnly && quantityAvailable <= 0;
+  const canAdd = available > 0 || isReservationOnly;
 
   const handleAddToCart = () => {
-    if (product && canAdd) addToCart({ ...product, quantity: 1, quantityAvailable: product.quantityAvailable });
+    if (!product || !canAdd) return;
+    const item = { ...product, quantity: 1, quantityAvailable: product.quantityAvailable };
+    if (isReservationOnly) item.isPreOrder = true;
+    addToCart(item);
   };
 
   if (!product) {
@@ -70,19 +79,22 @@ const ProductDetails = () => {
 
         <div className="bg-secondary rounded-2xl shadow-premium overflow-hidden grid md:grid-cols-2 gap-0 border border-black/5 mt-2">
           <div className="flex flex-col">
-            <div className="bg-primary/5 relative flex items-center justify-center pt-10 pb-4 min-h-[500px]" style={{ aspectRatio: 'auto' }}>
+            <div className="bg-primary/5 relative flex items-center justify-center pt-10 pb-4 min-h-[500px] overflow-visible" style={{ aspectRatio: 'auto' }}>
               <ImageMagnifier
                 src={imageSrc}
                 alt={product.name}
                 className="w-full h-full min-h-[460px] max-h-[75vh]"
+                imgClassName={product.id === "collection-14" ? "object-cover object-center" : ""}
               />
             </div>
             <div className="p-6 border-t border-black/5">
               <p className="flex items-center gap-2 text-primary/70 text-sm mb-4">
                 <ShoppingCart className="w-4 h-4 text-accent shrink-0" />
-                {available <= 0
-                  ? "Out of stock"
-                  : "Limited stock available — add yours to cart today."}
+                {isReservationOnly
+                  ? "Out of stock — reserve yours now."
+                  : available <= 0
+                    ? "Out of stock"
+                    : "Limited stock available — add yours to cart today."}
               </p>
               <button
                 type="button"
@@ -90,7 +102,7 @@ const ProductDetails = () => {
                 disabled={!canAdd}
                 className="btn-primary w-full py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {canAdd ? "Add to Cart" : "Out of stock"}
+                {isReservationOnly ? "Reserve (Pre-Order)" : canAdd ? "Add to Cart" : "Out of stock"}
               </button>
               <div className="grid grid-cols-2 gap-4 text-sm text-primary/60 mt-6">
                 <div className="flex items-center gap-2">
@@ -114,7 +126,7 @@ const ProductDetails = () => {
 
             <h1 className="text-3xl font-serif text-primary mb-2">{product.name}</h1>
             <p className="text-primary/70 text-sm mb-1">
-              {available <= 0 ? "Out of stock" : `${available} available`}
+              {isReservationOnly ? "Pre-order only — reserve now" : available <= 0 ? "Out of stock" : `${available} available`}
             </p>
             <p className="text-2xl font-bold text-amber-700 mb-6">{formatPrice(product.price)}</p>
 

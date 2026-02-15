@@ -10,11 +10,12 @@ import { sameOriginImageSrc } from "../lib/supabase";
 import defaultProductImg from "../assets/caps-collection.png";
 
 export default function ProductCard({ product, index = 0 }) {
-  const { id, name, price, imageURL, quantityAvailable = 0 } = product || {};
+  const { id, name, price, imageURL, quantityAvailable = 0, preOrderOnly } = product || {};
   const { addToCart, cart } = useCart();
   const inCart = cart.filter((item) => item.id === id).reduce((sum, item) => sum + (item.quantity || 1), 0);
   const available = Math.max(0, (quantityAvailable ?? 0) - inCart);
-  const canAdd = available > 0;
+  const isReservationOnly = preOrderOnly && (quantityAvailable ?? 0) <= 0;
+  const canAdd = available > 0 || isReservationOnly;
 
   const bundledImg = product ? (COLLECTION_IMAGE_IMPORTS[id] || COLLECTION_IMAGE_IMPORTS[product.sku]) : null;
   const displaySrc = bundledImg || getCollectionImageUrl(product) || sameOriginImageSrc(imageURL) || defaultProductImg;
@@ -22,7 +23,9 @@ export default function ProductCard({ product, index = 0 }) {
   const handleAddToCart = (e) => {
     e.preventDefault();
     if (!canAdd) return;
-    addToCart({ id, name, price, imageURL, quantity: 1, quantityAvailable, product_id: product?.product_id });
+    const item = { id, name, price, imageURL, quantity: 1, quantityAvailable, product_id: product?.product_id };
+    if (isReservationOnly) item.isPreOrder = true;
+    addToCart(item);
   };
 
   return (
@@ -35,17 +38,24 @@ export default function ProductCard({ product, index = 0 }) {
     >
       <Link to={`/product/${id}`} className="block">
         <div className="aspect-square bg-primary/5 relative">
-          <img src={displaySrc} alt={name} loading={index < 3 ? "eager" : "lazy"} className="w-full h-full object-cover" />
+          <img
+            src={displaySrc}
+            alt={name}
+            loading={index < 3 ? "eager" : "lazy"}
+            className={`w-full h-full ${id === "collection-14" ? "object-cover object-center" : "object-contain"}`}
+          />
           {available <= 0 && (
             <span className="absolute top-2 right-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">
-              Out of stock
+              {isReservationOnly ? "Pre-order" : "Out of stock"}
             </span>
           )}
         </div>
         <div className="p-5">
           <h3 className="font-serif text-lg font-semibold text-primary">{name || "Product Name"}</h3>
           <p className="mt-2 text-primary/70 text-sm">
-            {available <= 0 ? (
+            {isReservationOnly ? (
+              <span className="text-primary/60">Reservation only</span>
+            ) : available <= 0 ? (
               <span className="text-primary/60">Out of stock</span>
             ) : (
               <span>{available} available</span>
@@ -63,7 +73,7 @@ export default function ProductCard({ product, index = 0 }) {
           disabled={!canAdd}
           className="btn-outline w-full py-3.5 text-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
         >
-          {canAdd ? "Add to Cart" : "Out of stock"}
+          {isReservationOnly ? "Reserve" : canAdd ? "Add to Cart" : "Out of stock"}
         </button>
       </div>
     </motion.article>
