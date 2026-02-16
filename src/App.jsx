@@ -11,6 +11,10 @@ import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Shipping from "./pages/Shipping";
+import Heritage from "./pages/Heritage";
+import EvolutionFezKufi from "./pages/EvolutionFezKufi";
+import LocalBoKaap from "./pages/LocalBoKaap";
+import LocalAthlone from "./pages/LocalAthlone";
 import ProductDetails from "./pages/ProductDetails";
 import Checkout from "./pages/Checkout";
 import Success from "./pages/Success";
@@ -38,6 +42,10 @@ function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/shipping" element={<Shipping />} />
+          <Route path="/heritage" element={<Heritage />} />
+          <Route path="/culture/evolution-fez-kufi-cape" element={<EvolutionFezKufi />} />
+          <Route path="/near/bo-kaap" element={<LocalBoKaap />} />
+          <Route path="/near/athlone" element={<LocalAthlone />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/success" element={<Success />} />

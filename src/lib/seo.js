@@ -13,8 +13,11 @@ export function getBaseUrl() {
 export const SEO_KEYWORDS =
   'Islamic fashion, fez, kufi, kufiyah, taj, Ashrafi, turban, salaah cap, South Africa, Cape Town, Durban, Johannesburg, PE, Port Elizabeth, Northern suburbs, Southern suburbs, Winelands, Mitchells Plain, Gatesville, Rylands, Athlone, Goodwood, Kensington, Maitland, Salt River, Woodstock, Bo-Kaap, Tableview, Bellville, Durbanville, online shop, Ramadaan, Eid, quality kufi, best price, Rumal, perfume, Al Hasan, Naqshbandi, Qadri, Chishti, Shadhili, Ba Alawiya, Sufi fashion, Sufi clothing, Nalain cap, Azhari cap, Muslim headwear, prayer cap, Servants creation, top boutique';
 
-/** Areas for LocalBusiness areaServed (Cape Town, major cities, suburbs, regions) */
+/** Areas for LocalBusiness areaServed. Bo-Kaap, Athlone, Gatesville first for hyper-local (Phase 2). */
 const AREAS_SERVED = [
+  'Bo-Kaap',
+  'Athlone',
+  'Gatesville',
   'South Africa',
   'Cape Town',
   'Durban',
@@ -24,15 +27,12 @@ const AREAS_SERVED = [
   'Southern suburbs',
   'Winelands',
   'Mitchells Plain',
-  'Gatesville',
   'Rylands',
-  'Athlone',
   'Goodwood',
   'Kensington',
   'Maitland',
   'Salt River',
   'Woodstock',
-  'Bo-Kaap',
   'Tableview',
   'Bellville',
   'Durbanville',
@@ -50,7 +50,37 @@ export function injectJsonLd(json) {
 }
 
 /**
- * Product schema for product pages (ZAR, South Africa)
+ * Lead Curator (E-E-A-T): Person schema for author authority. No supplier or personal identity exposed.
+ * Used on About page and signals expertise to AI search agents.
+ */
+export function getLeadCuratorSchema() {
+  const base = getBaseUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Lead Curator, Al-Ameen Caps',
+    jobTitle: 'Lead Curator',
+    description: 'Expert in Islamic headwear curation, Cape Town Islamic heritage, and the Naqshbandi significance of the Taj. Oversees rigorous quality control for every handcrafted Kufi and Fez at Al-Ameen Caps.',
+    url: `${base}/about`,
+    worksFor: {
+      '@type': 'Organization',
+      name: 'Al-Ameen Caps',
+      url: base,
+    },
+    knowsAbout: [
+      'Islamic headwear',
+      'Cape Town Islamic heritage',
+      'Naqshbandi tradition',
+      'Taj and Kufi craftsmanship',
+      'Handcrafted quality control',
+      'Fez and Sufi headwear',
+    ],
+  };
+}
+
+/**
+ * Product schema for product pages (ZAR, South Africa).
+ * Brand url points to /about for E-E-A-T (authority link to Lead Curator content).
  */
 const DEFAULT_DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 
@@ -72,6 +102,7 @@ export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE
     brand: {
       '@type': 'Brand',
       name: 'Al-Ameen Caps',
+      url: `${base}/about`,
     },
     offers: {
       '@type': 'Offer',
@@ -117,6 +148,45 @@ export function getBreadcrumbSchema(items) {
 }
 
 /**
+ * FAQPage schema for SERP FAQ rich results. Pass array of { question, answer }.
+ */
+export function getFAQPageSchema(faqs) {
+  if (!faqs?.length) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
+/**
+ * ItemList schema for Shop / Inaugural Collection (Kufi, Fez, Taj, Turban). Signals product catalog to search.
+ */
+export function getShopItemListSchema(products) {
+  const base = getBaseUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Inaugural Collection — Kufi, Fez, Taj, Turban',
+    description: 'Islamic headwear Cape Town: handcrafted Kufi, Fez, Taj, Turban. Al-Ameen Caps.',
+    numberOfItems: products?.length ?? 0,
+    itemListElement: (products || []).map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${base}/product/${p.id}`,
+      name: p.name,
+    })),
+  };
+}
+
+/**
  * LocalBusiness schema for homepage (South Africa, Cape Town areas)
  * Helps local search for Cape Town, Mitchells Plain, Gatesville, Rylands, Athlone, Goodwood
  */
@@ -156,5 +226,53 @@ export function getWebSiteSchema() {
     name: 'Al-Ameen Caps',
     url: getBaseUrl(),
     description: 'Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, Al Hasan perfume. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa.',
+  };
+}
+
+/**
+ * Article schema for Heritage (History of Cape Islamic Headwear) page. Links to brand/authority for E-E-A-T.
+ */
+export function getHeritageArticleSchema() {
+  const base = getBaseUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'History of Cape Islamic Headwear',
+    description: 'The heritage of Islamic headwear in the Cape: Bo-Kaap, Kufi, Taj, Fez, and the Naqshbandi tradition. Cape Town, South Africa.',
+    url: `${base}/heritage`,
+    author: {
+      '@type': 'Organization',
+      name: 'Al-Ameen Caps',
+      url: `${base}/about`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Al-Ameen Caps',
+      url: base,
+    },
+  };
+}
+
+/**
+ * Article schema for blog post "The Evolution of the Fez and Kufi in the Cape". Topical authority for E-E-A-T.
+ */
+export function getEvolutionFezKufiArticleSchema() {
+  const base = getBaseUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'The Evolution of the Fez and Kufi in the Cape',
+    description: 'How the Fez and Kufi evolved in the Cape: Cape Malay heritage, Bo-Kaap, Ottoman and Sufi tradition. Al-Ameen Caps — topical authority in Islamic headwear, Cape Town.',
+    url: `${base}/culture/evolution-fez-kufi-cape`,
+    author: {
+      '@type': 'Organization',
+      name: 'Al-Ameen Caps',
+      url: `${base}/about`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Al-Ameen Caps',
+      url: base,
+    },
   };
 }

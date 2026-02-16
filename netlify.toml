@@ -1,10 +1,14 @@
 # Al-Ameen Caps — Netlify Configuration
 # https://docs.netlify.com/configure-builds/file-based-configuration/
+# 2026: Node 22.x, Netlify Prerender Extension (legacy prerendering OFF in dashboard)
 
 [build]
   command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "22"
 
 # Headers for performance and security
 [[headers]]
@@ -13,6 +17,7 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
 
 # Don't cache HTML — ensures users get latest index.html and correct hashed asset URLs after deploys
 # (cached index.html can request old /assets/index-OLDHASH.css which no longer exists → server returns 404 HTML → MIME type error)
@@ -55,4 +60,4 @@
 
 # Note: For prerendering crawlers and social previews, enable the Netlify Prerender
 # extension in the Netlify dashboard (Extensions → Prerender). Legacy prerendering
-# is deprecated and should NOT be used.
+# is deprecated and should NOT be used. See docs/PRERENDERING_AND_PERFORMANCE.md.

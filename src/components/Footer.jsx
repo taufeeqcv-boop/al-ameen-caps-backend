@@ -12,7 +12,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <Link to="/" className="inline-block">
           <div className="h-24 w-24 mx-auto overflow-hidden flex items-start justify-center">
-            <img src={logoImg} alt="Al-Ameen Caps" className="h-48 w-auto object-contain object-top opacity-90" />
+            <img src={logoImg} alt="Al-Ameen Caps" width={96} height={96} className="h-48 w-auto object-contain object-top opacity-90" />
           </div>
         </Link>
         <p className="mt-1 text-sm text-white/80">Restoring the Crown of the Believer</p>
@@ -29,6 +29,7 @@ export default function Footer() {
           </a>
           <Link to="/shop" className="hover:text-accent transition-colors">Shop</Link>
           <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+          <Link to="/heritage" className="hover:text-accent transition-colors">Heritage</Link>
           <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
           <Link to="/shipping" className="hover:text-accent transition-colors">Shipping</Link>
           <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>

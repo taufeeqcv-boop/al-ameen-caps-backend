@@ -48,15 +48,9 @@ To achieve top-three ranking on Google South Africa in the Islamic headwear nich
 - **Hosting**: Netlify
 - **SPA**: Client-side routing (React Router)
 
-### 4.2 Netlify Prerendering (Critical — ACTION REQUIRED)
+### 4.2 Netlify Prerendering (2026)
 
-**Legacy prerendering is deprecated.** Use the **Netlify Prerender extension**:
-
-1. Netlify Dashboard → Your site → Extensions
-2. Search for **Prerender** (or similar prerendering extension)
-3. Enable and configure for crawlers (Googlebot, Facebook, WhatsApp, etc.)
-
-This ensures crawlers and social bots receive pre-rendered HTML with meta tags and JSON-LD instead of an empty SPA shell. Product links shared in WhatsApp/Facebook will show rich previews with image and price.
+See [PRERENDERING_AND_PERFORMANCE.md](PRERENDERING_AND_PERFORMANCE.md) for 2026 Netlify Prerender extension setup and legacy deprecation.
 
 ### 4.3 JSON-LD Schema
 
@@ -75,7 +69,7 @@ This ensures crawlers and social bots receive pre-rendered HTML with meta tags a
 - [x] Enhanced meta tags (title, description, Open Graph, Twitter)
 - [x] `netlify.toml` (build, headers)
 - [x] `robots.txt` and `sitemap.xml`
-- [ ] Netlify Prerender extension (enable in dashboard)
+- [ ] Netlify Prerender extension (enable in dashboard; steps in [PRERENDERING_AND_PERFORMANCE.md](PRERENDERING_AND_PERFORMANCE.md))
 - [ ] Image optimization (AVIF/WebP) — future
 - [ ] SSR/SSG (Vite middleware) — future if needed
 - [ ] POPIA-compliant privacy policy copy review

@@ -42,6 +42,7 @@ Set these (same Supabase project for all four):
 - Open the live site; confirm Shop loads products (and images).
 - If using PayFast: do one test payment (sandbox or small live amount) and confirm redirect to Success and order status updates.
 - Submit sitemap in Google Search Console: `https://your-site.netlify.app/sitemap.xml`.
+- **Prerendering:** Netlify Prerender extension enabled; legacy prerendering disabled (see [docs/PRERENDERING_AND_PERFORMANCE.md](docs/PRERENDERING_AND_PERFORMANCE.md)).
 
 ---
 

@@ -14,6 +14,7 @@ const navLinks = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
   { to: "/about", label: "About" },
+  { to: "/heritage", label: "Heritage" },
   { to: "/contact", label: "Contact" },
 ];
 
@@ -58,7 +59,7 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between min-h-[5.5rem] py-2">
             <Link to="/" className="flex items-center gap-3 flex-shrink-0">
-              <img src={logoImg} alt="Al-Ameen Caps" className="h-20 w-auto object-contain" />
+              <img src={logoImg} alt="Al-Ameen Caps" width={80} height={80} className="h-20 w-auto object-contain" />
               <span className="font-serif text-xl font-semibold text-accent hidden sm:inline">Al-Ameen Caps</span>
             </Link>
             <div className="hidden md:flex items-center gap-8">

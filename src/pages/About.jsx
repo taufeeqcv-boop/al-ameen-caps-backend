@@ -11,6 +11,7 @@ export default function About() {
         title="About"
         description="Al-Ameen Caps: Islamic fashion and Sufi clothing. Kufi, fez, taj, turban. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. South Africa."
         url="/about"
+        leadCurator
       />
       <Navbar />
       <main className="flex-1 pt-32 pb-16">
@@ -52,6 +53,51 @@ export default function About() {
               We are a small brand focused on trust, authenticity, and a “Rolex-style” standard—minimalist, high-trust, and
               built to last. Thank you for being part of the Al-Ameen story.
             </p>
+          </motion.section>
+
+          <motion.section
+            className="mt-14 pt-10 border-t border-black/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.28 }}
+            aria-labelledby="about-the-artisan"
+          >
+            <h2 id="about-the-artisan" className="font-serif text-2xl font-semibold text-primary mb-4">
+              About the Artisan
+            </h2>
+            <p className="text-primary/90 leading-relaxed mb-4">
+              Every piece at Al-Ameen Caps is selected and quality-checked by our <strong className="text-primary">Lead Curator</strong>—an expert
+              in <strong className="text-primary">Cape Town Islamic tradition</strong> and <strong className="text-primary">Cape Malay traditional headwear</strong>, with a deep understanding of the heritage that shapes modest headwear across the Cape, from the Bo-Kaap to the Northern and Southern suburbs. Our <strong className="text-accent">handcrafted</strong> collection reflects this expertise.
+            </p>
+            <p className="text-primary/90 leading-relaxed mb-4">
+              The Lead Curator&apos;s knowledge of materials and construction informs every selection—including the <strong className="text-primary">Na&apos;lain Cap</strong>, where fabric quality and embroidery integrity are chosen to honour both comfort and tradition. The <strong className="text-accent">Naqshbandi significance of the Taj</strong>—the crown that honours devotion and lineage—guides our curation of each <strong className="text-primary">premium Taj</strong>. We ensure that every <strong className="text-primary">authentic Bo-Kaap Fez</strong>, Kufi, and Taj meets high aesthetic and material standards as well as the spiritual and cultural weight these pieces carry for wearers.
+            </p>
+            <p className="text-primary/90 leading-relaxed">
+              <strong className="text-primary">Rigorous quality control</strong> is applied to every handcrafted Kufi and Fez before it reaches you:
+              stitch integrity, fabric authenticity, fit, and finish are checked so that what you receive is worthy of the crown of the believer.
+            </p>
+          </motion.section>
+
+          <motion.section
+            className="mt-14 pt-10 border-t border-black/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.32 }}
+            aria-labelledby="artisanal-process"
+          >
+            <h2 id="artisanal-process" className="font-serif text-2xl font-semibold text-primary mb-4">
+              Our Artisanal Process
+            </h2>
+            <p className="text-primary/90 leading-relaxed mb-4">
+              We work with skilled artisans who share our commitment to tradition and excellence. Our process is built on
+              <strong className="text-primary"> design briefs</strong>, <strong className="text-primary">material selection</strong>, and
+              <strong className="text-primary"> multi-stage inspection</strong>—never compromising on the standards that define Islamic headwear at its best.
+            </p>
+            <ul className="space-y-2 text-primary/85 list-disc list-inside">
+              <li><strong>Design and specification</strong> — Styles are chosen to honour classical forms (Taj, Kufi, Fez, Na&apos;lain) and regional preferences.</li>
+              <li><strong>Material and construction</strong> — Only quality fabrics and trims are approved; construction is checked for durability and comfort.</li>
+              <li><strong>Final inspection</strong> — Each piece is reviewed by our Lead Curator before it is offered to you.</li>
+            </ul>
           </motion.section>
 
           <motion.section

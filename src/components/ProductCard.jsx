@@ -41,6 +41,8 @@ export default function ProductCard({ product, index = 0 }) {
           <img
             src={displaySrc}
             alt={name}
+            width={400}
+            height={400}
             loading={index < 3 ? "eager" : "lazy"}
             className={`w-full h-full ${id === "collection-14" ? "object-cover object-center" : "object-contain"}`}
           />
@@ -51,7 +53,7 @@ export default function ProductCard({ product, index = 0 }) {
           )}
         </div>
         <div className="p-5">
-          <h3 className="font-serif text-lg font-semibold text-primary">{name || "Product Name"}</h3>
+          <h2 className="font-serif text-lg font-semibold text-primary">{name || "Product Name"}</h2>
           <p className="mt-2 text-primary/70 text-sm">
             {isReservationOnly ? (
               <span className="text-primary/60">Reservation only</span>

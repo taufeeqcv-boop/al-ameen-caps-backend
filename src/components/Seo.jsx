@@ -8,6 +8,12 @@ import {
   injectJsonLd,
   getProductSchema,
   getBreadcrumbSchema,
+  getLeadCuratorSchema,
+  getHeritageArticleSchema,
+  getEvolutionFezKufiArticleSchema,
+  getShopItemListSchema,
+  getLocalBusinessSchema,
+  getFAQPageSchema,
   getBaseUrl,
   SEO_KEYWORDS,
 } from '../lib/seo';
@@ -25,6 +31,12 @@ export default function Seo({
   url,
   product,
   breadcrumbs,
+  leadCurator = false,
+  heritageArticle = false,
+  evolutionFezKufiArticle = false,
+  itemListProducts = null,
+  localBusiness = false,
+  faqs = null,
   noindex = false,
 }) {
   const fullUrl = url ? `${BASE_URL}${url}` : BASE_URL;
@@ -129,6 +141,51 @@ export default function Seo({
     const cleanup = injectJsonLd(schema);
     return cleanup;
   }, [breadcrumbs]);
+
+  // JSON-LD: Lead Curator (Person) for E-E-A-T / author authority
+  useEffect(() => {
+    if (!leadCurator) return;
+    const schema = getLeadCuratorSchema();
+    const cleanup = injectJsonLd(schema);
+    return cleanup;
+  }, [leadCurator]);
+
+  // JSON-LD: Article for Heritage page (links to brand/authority)
+  useEffect(() => {
+    if (!heritageArticle) return;
+    const schema = getHeritageArticleSchema();
+    const cleanup = injectJsonLd(schema);
+    return cleanup;
+  }, [heritageArticle]);
+
+  // JSON-LD: Article for Evolution of Fez and Kufi blog post
+  useEffect(() => {
+    if (!evolutionFezKufiArticle) return;
+    const schema = getEvolutionFezKufiArticleSchema();
+    const cleanup = injectJsonLd(schema);
+    return cleanup;
+  }, [evolutionFezKufiArticle]);
+
+  // JSON-LD: ItemList for Shop (Inaugural Collection) + optional LocalBusiness
+  useEffect(() => {
+    if (!itemListProducts?.length && !localBusiness) return;
+    const cleanups = [];
+    if (itemListProducts?.length) {
+      cleanups.push(injectJsonLd(getShopItemListSchema(itemListProducts)));
+    }
+    if (localBusiness) {
+      cleanups.push(injectJsonLd(getLocalBusinessSchema()));
+    }
+    return () => cleanups.forEach((c) => c());
+  }, [itemListProducts, localBusiness]);
+
+  // JSON-LD: FAQPage for local landing pages (SERP FAQ rich results)
+  useEffect(() => {
+    const schema = getFAQPageSchema(faqs);
+    if (!schema) return;
+    const cleanup = injectJsonLd(schema);
+    return cleanup;
+  }, [faqs]);
 
   return null;
 }
