@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<!-- Replace this file with the BingSiteAuth.xml you download from Bing Webmaster Tools (Add & verify site > XML File > Download the file). -->
+<users>
+  <user>PASTE_YOUR_CODE_FROM_BING_HERE</user>
+</users>
