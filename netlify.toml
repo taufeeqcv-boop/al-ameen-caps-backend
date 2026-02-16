@@ -51,7 +51,8 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# SPA fallback — serve index.html for client-side routes only when no static file matches (force = false)
+# SPA fallback — serve index.html for client-side routes only when no static file matches (force = false).
+# Static files in dist/ (e.g. IndexNow key 4ed08a1ef99a4e2c900e1f0cd2eb69f8.txt) are served first; redirect does not block .txt or other root files.
 [[redirects]]
   from = "/*"
   to = "/index.html"

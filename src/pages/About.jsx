@@ -40,12 +40,12 @@ export default function About() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <p className="text-lg">
-              Al-Ameen Caps exists to offer <strong className="text-primary">premium, handcrafted Islamic headwear</strong> to those
-              who value both tradition and excellence. We believe the crown of the believer deserves the same care and dignity in
-              craft as the most respected luxury goods.
+              I founded Al-Ameen Caps to offer <strong className="text-primary">premium, handcrafted Islamic headwear</strong> to those
+              who value both tradition and excellence. The crown of the believer deserves the same care and dignity in
+              craft as the most respected luxury goods—and that is the standard I hold myself to.
             </p>
             <p>
-              Our pieces are made with attention to detail, quality materials, and the intention that they be worn in worship and
+              Every piece is made with attention to detail, quality materials, and the intention that it be worn in worship and
               in daily life. <span className="text-accent font-medium">Spirituality meets luxury</span> in every cap we offer:
               timeless design, enduring quality, and a shopping experience that reflects the respect we have for our customers.
             </p>
@@ -66,15 +66,13 @@ export default function About() {
               About the Artisan
             </h2>
             <p className="text-primary/90 leading-relaxed mb-4">
-              Every piece at Al-Ameen Caps is selected and quality-checked by our <strong className="text-primary">Lead Curator</strong>—an expert
-              in <strong className="text-primary">Cape Town Islamic tradition</strong> and <strong className="text-primary">Cape Malay traditional headwear</strong>, with a deep understanding of the heritage that shapes modest headwear across the Cape, from the Bo-Kaap to the Northern and Southern suburbs. Our <strong className="text-accent">handcrafted</strong> collection reflects this expertise.
+              As Lead Curator, I hand-select every piece in our collection. There is a tactile discipline to it: for the <strong className="text-primary">Royal Ottoman Fez</strong>, I insist on rigid Turkish felt—the kind that holds its shape and carries the weight of ceremony. You can feel the difference when you hold it: dense, structured, worthy of the traditions of the Bo-Kaap and the Cape Malay legacy we serve.
             </p>
             <p className="text-primary/90 leading-relaxed mb-4">
-              The Lead Curator&apos;s knowledge of materials and construction informs every selection—including the <strong className="text-primary">Na&apos;lain Cap</strong>, where fabric quality and embroidery integrity are chosen to honour both comfort and tradition. The <strong className="text-accent">Naqshbandi significance of the Taj</strong>—the crown that honours devotion and lineage—guides our curation of each <strong className="text-primary">premium Taj</strong>. We ensure that every <strong className="text-primary">authentic Bo-Kaap Fez</strong>, Kufi, and Taj meets high aesthetic and material standards as well as the spiritual and cultural weight these pieces carry for wearers.
+              The embroidery on the <strong className="text-primary">Na&apos;lain Cap</strong> is not merely decorative. It is a symbol of heritage—each motif chosen to honour sacred geometry and the identity of the wearer. I oversee the selection of fabric and the integrity of every stitch so that what reaches you is both comfortable and meaningful, grounded in <strong className="text-accent">Cape Malay tradition</strong> and Islamic artistry.
             </p>
             <p className="text-primary/90 leading-relaxed">
-              <strong className="text-primary">Rigorous quality control</strong> is applied to every handcrafted Kufi and Fez before it reaches you:
-              stitch integrity, fabric authenticity, fit, and finish are checked so that what you receive is worthy of the crown of the believer.
+              Every cap in the <strong className="text-primary">Inaugural Collection</strong> is personally inspected in Cape Town before it is offered to you. I hold each piece to the standards expected by the <strong className="text-primary">Bo-Kaap</strong> and <strong className="text-primary">Athlone</strong> communities—where Islamic headwear carries spiritual and cultural weight. Stitch integrity, fabric authenticity, fit, and finish are checked so that what you receive is worthy of the crown of the believer.
             </p>
           </motion.section>
 
@@ -96,7 +94,7 @@ export default function About() {
             <ul className="space-y-2 text-primary/85 list-disc list-inside">
               <li><strong>Design and specification</strong> — Styles are chosen to honour classical forms (Taj, Kufi, Fez, Na&apos;lain) and regional preferences.</li>
               <li><strong>Material and construction</strong> — Only quality fabrics and trims are approved; construction is checked for durability and comfort.</li>
-              <li><strong>Final inspection</strong> — Each piece is reviewed by our Lead Curator before it is offered to you.</li>
+              <li><strong>Final inspection</strong> — Each piece is reviewed by me in Cape Town before it is offered to you.</li>
             </ul>
           </motion.section>
 

@@ -50,17 +50,17 @@ export function injectJsonLd(json) {
 }
 
 /**
- * Lead Curator (E-E-A-T): Person schema for author authority. No supplier or personal identity exposed.
- * Used on About page and signals expertise to AI search agents.
+ * Lead Curator (E-E-A-T): Person schema for author authority. Named entity for GSC/organization.
+ * Used on About page; linked from LocalBusiness via founder.
  */
 export function getLeadCuratorSchema() {
   const base = getBaseUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
-    name: 'Lead Curator, Al-Ameen Caps',
-    jobTitle: 'Lead Curator',
-    description: 'Expert in Islamic headwear curation, Cape Town Islamic heritage, and the Naqshbandi significance of the Taj. Oversees rigorous quality control for every handcrafted Kufi and Fez at Al-Ameen Caps.',
+    name: 'Al-Ameen Lead Curator',
+    jobTitle: 'Lead Artisan & Curator',
+    description: "Specialist in Cape Malay traditional headwear and Islamic sartorial history with expertise in material curation for the Na'lain and Fez collections.",
     url: `${base}/about`,
     worksFor: {
       '@type': 'Organization',
@@ -68,13 +68,26 @@ export function getLeadCuratorSchema() {
       url: base,
     },
     knowsAbout: [
-      'Islamic headwear',
+      'Cape Malay Tradition',
+      'Islamic Artistry',
+      'Handcrafted Headwear',
       'Cape Town Islamic heritage',
       'Naqshbandi tradition',
       'Taj and Kufi craftsmanship',
-      'Handcrafted quality control',
       'Fez and Sufi headwear',
     ],
+  };
+}
+
+/** Same Person object for embedding in LocalBusiness founder/employee. */
+export function getLeadCuratorPersonForOrg() {
+  const base = getBaseUrl();
+  return {
+    '@type': 'Person',
+    name: 'Al-Ameen Lead Curator',
+    jobTitle: 'Lead Artisan & Curator',
+    url: `${base}/about`,
+    knowsAbout: ['Cape Malay Tradition', 'Islamic Artistry', 'Handcrafted Headwear'],
   };
 }
 
@@ -91,6 +104,7 @@ export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE
   const imageUrl = rawImg.startsWith('http') ? rawImg : rawImg ? `${base}${rawImg.startsWith('/') ? '' : '/'}${rawImg}` : '';
 
   const price = Number(product.price) || 0;
+  const hasReviews = product.reviewCount > 0 || (product.aggregateRating && product.aggregateRating.reviewCount > 0);
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -109,6 +123,7 @@ export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE
       url,
       priceCurrency: 'ZAR',
       price: price > 0 ? price.toFixed(2) : undefined,
+      priceValidUntil: '2026-12-31',
       itemCondition: 'https://schema.org/NewCondition',
       availability: (product.quantityAvailable ?? 0) > 0
         ? 'https://schema.org/InStock'
@@ -128,6 +143,10 @@ export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE
         },
       }),
     },
+    ...(hasReviews && product.aggregateRating
+      ? { aggregateRating: product.aggregateRating }
+      : {}),
+    review: product.reviews && product.reviews.length > 0 ? product.reviews : [],
   };
 }
 
@@ -193,15 +212,17 @@ export function getShopItemListSchema(products) {
 const FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61587066161054';
 
 export function getLocalBusinessSchema() {
+  const base = getBaseUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Al-Ameen Caps',
     description: 'Premium Islamic fashion and handcrafted headwear: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville, Durbanville. Top boutique. South Africa online shop.',
-    url: getBaseUrl(),
-    image: `${getBaseUrl()}/collection/nalain-cap.png`,
+    url: base,
+    image: `${base}/collection/nalain-cap.png`,
     priceRange: 'R',
     sameAs: [FACEBOOK_URL],
+    founder: getLeadCuratorPersonForOrg(),
     address: {
       '@type': 'PostalAddress',
       addressCountry: 'ZA',
