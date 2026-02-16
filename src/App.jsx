@@ -27,7 +27,6 @@ import AdminOrders from "./pages/admin/Orders";
 import AdminProducts from "./pages/admin/Products";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminReservations from "./pages/admin/Reservations";
-import FacebookLikeButton from "./components/FacebookLikeButton";
 
 function App() {
   return (
@@ -70,8 +69,6 @@ function App() {
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
-        {/* Floating Facebook Like – intent-based link; fb:// deep-link on mobile */}
-        <FacebookLikeButton />
       </BrowserRouter>
     </CartProvider>
     </AuthProvider>
