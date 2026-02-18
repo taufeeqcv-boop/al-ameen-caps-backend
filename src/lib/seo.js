@@ -4,9 +4,16 @@
  */
 
 const BASE_URL = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 'https://www.alameencaps.com';
+/** Canonical domain for JSON-LD schema (always production so rich results use correct URLs). */
+const CANONICAL_SITE_URL = 'https://www.alameencaps.com';
 
 export function getBaseUrl() {
   return BASE_URL.replace(/\/$/, '');
+}
+
+/** Base URL for schema.org JSON-LD — always canonical so Google shows www.alameencaps.com in rich results. */
+export function getSchemaBaseUrl() {
+  return CANONICAL_SITE_URL.replace(/\/$/, '');
 }
 
 /** Category → SEO label for product meta (Kufi, Fez, Taj, etc.) */
@@ -81,7 +88,7 @@ export function injectJsonLd(json) {
  * Used on About page; linked from LocalBusiness via founder.
  */
 export function getLeadCuratorSchema() {
-  const base = getBaseUrl();
+  const base = getSchemaBaseUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -108,7 +115,7 @@ export function getLeadCuratorSchema() {
 
 /** Same Person object for embedding in LocalBusiness founder/employee. */
 export function getLeadCuratorPersonForOrg() {
-  const base = getBaseUrl();
+  const base = getSchemaBaseUrl();
   return {
     '@type': 'Person',
     name: 'Al-Ameen Lead Curator',
@@ -125,7 +132,7 @@ export function getLeadCuratorPersonForOrg() {
 const DEFAULT_DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 
 export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE) {
-  const base = getBaseUrl();
+  const base = getSchemaBaseUrl();
   const url = `${base}/product/${product.id}`;
   const rawImg = product.imageURL || '';
   const imageUrl = rawImg.startsWith('http') ? rawImg : rawImg ? `${base}${rawImg.startsWith('/') ? '' : '/'}${rawImg}` : '';
@@ -207,11 +214,12 @@ export function getBreadcrumbSchema(items) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
+    name: 'Breadcrumb',
     itemListElement: items.map((item, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       name: item.name,
-      item: item.url ? `${getBaseUrl()}${item.url}` : undefined,
+      item: item.url ? `${getSchemaBaseUrl()}${item.url}` : undefined,
     })),
   };
 }
@@ -239,7 +247,7 @@ export function getFAQPageSchema(faqs) {
  * ItemList schema for Shop / Inaugural Collection (Kufi, Fez, Taj, Turban). Signals product catalog to search.
  */
 export function getShopItemListSchema(products) {
-  const base = getBaseUrl();
+  const base = getSchemaBaseUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -262,8 +270,9 @@ export function getShopItemListSchema(products) {
 const FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61587066161054';
 
 export function getLocalBusinessSchema() {
-  const base = getBaseUrl();
-  return {
+  const base = getSchemaBaseUrl();
+  const telephone = import.meta.env.VITE_CONTACT_PHONE?.trim() || undefined;
+  const schema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Al-Ameen Caps',
@@ -273,18 +282,27 @@ export function getLocalBusinessSchema() {
     priceRange: 'R',
     sameAs: [FACEBOOK_URL],
     founder: getLeadCuratorPersonForOrg(),
-    address: {
-      '@type': 'PostalAddress',
-      addressCountry: 'ZA',
-      addressRegion: 'Western Cape',
-      addressLocality: 'Cape Town',
-    },
+    address: (() => {
+      const street = import.meta.env.VITE_ADDRESS_STREET?.trim() || undefined;
+      const postal = import.meta.env.VITE_ADDRESS_POSTAL_CODE?.trim() || undefined;
+      const addr = {
+        '@type': 'PostalAddress',
+        addressCountry: 'ZA',
+        addressRegion: 'Western Cape',
+        addressLocality: 'Cape Town',
+      };
+      if (street) addr.streetAddress = street;
+      if (postal) addr.postalCode = postal;
+      return addr;
+    })(),
     areaServed: AREAS_SERVED.map((name) =>
       name === 'South Africa'
         ? { '@type': 'Country', name: 'South Africa' }
         : { '@type': 'Place', name }
     ),
   };
+  if (telephone) schema.telephone = telephone;
+  return schema;
 }
 
 /**
@@ -295,7 +313,7 @@ export function getWebSiteSchema() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Al-Ameen Caps',
-    url: getBaseUrl(),
+    url: getSchemaBaseUrl(),
     description: 'Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, Al Hasan perfume. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa.',
   };
 }
@@ -304,7 +322,7 @@ export function getWebSiteSchema() {
  * Article schema for Heritage (History of Cape Islamic Headwear) page. Links to brand/authority for E-E-A-T.
  */
 export function getHeritageArticleSchema() {
-  const base = getBaseUrl();
+  const base = getSchemaBaseUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -328,7 +346,7 @@ export function getHeritageArticleSchema() {
  * Article schema for blog post "The Evolution of the Fez and Kufi in the Cape". Topical authority for E-E-A-T.
  */
 export function getEvolutionFezKufiArticleSchema() {
-  const base = getBaseUrl();
+  const base = getSchemaBaseUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
