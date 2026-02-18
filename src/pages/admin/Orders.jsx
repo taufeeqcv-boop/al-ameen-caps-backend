@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
 import { getFunctionUrl } from "../../lib/config";
-import { Loader2, MoreHorizontal, RotateCcw, Truck, Download, Printer, FileText } from "lucide-react";
+import { Loader2, MoreHorizontal, RotateCcw, Truck, Download, Printer, FileText, Search } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 const STATUS_OPTIONS = ["PENDING", "PAID", "SHIPPED", "CANCELLED"];
@@ -11,7 +11,9 @@ const FASTWAY_TRACK_BASE = "https://www.fastway.co.za/our-services/track-your-pa
 export default function AdminOrders() {
   const [searchParams] = useSearchParams();
   const statusFilter = searchParams.get("status") || "";
+  const customerId = searchParams.get("customer") || "";
   const [orders, setOrders] = useState([]);
+  const [customerLabel, setCustomerLabel] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
@@ -23,6 +25,9 @@ export default function AdminOrders() {
   const [notesEditId, setNotesEditId] = useState(null);
   const [notesValue, setNotesValue] = useState("");
   const [savingNotesId, setSavingNotesId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   const fetchOrders = async () => {
     if (!supabase) return;
@@ -43,6 +48,9 @@ export default function AdminOrders() {
       `)
       .order("created_at", { ascending: false });
     if (statusFilter) q = q.eq("status", statusFilter);
+    if (customerId) q = q.eq("user_id", customerId);
+    if (dateFrom) q = q.gte("created_at", dateFrom + "T00:00:00.000Z");
+    if (dateTo) q = q.lte("created_at", dateTo + "T23:59:59.999Z");
     const { data, error: e } = await q;
     if (e) setError(e.message);
     else setOrders(data ?? []);
@@ -51,7 +59,36 @@ export default function AdminOrders() {
 
   useEffect(() => {
     fetchOrders();
-  }, [statusFilter]);
+  }, [statusFilter, customerId, dateFrom, dateTo]);
+
+  useEffect(() => {
+    if (!customerId || !supabase) {
+      setCustomerLabel("");
+      return;
+    }
+    (async () => {
+      const { data } = await supabase.from("profiles").select("first_name, last_name").eq("id", customerId).single();
+      const name = data ? [data.first_name, data.last_name].filter(Boolean).join(" ") : "Customer";
+      setCustomerLabel(name);
+    })();
+  }, [customerId]);
+
+  const customerName = (o) => {
+    const p = o.profiles;
+    if (!p) return "—";
+    return [p.first_name, p.last_name].filter(Boolean).join(" ") || "—";
+  };
+
+  const filteredOrders = useMemo(() => {
+    if (!searchQuery.trim()) return orders;
+    const q = searchQuery.trim().toLowerCase();
+    return orders.filter((o) => {
+      const name = customerName(o).toLowerCase();
+      const email = (o.customer_email || "").toLowerCase();
+      const id = (o.id || "").toLowerCase();
+      return id.includes(q) || name.includes(q) || email.includes(q);
+    });
+  }, [orders, searchQuery]);
 
   const updateStatus = async (orderId, newStatus) => {
     if (!supabase) return;
@@ -177,14 +214,6 @@ export default function AdminOrders() {
     setUpdatingId(null);
   };
 
-  const customerName = (o) => {
-    const p = o.profiles;
-    if (!p) return "—";
-    const first = p.first_name || "";
-    const last = p.last_name || "";
-    return [first, last].filter(Boolean).join(" ") || "—";
-  };
-
   const escapeCsv = (v) => {
     const s = String(v ?? "").replace(/"/g, '""');
     return /[",\n\r]/.test(s) ? `"${s}"` : s;
@@ -192,7 +221,7 @@ export default function AdminOrders() {
 
   const exportCsv = () => {
     const headers = ["Order ID", "Date", "Customer", "Email", "Total (ZAR)", "Status", "Shipping address", "Phone", "Admin notes"];
-    const rows = orders.map((o) => {
+    const rows = filteredOrders.map((o) => {
       const sd = o.shipping_data || {};
       const addr = [sd.address_line1, sd.address_line2, sd.city, sd.postal_code].filter(Boolean).join(", ");
       return [
@@ -227,34 +256,79 @@ export default function AdminOrders() {
 
   return (
     <div className="space-y-6">
-      <h1 className="font-serif text-2xl font-semibold text-primary">Orders</h1>
+      <div className="flex flex-wrap items-center gap-2 justify-between">
+        <h1 className="font-serif text-2xl font-semibold text-primary">Orders</h1>
+        {customerId && customerLabel && (
+          <p className="text-sm text-primary/80">
+            Showing orders for <strong>{customerLabel}</strong>
+            {" · "}
+            <a href="/admin/orders" className="text-accent hover:underline">View all orders</a>
+          </p>
+        )}
+      </div>
       {error && (
         <div className="rounded-lg bg-red-50 text-red-800 p-4 text-sm">{error}</div>
       )}
-      <div className="flex gap-2 flex-wrap items-center justify-between">
-        <div className="flex gap-2 flex-wrap">
-          <a
-            href="/admin/orders"
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${!statusFilter ? "bg-accent text-primary" : "bg-white border border-secondary/40 text-primary"}`}
-          >
-            All
-          </a>
-          {STATUS_OPTIONS.map((s) => (
-            <a
-              key={s}
-              href={`/admin/orders?status=${s}`}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${statusFilter === s ? "bg-accent text-primary" : "bg-white border border-secondary/40 text-primary"}`}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/50" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by order ID, customer, email..."
+              className="w-full pl-9 pr-3 py-2 rounded-lg border border-secondary/40 text-primary text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+            />
+          </div>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="px-3 py-2 rounded-lg border border-secondary/40 text-primary text-sm focus:ring-2 focus:ring-accent"
+            title="From date"
+          />
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="px-3 py-2 rounded-lg border border-secondary/40 text-primary text-sm focus:ring-2 focus:ring-accent"
+            title="To date"
+          />
+          {(searchQuery || dateFrom || dateTo) && (
+            <button
+              type="button"
+              onClick={() => { setSearchQuery(""); setDateFrom(""); setDateTo(""); }}
+              className="px-3 py-2 rounded-lg text-sm text-primary/70 hover:bg-secondary/20"
             >
-              {s}
-            </a>
-          ))}
+              Clear
+            </button>
+          )}
         </div>
-        <button
-          type="button"
-          onClick={exportCsv}
-          disabled={orders.length === 0}
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2 disabled:opacity-50"
-        >
+        <div className="flex gap-2 flex-wrap items-center justify-between">
+          <div className="flex gap-2 flex-wrap">
+            <a
+              href="/admin/orders"
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${!statusFilter ? "bg-accent text-primary" : "bg-white border border-secondary/40 text-primary"}`}
+            >
+              All
+            </a>
+            {STATUS_OPTIONS.map((s) => (
+              <a
+                key={s}
+                href={`/admin/orders?status=${s}`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${statusFilter === s ? "bg-accent text-primary" : "bg-white border border-secondary/40 text-primary"}`}
+              >
+                {s}
+              </a>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={exportCsv}
+            disabled={filteredOrders.length === 0}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2 disabled:opacity-50"
+          >
           <Download className="w-4 h-4" />
           Export CSV
         </button>
@@ -274,7 +348,7 @@ export default function AdminOrders() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((o) => (
+              {filteredOrders.map((o) => (
                 <tr key={o.id} className="border-t border-secondary/20">
                   <td className="px-6 py-3 text-primary text-sm">
                     {o.created_at ? new Date(o.created_at).toLocaleDateString() : "—"}
@@ -376,8 +450,8 @@ export default function AdminOrders() {
             </tbody>
           </table>
         </div>
-        {orders.length === 0 && (
-          <p className="px-6 py-8 text-center text-primary/60">No orders found.</p>
+        {filteredOrders.length === 0 && (
+          <p className="px-6 py-8 text-center text-primary/60">{orders.length === 0 ? "No orders found." : "No orders match your search or date range."}</p>
         )}
       </div>
 

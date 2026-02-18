@@ -21,6 +21,10 @@ export default function AdminLogistics() {
   const [updatingId, setUpdatingId] = useState(null);
   const [packingSlipOrder, setPackingSlipOrder] = useState(null);
   const [packingSlipItems, setPackingSlipItems] = useState([]);
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const [bulkShipModal, setBulkShipModal] = useState(false);
+  const [bulkShipForm, setBulkShipForm] = useState({ tracking_number: "", number_of_boxes: 1, tracking_url: "" });
+  const [bulkShipping, setBulkShipping] = useState(false);
 
   const fetchToShip = async () => {
     if (!supabase) return;
@@ -127,13 +131,28 @@ export default function AdminLogistics() {
     setPackingSlipItems([]);
   };
 
-  const exportToShipCsv = () => {
+  const selectedOrders = orders.filter((o) => selectedIds.has(o.id));
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+  const toggleSelectAll = () => {
+    if (selectedIds.size >= orders.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(orders.map((o) => o.id)));
+  };
+
+  const exportToShipCsv = (useSelectedOnly = false) => {
+    const list = useSelectedOnly && selectedIds.size > 0 ? selectedOrders : orders;
     const headers = ["Order ID", "Customer", "Email", "Phone", "Address", "City", "Postal Code", "Total"];
     const escape = (v) => {
       const s = String(v ?? "").replace(/"/g, '""');
       return /[",\n\r]/.test(s) ? `"${s}"` : s;
     };
-    const rows = orders.map((o) => {
+    const rows = list.map((o) => {
       const sd = o.shipping_data || {};
       return [
         o.id,
@@ -151,9 +170,45 @@ export default function AdminLogistics() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `to-ship-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = useSelectedOnly ? `to-ship-selected-${new Date().toISOString().slice(0, 10)}.csv` : `to-ship-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const bulkShipAndNotify = async () => {
+    const trackingNumber = (bulkShipForm.tracking_number || "").trim();
+    if (!trackingNumber || selectedIds.size === 0) {
+      setError("Enter a tracking number and select at least one order.");
+      return;
+    }
+    const trackingUrl =
+      (bulkShipForm.tracking_url || "").trim() ||
+      (trackingNumber.startsWith("http") ? trackingNumber : `${FASTWAY_TRACK_BASE}?label_no=${encodeURIComponent(trackingNumber)}`);
+    const numBoxes = Math.max(1, parseInt(String(bulkShipForm.number_of_boxes), 10) || 1);
+    setBulkShipping(true);
+    setError(null);
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    const ids = Array.from(selectedIds);
+    let failed = 0;
+    for (const orderId of ids) {
+      try {
+        const res = await fetch(getFunctionUrl("send-shipping-notification"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) },
+          body: JSON.stringify({ order_id: orderId, tracking_number: trackingNumber, number_of_boxes: numBoxes, tracking_url: trackingUrl }),
+        });
+        if (!res.ok) failed += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    setBulkShipping(false);
+    setBulkShipModal(false);
+    setBulkShipForm({ tracking_number: "", number_of_boxes: 1, tracking_url: "" });
+    setSelectedIds(new Set());
+    await fetchToShip();
+    if (failed > 0) setError(`${failed} of ${ids.length} orders failed to update. Check and retry if needed.`);
   };
 
   useEffect(() => {
@@ -188,6 +243,10 @@ export default function AdminLogistics() {
           <a href={FASTWAY_TRACK_BASE} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
             Track a parcel →
           </a>
+          {" · "}
+          <span title="Set FASTWAY_API_KEY in Netlify and deploy to create labels from here." className="cursor-help border-b border-dotted border-primary/40">
+            Create label from admin (API key required)
+          </span>
         </p>
       </div>
 
@@ -198,23 +257,24 @@ export default function AdminLogistics() {
       <div className="flex flex-wrap items-center gap-2 justify-between">
         <p className="text-primary/80">
           <strong>{orders.length}</strong> order{orders.length !== 1 ? "s" : ""} to ship (PAID)
+          {selectedIds.size > 0 && <span className="ml-2 text-accent">· {selectedIds.size} selected</span>}
         </p>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={exportToShipCsv}
-            disabled={orders.length === 0}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2 disabled:opacity-50"
-          >
-            <Download className="w-4 h-4" />
-            Export addresses (CSV)
+        <div className="flex gap-2 flex-wrap">
+          {selectedIds.size > 0 && (
+            <>
+              <button type="button" onClick={() => exportToShipCsv(true)} className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2">
+                <Download className="w-4 h-4" /> Export selected ({selectedIds.size})
+              </button>
+              <button type="button" onClick={() => setBulkShipModal(true)} className="px-4 py-2 rounded-lg text-sm font-medium btn-accent flex items-center gap-2">
+                <Truck className="w-4 h-4" /> Mark selected as shipped
+              </button>
+              <button type="button" onClick={() => setSelectedIds(new Set())} className="px-3 py-2 rounded-lg text-sm text-primary/70 hover:bg-secondary/20">Clear selection</button>
+            </>
+          )}
+          <button type="button" onClick={() => exportToShipCsv(false)} disabled={orders.length === 0} className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2 disabled:opacity-50">
+            <Download className="w-4 h-4" /> Export all (CSV)
           </button>
-          <Link
-            to="/admin/orders?status=PAID"
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20"
-          >
-            View in Orders →
-          </Link>
+          <Link to="/admin/orders?status=PAID" className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20">View in Orders →</Link>
         </div>
       </div>
 
@@ -223,6 +283,14 @@ export default function AdminLogistics() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-secondary/30 text-primary/80 text-sm">
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={orders.length > 0 && selectedIds.size === orders.length}
+                    onChange={toggleSelectAll}
+                    className="rounded border-secondary/40 text-accent focus:ring-accent"
+                  />
+                </th>
                 <th className="px-6 py-3 font-medium">Order</th>
                 <th className="px-6 py-3 font-medium">Customer</th>
                 <th className="px-6 py-3 font-medium">Shipping address</th>
@@ -234,6 +302,14 @@ export default function AdminLogistics() {
             <tbody>
               {orders.map((o) => (
                 <tr key={o.id} className="border-t border-secondary/20">
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(o.id)}
+                      onChange={() => toggleSelect(o.id)}
+                      className="rounded border-secondary/40 text-accent focus:ring-accent"
+                    />
+                  </td>
                   <td className="px-6 py-3 text-primary text-sm">
                     {o.id.slice(0, 8)}…
                     <br />
@@ -322,6 +398,39 @@ export default function AdminLogistics() {
               <button type="button" onClick={closePackingSlip} className="px-4 py-2 rounded-lg border border-secondary/40 text-primary hover:bg-secondary/20">Close</button>
               <button type="button" onClick={() => window.print()} className="px-4 py-2 rounded-lg btn-accent flex items-center gap-2">
                 <Printer className="w-4 h-4" /> Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk ship modal */}
+      {bulkShipModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" aria-modal="true" role="dialog" onClick={(e) => e.target === e.currentTarget && setBulkShipModal(false)}>
+          <div className="bg-white rounded-xl shadow-premium border border-secondary/30 w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <h2 className="font-serif text-xl font-semibold text-primary">Mark {selectedIds.size} orders as shipped</h2>
+            <p className="mt-1 text-sm text-primary/70">Same tracking number will be applied to all selected orders (e.g. one parcel with multiple orders).</p>
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1">Fastway tracking number *</label>
+                <input
+                  type="text"
+                  value={bulkShipForm.tracking_number}
+                  onChange={(e) => setBulkShipForm((f) => ({ ...f, tracking_number: e.target.value }))}
+                  placeholder="Label number"
+                  className="w-full px-3 py-2 border border-secondary/40 rounded-lg text-primary focus:ring-2 focus:ring-accent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1">Number of boxes</label>
+                <input type="number" min={1} value={bulkShipForm.number_of_boxes} onChange={(e) => setBulkShipForm((f) => ({ ...f, number_of_boxes: e.target.value }))} className="w-full px-3 py-2 border border-secondary/40 rounded-lg text-primary focus:ring-2 focus:ring-accent" />
+              </div>
+            </div>
+            <div className="mt-6 flex gap-3 justify-end">
+              <button type="button" onClick={() => setBulkShipModal(false)} className="px-4 py-2 rounded-lg border border-secondary/40 text-primary hover:bg-secondary/20">Cancel</button>
+              <button type="button" onClick={bulkShipAndNotify} disabled={bulkShipping} className="btn-accent px-4 py-2 flex items-center gap-2 disabled:opacity-50">
+                {bulkShipping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Truck className="w-4 h-4" />}
+                Ship all & notify
               </button>
             </div>
           </div>

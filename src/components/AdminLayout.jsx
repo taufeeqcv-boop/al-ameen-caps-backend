@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingBag, Users, ClipboardList, Truck, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Users, ClipboardList, Truck, Settings, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 
@@ -10,6 +10,7 @@ const navItems = [
   { to: "/admin/reservations", end: false, label: "Pre-Orders", icon: ClipboardList },
   { to: "/admin/products", end: false, label: "Inventory", icon: Package },
   { to: "/admin/customers", end: false, label: "Customers", icon: Users },
+  { to: "/admin/settings", end: false, label: "Settings", icon: Settings },
 ];
 
 export default function AdminLayout() {

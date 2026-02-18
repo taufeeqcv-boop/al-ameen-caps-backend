@@ -3,6 +3,7 @@ import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import AdminRoute from "./components/AdminRoute";
 import ScrollToTop from "./components/ScrollToTop";
+import StoreNotice from "./components/StoreNotice";
 import AdminLayout from "./components/AdminLayout";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
@@ -29,6 +30,7 @@ import AdminProducts from "./pages/admin/Products";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminReservations from "./pages/admin/Reservations";
 import AdminLogistics from "./pages/admin/Logistics";
+import AdminSettings from "./pages/admin/Settings";
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
       <CartProvider>
         <BrowserRouter>
         <ScrollToTop />
+        <StoreNotice />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
@@ -70,6 +73,7 @@ function App() {
             <Route path="reservations" element={<AdminReservations />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="customers" element={<AdminCustomers />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

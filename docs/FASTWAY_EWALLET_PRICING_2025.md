@@ -1,14 +1,14 @@
 # Fastway eWallet Pricing (Effective 2 June 2025)
 
-*Summary from CPT RS_2025 ewallet only PDF. eWallet price#; minimum top-up applies. Prices exclude VAT.*
+*Summary from official **CPT RS_2025 ewallet only.pdf** (Cape Town pricing guide). eWallet price#; minimum wallet top-up applies. Prices exclude VAT. One label per parcel up to 30kg unless otherwise stated.*
 
 ## Local & short haul (next day)
 
 | Classification              | eWallet price# |
 |----------------------------|----------------|
 | Local parcel (30kg max)    | R55.00         |
-| Local A3 satchel           | R55.00         |
-| Inner short haul parcel (30kg) | R80.00    |
+| Local A3 satchel (no weight limit) | R55.00  |
+| Inner short haul parcel (30kg) | R80.00 (next day) |
 
 ## National
 
@@ -35,11 +35,12 @@ Cape Town, Johannesburg, Pretoria, Durban, Bloemfontein, Port Elizabeth, East Lo
 
 ## Notes
 
-- Cubic conversion factor: 5000cc
-- Recovery charges may apply if address is outside selected suburb/postal code
-- Remote areas: use Quick Quote tool on fastway.co.za
-- eCommerce integrations: www.fastway.co.za/tools/ecommerce/
+- **National pricing:** Find destination and zone (colour) on map; select correct label for first 15kg; add excess label (R15) per 5kg after base up to 30kg.
+- **Recovery charges** may apply if delivery address falls outside selected suburb/postal code.
+- **Remote areas:** Use Quick Quote tool on fastway.co.za.
+- **eCommerce:** www.fastway.co.za/tools/ecommerce/
+- *Only available to eWallet customers. Convert via your Fastway sales rep.*
 
 ---
 
-*Use for estimating delivery costs when offering Fastway at Al-Ameen Caps checkout.*
+*Source: CPT RS_2025 ewallet only.pdf. Use for estimating delivery costs at Al-Ameen Caps checkout.*

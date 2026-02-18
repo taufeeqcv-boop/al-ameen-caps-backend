@@ -1,6 +1,6 @@
 # Fastway Couriers South Africa – System Overview (2023)
 
-*Summary from FW System Capabilities PDF for Al-Ameen Caps reference.*
+*Summary from official **FW System Capabilities - 2023.pdf** for Al-Ameen Caps reference.*
 
 ## eCommerce solutions
 
@@ -35,13 +35,11 @@ Fastway integrates with **WooCommerce, Shopify, Ecwid, Netcash Shop, Magento, Pr
 
 ## API integration
 
-- **RESTful API** for third-party integration
-- Push data to Fastway without import files
-- Generate and print labels (PDF or thermal via remote agent)
-- Render track & trace and quoting on your site
-- **Areas:** Price Service Calculator (`/v3/psc`), Track and Trace (`/v3/tracktrace`)
-- Restricted areas: request access via it.support@fastway.co.za (API key + business name)
-- Docs: https://sa.api.fastway.org/v3
+- **RESTful API** for third-party integration (programmers only).
+- Push data to Fastway without import files; generate labels (PDF or thermal via remote agent); render track & trace and quoting on your site.
+- **Public areas:** Price Service Calculator (`/v3/psc`), Track and Trace (`/v3/tracktrace`). Invocation URL base: https://sa.api.fastway.org/v3
+- **Restricted areas:** Not public; request access by email to it.support@fastway.co.za with your API key and business name. If granted, view docs by appending `api_key` parameter to the docs page with your Fastway API key.
+- Fastway supports developers who access the API directly; have an example API call (URL) ready when contacting support.
 
 ## Dedicated CSD (high volume)
 
@@ -51,4 +49,4 @@ Fastway integrates with **WooCommerce, Shopify, Ecwid, Netcash Shop, Magento, Pr
 
 ---
 
-*Use this when planning shipping/courier integration for Al-Ameen Caps.*
+*Source: FW System Capabilities - 2023.pdf. Use when planning shipping/courier integration for Al-Ameen Caps.*

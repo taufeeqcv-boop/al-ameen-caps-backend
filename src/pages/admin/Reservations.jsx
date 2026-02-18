@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, MessageCircle } from "lucide-react";
 
 const STATUS_OPTIONS = ["pending", "contacted", "completed"];
 
@@ -64,6 +64,7 @@ export default function AdminReservations() {
                 <th className="px-6 py-3 font-medium">Items</th>
                 <th className="px-6 py-3 font-medium">Status</th>
                 <th className="px-6 py-3 font-medium max-w-xs">Notes</th>
+                <th className="px-6 py-3 font-medium w-40">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -105,6 +106,30 @@ export default function AdminReservations() {
                   </td>
                   <td className="px-6 py-3 text-primary/70 text-sm max-w-xs truncate" title={r.notes || ""}>
                     {r.notes || "—"}
+                  </td>
+                  <td className="px-6 py-3">
+                    <div className="flex flex-wrap gap-2">
+                      {(r.status || "pending") === "pending" && (
+                        <button
+                          type="button"
+                          onClick={() => updateStatus(r.id, "contacted")}
+                          disabled={updatingId === r.id}
+                          className="inline-flex items-center gap-1 text-sm text-accent hover:underline disabled:opacity-50"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          Mark contacted
+                        </button>
+                      )}
+                      {r.customer_email && (
+                        <a
+                          href={`mailto:${r.customer_email}`}
+                          className="inline-flex items-center gap-1 text-sm text-accent hover:underline"
+                        >
+                          <Mail className="w-4 h-4" />
+                          Email
+                        </a>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

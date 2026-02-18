@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShoppingBag } from "lucide-react";
 
 export default function AdminCustomers() {
   const [profiles, setProfiles] = useState([]);
@@ -46,6 +47,7 @@ export default function AdminCustomers() {
                 <th className="px-6 py-3 font-medium">Phone</th>
                 <th className="px-6 py-3 font-medium">Shipping</th>
                 <th className="px-6 py-3 font-medium">Billing</th>
+                <th className="px-6 py-3 font-medium w-24">Orders</th>
               </tr>
             </thead>
             <tbody>
@@ -60,6 +62,15 @@ export default function AdminCustomers() {
                   </td>
                   <td className="px-6 py-3 text-primary/80 text-sm max-w-xs truncate">
                     {p.billing_address ? JSON.stringify(p.billing_address) : "—"}
+                  </td>
+                  <td className="px-6 py-3">
+                    <Link
+                      to={`/admin/orders?customer=${p.id}`}
+                      className="inline-flex items-center gap-1.5 text-sm text-accent hover:underline"
+                    >
+                      <ShoppingBag className="w-4 h-4" />
+                      Orders
+                    </Link>
                   </td>
                 </tr>
               ))}

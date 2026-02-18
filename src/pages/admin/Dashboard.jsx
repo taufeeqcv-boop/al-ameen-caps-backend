@@ -1,20 +1,28 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
-import { Banknote, ShoppingBag, Inbox, AlertTriangle, Loader2, Calendar, TrendingUp } from "lucide-react";
+import { getFunctionUrl } from "../../lib/config";
+import { Banknote, ShoppingBag, Inbox, AlertTriangle, Loader2, Calendar, TrendingUp, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const LOW_STOCK_THRESHOLD = 5;
 
 export default function AdminDashboard() {
   const [revenue, setRevenue] = useState(null);
+  const [revenueThisMonth, setRevenueThisMonth] = useState(null);
+  const [revenueLastMonth, setRevenueLastMonth] = useState(null);
   const [pendingCount, setPendingCount] = useState(null);
   const [ordersThisMonth, setOrdersThisMonth] = useState(null);
   const [inquiriesCount, setInquiriesCount] = useState(null);
   const [lowStock, setLowStock] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
+  const [statusCounts, setStatusCounts] = useState({ PENDING: 0, PAID: 0, SHIPPED: 0, CANCELLED: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sendingReport, setSendingReport] = useState(false);
+  const [reportMessage, setReportMessage] = useState(null);
+
+  const [lowStockThreshold, setLowStockThreshold] = useState(LOW_STOCK_THRESHOLD);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,33 +31,54 @@ export default function AdminDashboard() {
         setLoading(false);
         return;
       }
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
+      let threshold = LOW_STOCK_THRESHOLD;
+      try {
+        const { data: settingsRows } = await supabase.from("site_settings").select("key, value").eq("key", "low_stock_threshold");
+        const thresholdFromSettings = settingsRows?.[0]?.value;
+        threshold = Math.max(0, parseInt(thresholdFromSettings, 10)) || LOW_STOCK_THRESHOLD;
+        if (!cancelled) setLowStockThreshold(threshold);
+      } catch (_) {
+        // site_settings table may not exist yet; use default
+      }
+
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
       const startOfMonthIso = startOfMonth.toISOString();
+      const startOfLastMonthIso = startOfLastMonth.toISOString();
+      const endOfLastMonthIso = endOfLastMonth.toISOString();
 
       try {
-        const [paidRes, paidCountRes, ordersMonthRes, inquiriesRes, lowRes, itemsRes] = await Promise.all([
+        const [paidRes, paidCountRes, ordersMonthRes, revenueMonthRes, revenueLastMonthRes, inquiriesRes, lowRes, itemsRes, statusRes] = await Promise.all([
           supabase.from("orders").select("total_amount").eq("status", "PAID"),
           supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "PAID"),
           supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "PAID").gte("created_at", startOfMonthIso),
+          supabase.from("orders").select("total_amount").eq("status", "PAID").gte("created_at", startOfMonthIso),
+          supabase.from("orders").select("total_amount").eq("status", "PAID").gte("created_at", startOfLastMonthIso).lte("created_at", endOfLastMonthIso),
           supabase.from("reservations").select("id", { count: "exact", head: true }).eq("status", "pending"),
           supabase
             .from("products")
             .select("id, name, stock_quantity, sku")
-            .lt("stock_quantity", LOW_STOCK_THRESHOLD)
+            .lt("stock_quantity", threshold)
             .eq("is_active", true)
             .order("stock_quantity", { ascending: true }),
           supabase.from("order_items").select("product_id, quantity, products(name)"),
+          Promise.all(["PENDING", "PAID", "SHIPPED", "CANCELLED"].map((s) => supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", s).then((r) => ({ s, c: r.count ?? 0 })))),
         ]);
 
         if (cancelled) return;
         const totalRevenue = (paidRes.data ?? []).reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
         setRevenue(totalRevenue);
+        setRevenueThisMonth((revenueMonthRes.data ?? []).reduce((sum, o) => sum + Number(o.total_amount || 0), 0));
+        setRevenueLastMonth((revenueLastMonthRes.data ?? []).reduce((sum, o) => sum + Number(o.total_amount || 0), 0));
         setPendingCount(paidCountRes.count ?? 0);
         setOrdersThisMonth(ordersMonthRes.count ?? 0);
         setInquiriesCount(inquiriesRes.count ?? 0);
         setLowStock(lowRes.data ?? []);
+        const counts = { PENDING: 0, PAID: 0, SHIPPED: 0, CANCELLED: 0 };
+        for (const { s, c } of statusRes) counts[s] = c;
+        setStatusCounts(counts);
 
         const items = itemsRes.data ?? [];
         const byProduct = {};
@@ -81,6 +110,25 @@ export default function AdminDashboard() {
     );
   }
 
+  const sendLowStockReport = async () => {
+    setSendingReport(true);
+    setReportMessage(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(getFunctionUrl("send-low-stock-report"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }) },
+        body: JSON.stringify({ threshold: lowStockThreshold }),
+      });
+      const json = await res.json().catch(() => ({}));
+      setReportMessage(res.ok ? (json.message || "Report sent.") : (json.error || "Failed"));
+    } catch (e) {
+      setReportMessage(e?.message || "Failed");
+    } finally {
+      setSendingReport(false);
+    }
+  };
+
   if (error) {
     return (
       <div className="rounded-lg bg-red-50 text-red-800 p-4">
@@ -99,10 +147,12 @@ export default function AdminDashboard() {
             <Banknote className="w-8 h-8 text-accent" />
             <span className="font-medium">Total Revenue (ZAR)</span>
           </div>
-          <p className="mt-2 text-2xl font-semibold text-primary">
-            {formatPrice(revenue)}
-          </p>
+          <p className="mt-2 text-2xl font-semibold text-primary">{formatPrice(revenue)}</p>
           <p className="text-sm text-primary/60">Sum of PAID orders</p>
+          <div className="mt-3 pt-3 border-t border-secondary/20 text-sm">
+            <p className="text-primary/80">This month: <strong>{formatPrice(revenueThisMonth)}</strong></p>
+            <p className="text-primary/80">Last month: <strong>{formatPrice(revenueLastMonth)}</strong></p>
+          </div>
         </div>
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
           <div className="flex items-center gap-3 text-primary/70">
@@ -146,10 +196,22 @@ export default function AdminDashboard() {
             <span className="font-medium">Low Stock Alerts</span>
           </div>
           <p className="mt-2 text-2xl font-semibold text-primary">{lowStock.length}</p>
-          <p className="text-sm text-primary/60">Products with stock &lt; {LOW_STOCK_THRESHOLD}</p>
+          <p className="text-sm text-primary/60">Products with stock &lt; {lowStockThreshold}</p>
           <Link to="/admin/products" className="text-sm text-accent hover:underline mt-1 inline-block">
             View products →
           </Link>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">
+        <h2 className="font-semibold text-primary px-6 py-4 border-b border-secondary/20">Orders by status</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6">
+          {["PENDING", "PAID", "SHIPPED", "CANCELLED"].map((s) => (
+            <Link key={s} to={`/admin/orders?status=${s}`} className="rounded-lg border border-secondary/30 p-4 text-center hover:bg-secondary/10 transition-colors">
+              <p className="text-2xl font-semibold text-primary">{statusCounts[s] ?? 0}</p>
+              <p className="text-sm text-primary/60">{s}</p>
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -182,11 +244,23 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {lowStock.length > 0 && (
-        <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">
-          <h2 className="font-semibold text-primary px-6 py-4 border-b border-secondary/20">
-            Low Stock Products
-          </h2>
+      <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-6 py-4 border-b border-secondary/20">
+          <h2 className="font-semibold text-primary">Low Stock Products</h2>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={sendLowStockReport}
+              disabled={sendingReport}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-secondary/20 text-primary hover:bg-secondary/30 disabled:opacity-50"
+            >
+              {sendingReport ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+              Email report
+            </button>
+            {reportMessage && <span className="text-sm text-primary/70">{reportMessage}</span>}
+          </div>
+        </div>
+        {lowStock.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
@@ -216,8 +290,10 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="px-6 py-4 text-primary/60 text-sm">No low-stock products. Use &quot;Email report&quot; to send the current list to the admin email.</p>
+        )}
+      </div>
     </div>
   );
 }
