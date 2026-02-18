@@ -130,7 +130,7 @@ const Checkout = () => {
           user_id: user.id,
           status: 'PENDING',
           total_amount: total,
-          customer_email: user.email ?? (formData.email_address || '').trim() || null,
+          customer_email: (user.email ?? (formData.email_address || '').trim()) || null,
           shipping_data: shippingPayload,
         })
         .select('id')
