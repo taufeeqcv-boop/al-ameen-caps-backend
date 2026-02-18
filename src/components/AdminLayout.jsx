@@ -1,11 +1,12 @@
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingBag, Users, ClipboardList, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Users, ClipboardList, Truck, LogOut } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
 
 const navItems = [
   { to: "/admin/dashboard", end: true, label: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/orders", end: false, label: "Orders", icon: ShoppingBag },
+  { to: "/admin/logistics", end: false, label: "Logistics", icon: Truck },
   { to: "/admin/reservations", end: false, label: "Pre-Orders", icon: ClipboardList },
   { to: "/admin/products", end: false, label: "Inventory", icon: Package },
   { to: "/admin/customers", end: false, label: "Customers", icon: Users },

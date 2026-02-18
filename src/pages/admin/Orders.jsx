@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
 import { getFunctionUrl } from "../../lib/config";
-import { Loader2, MoreHorizontal, RotateCcw, Truck } from "lucide-react";
+import { Loader2, MoreHorizontal, RotateCcw, Truck, Download, Printer, FileText } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 const STATUS_OPTIONS = ["PENDING", "PAID", "SHIPPED", "CANCELLED"];
@@ -18,6 +18,11 @@ export default function AdminOrders() {
   const [dropdownOpenId, setDropdownOpenId] = useState(null);
   const [shipModalOrder, setShipModalOrder] = useState(null);
   const [shipForm, setShipForm] = useState({ tracking_number: "", number_of_boxes: 1, tracking_url: "" });
+  const [packingSlipOrder, setPackingSlipOrder] = useState(null);
+  const [packingSlipItems, setPackingSlipItems] = useState([]);
+  const [notesEditId, setNotesEditId] = useState(null);
+  const [notesValue, setNotesValue] = useState("");
+  const [savingNotesId, setSavingNotesId] = useState(null);
 
   const fetchOrders = async () => {
     if (!supabase) return;
@@ -32,6 +37,8 @@ export default function AdminOrders() {
         total_amount,
         user_id,
         shipping_data,
+        customer_email,
+        admin_notes,
         profiles ( first_name, last_name )
       `)
       .order("created_at", { ascending: false });
@@ -71,6 +78,40 @@ export default function AdminOrders() {
   const closeShipModal = () => {
     setShipModalOrder(null);
     setShipForm({ tracking_number: "", number_of_boxes: 1, tracking_url: "" });
+  };
+
+  const openPackingSlip = async (order) => {
+    setPackingSlipOrder(order);
+    setPackingSlipItems([]);
+    if (!supabase) return;
+    const { data } = await supabase.from("order_items").select("product_name, quantity, unit_price").eq("order_id", order.id);
+    setPackingSlipItems(data ?? []);
+  };
+
+  const closePackingSlip = () => {
+    setPackingSlipOrder(null);
+    setPackingSlipItems([]);
+  };
+
+  useEffect(() => {
+    if (packingSlipOrder) document.body.classList.add("packing-slip-open");
+    else document.body.classList.remove("packing-slip-open");
+    return () => document.body.classList.remove("packing-slip-open");
+  }, [packingSlipOrder]);
+
+  const saveAdminNotes = async (orderId) => {
+    if (!supabase) return;
+    setSavingNotesId(orderId);
+    await supabase.from("orders").update({ admin_notes: notesValue || null }).eq("id", orderId);
+    await fetchOrders();
+    setNotesEditId(null);
+    setNotesValue("");
+    setSavingNotesId(null);
+  };
+
+  const startEditNotes = (order) => {
+    setNotesEditId(order.id);
+    setNotesValue(order.admin_notes ?? "");
   };
 
   const shipAndNotify = async () => {
@@ -144,6 +185,38 @@ export default function AdminOrders() {
     return [first, last].filter(Boolean).join(" ") || "—";
   };
 
+  const escapeCsv = (v) => {
+    const s = String(v ?? "").replace(/"/g, '""');
+    return /[",\n\r]/.test(s) ? `"${s}"` : s;
+  };
+
+  const exportCsv = () => {
+    const headers = ["Order ID", "Date", "Customer", "Email", "Total (ZAR)", "Status", "Shipping address", "Phone", "Admin notes"];
+    const rows = orders.map((o) => {
+      const sd = o.shipping_data || {};
+      const addr = [sd.address_line1, sd.address_line2, sd.city, sd.postal_code].filter(Boolean).join(", ");
+      return [
+        o.id,
+        o.created_at ? new Date(o.created_at).toISOString().slice(0, 10) : "",
+        customerName(o),
+        o.customer_email ?? "",
+        o.total_amount ?? "",
+        o.status ?? "",
+        addr,
+        sd.phone ?? "",
+        o.admin_notes ?? "",
+      ].map(escapeCsv);
+    });
+    const csv = [headers.map(escapeCsv).join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `orders-${statusFilter || "all"}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -158,22 +231,33 @@ export default function AdminOrders() {
       {error && (
         <div className="rounded-lg bg-red-50 text-red-800 p-4 text-sm">{error}</div>
       )}
-      <div className="flex gap-2 flex-wrap">
-        <a
-          href="/admin/orders"
-          className={`px-4 py-2 rounded-lg text-sm font-medium ${!statusFilter ? "bg-accent text-primary" : "bg-white border border-secondary/40 text-primary"}`}
-        >
-          All
-        </a>
-        {STATUS_OPTIONS.map((s) => (
+      <div className="flex gap-2 flex-wrap items-center justify-between">
+        <div className="flex gap-2 flex-wrap">
           <a
-            key={s}
-            href={`/admin/orders?status=${s}`}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${statusFilter === s ? "bg-accent text-primary" : "bg-white border border-secondary/40 text-primary"}`}
+            href="/admin/orders"
+            className={`px-4 py-2 rounded-lg text-sm font-medium ${!statusFilter ? "bg-accent text-primary" : "bg-white border border-secondary/40 text-primary"}`}
           >
-            {s}
+            All
           </a>
-        ))}
+          {STATUS_OPTIONS.map((s) => (
+            <a
+              key={s}
+              href={`/admin/orders?status=${s}`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${statusFilter === s ? "bg-accent text-primary" : "bg-white border border-secondary/40 text-primary"}`}
+            >
+              {s}
+            </a>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={exportCsv}
+          disabled={orders.length === 0}
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2 disabled:opacity-50"
+        >
+          <Download className="w-4 h-4" />
+          Export CSV
+        </button>
       </div>
       <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">
         <div className="overflow-x-auto">
@@ -182,8 +266,10 @@ export default function AdminOrders() {
               <tr className="bg-secondary/30 text-primary/80 text-sm">
                 <th className="px-6 py-3 font-medium">Date</th>
                 <th className="px-6 py-3 font-medium">Customer</th>
+                <th className="px-6 py-3 font-medium">Email</th>
                 <th className="px-6 py-3 font-medium">Total</th>
                 <th className="px-6 py-3 font-medium">Status</th>
+                <th className="px-6 py-3 font-medium">Notes</th>
                 <th className="px-6 py-3 font-medium w-32">Actions</th>
               </tr>
             </thead>
@@ -194,6 +280,7 @@ export default function AdminOrders() {
                     {o.created_at ? new Date(o.created_at).toLocaleDateString() : "—"}
                   </td>
                   <td className="px-6 py-3 text-primary">{customerName(o)}</td>
+                  <td className="px-6 py-3 text-primary text-sm">{o.customer_email || "—"}</td>
                   <td className="px-6 py-3 text-primary font-medium">{formatPrice(o.total_amount)}</td>
                   <td className="px-6 py-3">
                     <span
@@ -206,6 +293,29 @@ export default function AdminOrders() {
                     >
                       {o.status}
                     </span>
+                  </td>
+                  <td className="px-6 py-3 text-primary/80 text-sm max-w-[180px]">
+                    {notesEditId === o.id ? (
+                      <div className="flex flex-col gap-1">
+                        <input
+                          type="text"
+                          value={notesValue}
+                          onChange={(e) => setNotesValue(e.target.value)}
+                          placeholder="Internal notes..."
+                          className="px-2 py-1 border border-secondary/40 rounded text-sm w-full"
+                        />
+                        <div className="flex gap-1">
+                          <button type="button" onClick={() => saveAdminNotes(o.id)} disabled={savingNotesId === o.id} className="text-xs text-accent hover:underline">
+                            {savingNotesId === o.id ? "Saving..." : "Save"}
+                          </button>
+                          <button type="button" onClick={() => { setNotesEditId(null); setNotesValue(""); }} className="text-xs text-primary/60 hover:underline">Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <span title={o.admin_notes || ""} className="cursor-pointer hover:text-accent" onClick={() => startEditNotes(o)}>
+                        {(o.admin_notes || "—").slice(0, 30)}{(o.admin_notes && o.admin_notes.length > 30) ? "…" : ""}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-3 relative">
                     {updatingId === o.id ? (
@@ -226,7 +336,15 @@ export default function AdminOrders() {
                               onClick={() => setDropdownOpenId(null)}
                               aria-hidden
                             />
-                            <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-secondary/30 rounded-lg shadow-lg z-20 py-1">
+                            <div className="absolute right-0 top-full mt-1 w-52 bg-white border border-secondary/30 rounded-lg shadow-lg z-20 py-1">
+                              <button
+                                type="button"
+                                onClick={() => { setDropdownOpenId(null); openPackingSlip(o); }}
+                                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-primary hover:bg-secondary/20"
+                              >
+                                <Printer className="w-4 h-4" />
+                                Packing slip
+                              </button>
                               {STATUS_OPTIONS.filter((s) => s !== o.status).map((s) => (
                                 <button
                                   key={s}
@@ -262,6 +380,66 @@ export default function AdminOrders() {
           <p className="px-6 py-8 text-center text-primary/60">No orders found.</p>
         )}
       </div>
+
+      {packingSlipOrder && (
+        <div
+          className="packing-slip-modal fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          aria-modal="true"
+          role="dialog"
+          onClick={(e) => e.target === e.currentTarget && closePackingSlip()}
+        >
+          <div className="bg-white rounded-xl shadow-premium border border-secondary/30 w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-secondary/20 flex items-center justify-between">
+              <h2 className="font-serif text-lg font-semibold text-primary flex items-center gap-2">
+                <FileText className="w-5 h-5 text-accent" />
+                Packing slip — Order {packingSlipOrder.id.slice(0, 8)}
+              </h2>
+              <button type="button" onClick={closePackingSlip} className="text-primary/60 hover:text-primary">×</button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 text-sm text-left print:overflow-visible" id="packing-slip-content">
+              <p className="font-medium text-primary">{customerName(packingSlipOrder)}</p>
+              {packingSlipOrder.customer_email && <p className="text-primary/80">{packingSlipOrder.customer_email}</p>}
+              {(packingSlipOrder.shipping_data?.phone) && <p className="text-primary/80">{packingSlipOrder.shipping_data.phone}</p>}
+              <div className="mt-2 text-primary/80">
+                {[packingSlipOrder.shipping_data?.address_line1, packingSlipOrder.shipping_data?.address_line2, packingSlipOrder.shipping_data?.city, packingSlipOrder.shipping_data?.postal_code].filter(Boolean).join(", ")}
+              </div>
+              <table className="w-full mt-4 border-collapse">
+                <thead>
+                  <tr className="border-b border-secondary/30">
+                    <th className="text-left py-2 font-medium">Item</th>
+                    <th className="text-center py-2 font-medium">Qty</th>
+                    <th className="text-right py-2 font-medium">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {packingSlipItems.map((item, i) => (
+                    <tr key={i} className="border-b border-secondary/10">
+                      <td className="py-2">{item.product_name}</td>
+                      <td className="text-center py-2">{item.quantity}</td>
+                      <td className="text-right py-2">{formatPrice(item.unit_price)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-2 font-medium">Total: {formatPrice(packingSlipOrder.total_amount)}</p>
+              {packingSlipOrder.admin_notes && <p className="mt-2 text-amber-800 text-xs">Note: {packingSlipOrder.admin_notes}</p>}
+            </div>
+            <div className="px-6 py-4 border-t border-secondary/20 flex justify-end gap-2">
+              <button type="button" onClick={closePackingSlip} className="px-4 py-2 rounded-lg border border-secondary/40 text-primary hover:bg-secondary/20">
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => { window.print(); }}
+                className="px-4 py-2 rounded-lg btn-accent flex items-center gap-2"
+              >
+                <Printer className="w-4 h-4" />
+                Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {shipModalOrder && (
         <div

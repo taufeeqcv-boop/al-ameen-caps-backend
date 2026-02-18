@@ -29,6 +29,14 @@ export default function Hero() {
         >
           Premium, handcrafted Islamic headwear. Spirituality meets luxury.
         </motion.p>
+        <motion.p
+          className="mt-2 text-sm md:text-base text-white/75 max-w-lg mx-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.45 }}
+        >
+          For Jumu&apos;ah, Eid &amp; special occasions. Cape Town &amp; nationwide delivery.
+        </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

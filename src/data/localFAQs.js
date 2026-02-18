@@ -16,4 +16,12 @@ export const LOCAL_LANDING_FAQS = [
     question: 'Do you deliver to Bo-Kaap and Athlone?',
     answer: 'Yes. We deliver across Cape Town and South Africa, including Bo-Kaap, Athlone, Gatesville, and the Northern and Southern suburbs. Delivery times and costs are shown at checkout.',
   },
+  {
+    question: 'What payment methods do you accept?',
+    answer: 'We accept secure online payment via PayFast (card, EFT, and other methods). Payment is processed at checkout. We do not store your card details.',
+  },
+  {
+    question: 'Do you ship nationwide?',
+    answer: 'Yes. We ship to all provinces in South Africa. Cape Town and major centres typically receive orders within a few business days. See our Shipping page for details.',
+  },
 ];

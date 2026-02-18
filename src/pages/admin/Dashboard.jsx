@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
-import { Banknote, ShoppingBag, Inbox, AlertTriangle, Loader2 } from "lucide-react";
+import { Banknote, ShoppingBag, Inbox, AlertTriangle, Loader2, Calendar, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -9,8 +9,10 @@ const LOW_STOCK_THRESHOLD = 5;
 export default function AdminDashboard() {
   const [revenue, setRevenue] = useState(null);
   const [pendingCount, setPendingCount] = useState(null);
+  const [ordersThisMonth, setOrdersThisMonth] = useState(null);
   const [inquiriesCount, setInquiriesCount] = useState(null);
   const [lowStock, setLowStock] = useState([]);
+  const [topProducts, setTopProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -21,10 +23,16 @@ export default function AdminDashboard() {
         setLoading(false);
         return;
       }
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      const startOfMonthIso = startOfMonth.toISOString();
+
       try {
-        const [paidRes, paidCountRes, inquiriesRes, lowRes] = await Promise.all([
+        const [paidRes, paidCountRes, ordersMonthRes, inquiriesRes, lowRes, itemsRes] = await Promise.all([
           supabase.from("orders").select("total_amount").eq("status", "PAID"),
           supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "PAID"),
+          supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "PAID").gte("created_at", startOfMonthIso),
           supabase.from("reservations").select("id", { count: "exact", head: true }).eq("status", "pending"),
           supabase
             .from("products")
@@ -32,14 +40,30 @@ export default function AdminDashboard() {
             .lt("stock_quantity", LOW_STOCK_THRESHOLD)
             .eq("is_active", true)
             .order("stock_quantity", { ascending: true }),
+          supabase.from("order_items").select("product_id, quantity, products(name)"),
         ]);
 
         if (cancelled) return;
         const totalRevenue = (paidRes.data ?? []).reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
         setRevenue(totalRevenue);
         setPendingCount(paidCountRes.count ?? 0);
+        setOrdersThisMonth(ordersMonthRes.count ?? 0);
         setInquiriesCount(inquiriesRes.count ?? 0);
         setLowStock(lowRes.data ?? []);
+
+        const items = itemsRes.data ?? [];
+        const byProduct = {};
+        for (const row of items) {
+          const id = row.product_id;
+          const name = row.products?.name ?? "Unknown";
+          if (!byProduct[id]) byProduct[id] = { name, quantity: 0 };
+          byProduct[id].quantity += Number(row.quantity || 0);
+        }
+        const top = Object.entries(byProduct)
+          .map(([id, { name, quantity }]) => ({ id, name, quantity }))
+          .sort((a, b) => b.quantity - a.quantity)
+          .slice(0, 5);
+        setTopProducts(top);
       } catch (e) {
         if (!cancelled) setError(e.message);
       } finally {
@@ -69,7 +93,7 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       <h1 className="font-serif text-2xl font-semibold text-primary">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
           <div className="flex items-center gap-3 text-primary/70">
             <Banknote className="w-8 h-8 text-accent" />
@@ -83,10 +107,26 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
           <div className="flex items-center gap-3 text-primary/70">
             <ShoppingBag className="w-8 h-8 text-accent" />
-            <span className="font-medium">Paid Orders</span>
+            <span className="font-medium">To ship</span>
           </div>
           <p className="mt-2 text-2xl font-semibold text-primary">{pendingCount}</p>
+          <p className="text-sm text-primary/60">PAID orders awaiting dispatch</p>
+          <Link to="/admin/logistics" className="text-sm text-accent hover:underline mt-1 inline-block">
+            Logistics →
+          </Link>
+          <span className="text-primary/50 mx-1">·</span>
           <Link to="/admin/orders?status=PAID" className="text-sm text-accent hover:underline">
+            Orders
+          </Link>
+        </div>
+        <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
+          <div className="flex items-center gap-3 text-primary/70">
+            <Calendar className="w-8 h-8 text-accent" />
+            <span className="font-medium">Orders this month</span>
+          </div>
+          <p className="mt-2 text-2xl font-semibold text-primary">{ordersThisMonth}</p>
+          <p className="text-sm text-primary/60">PAID in {new Date().toLocaleString("en-ZA", { month: "long", year: "numeric" })}</p>
+          <Link to="/admin/orders?status=PAID" className="text-sm text-accent hover:underline mt-1 inline-block">
             View orders →
           </Link>
         </div>
@@ -107,8 +147,40 @@ export default function AdminDashboard() {
           </div>
           <p className="mt-2 text-2xl font-semibold text-primary">{lowStock.length}</p>
           <p className="text-sm text-primary/60">Products with stock &lt; {LOW_STOCK_THRESHOLD}</p>
+          <Link to="/admin/products" className="text-sm text-accent hover:underline mt-1 inline-block">
+            View products →
+          </Link>
         </div>
       </div>
+
+      {topProducts.length > 0 && (
+        <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">
+          <h2 className="font-semibold text-primary px-6 py-4 border-b border-secondary/20 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-accent" />
+            Top products (by units sold)
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-secondary/30 text-primary/80 text-sm">
+                  <th className="px-6 py-3 font-medium">#</th>
+                  <th className="px-6 py-3 font-medium">Product</th>
+                  <th className="px-6 py-3 font-medium">Units sold</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topProducts.map((p, i) => (
+                  <tr key={p.id} className="border-t border-secondary/20">
+                    <td className="px-6 py-3 text-primary/70">{i + 1}</td>
+                    <td className="px-6 py-3 text-primary">{p.name}</td>
+                    <td className="px-6 py-3 font-medium text-primary">{p.quantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {lowStock.length > 0 && (
         <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">

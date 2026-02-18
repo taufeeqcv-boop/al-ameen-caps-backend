@@ -41,8 +41,8 @@ export default function Heritage() {
           >
             <p className="text-lg">
               Islamic headwear in the Cape has been shaped by centuries of faith, trade, and community. From the
-              <strong className="text-primary"> Bo-Kaap</strong> to the Northern and Southern suburbs, the
-              <strong className="text-primary"> Winelands</strong>, and beyond, the Kufi, Taj, and Fez carry meanings that go far beyond fashion.
+              <Link to="/near/bo-kaap" className="text-primary font-semibold hover:text-accent hover:underline"> Bo-Kaap</Link> to the Northern and Southern suburbs, the
+              <strong className="text-primary"> Winelands</strong>, and beyond, the Kufi, Taj, and Fez carry meanings that go far beyond fashion. See also <Link to="/near/athlone" className="text-accent hover:underline">Athlone</Link>.
             </p>
             <p>
               The <strong className="text-accent">Kufi</strong>—often called a prayer cap or namaz cap—is worn in salaah and daily life across the Cape and South Africa. The

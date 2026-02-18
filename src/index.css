@@ -53,3 +53,28 @@
     @apply translate-y-0;
   }
 }
+
+/* Packing slip: when printing with slip open, show only the slip */
+@media print {
+  body.packing-slip-open * {
+    visibility: hidden;
+  }
+  body.packing-slip-open .packing-slip-modal,
+  body.packing-slip-open .packing-slip-modal * {
+    visibility: visible;
+  }
+  body.packing-slip-open .packing-slip-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    background: white !important;
+    max-height: none !important;
+    align-items: flex-start !important;
+    padding: 0 !important;
+  }
+  body.packing-slip-open .packing-slip-modal > div {
+    max-width: 100% !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}

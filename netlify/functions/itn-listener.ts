@@ -96,5 +96,15 @@ export const handler: Handler = async (event) => {
     }
   }
 
+  // Fire-and-forget: send order confirmation email (do not block or fail ITN response)
+  const baseUrl = (process.env.URL || process.env.VITE_SITE_URL || 'https://www.alameencaps.com').replace(/\/$/, '');
+  const secret = process.env.ORDER_CONFIRMATION_SECRET || '';
+  const confirmUrl = `${baseUrl}/.netlify/functions/send-order-confirmation`;
+  fetch(confirmUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(secret ? { 'X-Internal-Secret': secret } : {}) },
+    body: JSON.stringify({ order_id: order.id }),
+  }).catch((err) => console.error('ITN: order confirmation request failed', err));
+
   return { statusCode: 200, body: '' };
 };

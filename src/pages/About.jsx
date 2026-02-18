@@ -53,6 +53,13 @@ export default function About() {
               We are a small brand focused on trust, authenticity, and a “Rolex-style” standard—minimalist, high-trust, and
               built to last. Thank you for being part of the Al-Ameen story.
             </p>
+            <p className="mt-4">
+              <Link to="/shop" className="text-accent font-medium hover:underline">Browse the collection</Link>
+              {" · "}
+              <Link to="/near/bo-kaap" className="text-accent font-medium hover:underline">Bo-Kaap</Link>
+              {" & "}
+              <Link to="/near/athlone" className="text-accent font-medium hover:underline">Athlone</Link> delivery.
+            </p>
           </motion.section>
 
           <motion.section

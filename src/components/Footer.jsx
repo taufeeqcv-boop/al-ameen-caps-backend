@@ -1,12 +1,42 @@
-// Footer – minimal, on-brand with logo
+// Footer – minimal, on-brand with logo + newsletter signup
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Facebook } from "lucide-react";
+import { Facebook, Mail } from "lucide-react";
 import logoImg from "../assets/logo.png";
 
 const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61587066161054";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState(""); // '' | 'sending' | 'success' | 'error'
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    const value = (email || "").trim();
+    if (!value) return;
+    setStatus("sending");
+    try {
+      const res = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          "form-name": "newsletter",
+          email: value,
+          bot: "",
+        }).toString(),
+      });
+      if (res.ok) {
+        setEmail("");
+        setStatus("success");
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
+  };
+
   return (
     <footer className="bg-primary text-secondary py-12 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -16,7 +46,35 @@ export default function Footer() {
           </div>
         </Link>
         <p className="mt-1 text-sm text-white/80">Restoring the Crown of the Believer</p>
-        <div className="mt-4 flex flex-wrap justify-center items-center gap-x-6 gap-y-1 text-sm text-white/70">
+
+        <div className="mt-6 max-w-sm mx-auto">
+          <p className="text-sm text-white/70 mb-2">Get updates on new arrivals and offers</p>
+          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 justify-center items-center">
+            <label htmlFor="footer-email" className="sr-only">Email</label>
+            <input
+              id="footer-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Your email"
+              className="w-full sm:w-56 px-3 py-2 rounded-lg border border-white/30 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent/50"
+              disabled={status === "sending"}
+              required
+            />
+            <button
+              type="submit"
+              disabled={status === "sending"}
+              className="w-full sm:w-auto px-4 py-2 rounded-lg bg-accent text-primary font-medium hover:bg-amber-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {status === "sending" ? "…" : <Mail className="w-4 h-4" />}
+              {status === "sending" ? "Submitting" : "Subscribe"}
+            </button>
+          </form>
+          {status === "success" && <p className="mt-2 text-sm text-green-300">Thanks for subscribing.</p>}
+          {status === "error" && <p className="mt-2 text-sm text-amber-200">Something went wrong. Try again or contact us.</p>}
+        </div>
+
+        <div className="mt-6 flex flex-wrap justify-center items-center gap-x-6 gap-y-1 text-sm text-white/70">
           <a
             href={FACEBOOK_URL}
             target="_blank"
@@ -36,7 +94,7 @@ export default function Footer() {
           <Link to="/terms" className="hover:text-accent transition-colors">Terms</Link>
         </div>
         <p className="mt-4 text-xs text-white/50">
-          Secure payment via PayFast. &nbsp;·&nbsp; © {new Date().getFullYear()} Al-Ameen Caps. All rights reserved.
+          Cape Town based · Nationwide delivery. &nbsp;·&nbsp; Secure payment via PayFast. &nbsp;·&nbsp; © {new Date().getFullYear()} Al-Ameen Caps. All rights reserved.
         </p>
       </div>
     </footer>

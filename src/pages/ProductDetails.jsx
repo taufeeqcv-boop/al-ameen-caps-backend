@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { ArrowLeft, Truck, ShieldCheck, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Truck, ShieldCheck, ShoppingCart, Lock, Loader2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
@@ -23,29 +23,43 @@ const ProductDetails = () => {
   const [variants, setVariants] = useState([]);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Load product (with product_id from Supabase when available) and variants
   useEffect(() => {
     window.scrollTo(0, 0);
+    setLoading(true);
+    setLoadError(null);
     let cancelled = false;
     (async () => {
-      const list = await getProducts();
-      if (cancelled) return;
-      const fallback = COLLECTION_PRODUCTS.find((item) => item.id === id) || null;
-      const p = list.find((item) => item.id === id) || fallback || null;
-      setProduct(p);
-      setSelectedSize("");
-      setSelectedColor("");
-      const productId = p?.product_id != null ? Number(p.product_id) : NaN;
-      if (!Number.isNaN(productId) && productId > 0) {
-        const v = await getVariantsByProductId(productId);
-        if (!cancelled) setVariants(Array.isArray(v) ? v : []);
-      } else {
-        setVariants([]);
+      try {
+        const list = await getProducts();
+        if (cancelled) return;
+        const fallback = COLLECTION_PRODUCTS.find((item) => item.id === id) || null;
+        const p = list.find((item) => item.id === id) || fallback || null;
+        setProduct(p);
+        setSelectedSize("");
+        setSelectedColor("");
+        const productId = p?.product_id != null ? Number(p.product_id) : NaN;
+        if (!Number.isNaN(productId) && productId > 0) {
+          const v = await getVariantsByProductId(productId);
+          if (!cancelled) setVariants(Array.isArray(v) ? v : []);
+        } else {
+          setVariants([]);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setLoadError(err?.message || "Something went wrong.");
+          setProduct(COLLECTION_PRODUCTS.find((item) => item.id === id) || null);
+          setVariants([]);
+        }
       }
+      if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [id]);
+  }, [id, retryCount]);
 
   const bundledImg = product ? (COLLECTION_IMAGE_IMPORTS[product.id] || COLLECTION_IMAGE_IMPORTS[product.sku]) : null;
   const imageSrc = bundledImg || (product ? getCollectionImageUrl(product) : null);
@@ -96,6 +110,44 @@ const ProductDetails = () => {
       addToCart(item);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-secondary/30">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center px-4 pt-32">
+          <div className="text-center">
+            <Loader2 className="w-12 h-12 text-accent animate-spin mx-auto" aria-hidden />
+            <p className="mt-4 text-primary/70">Loading product…</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center px-4 pt-32">
+          <div className="text-center max-w-md">
+            <p className="text-primary font-medium">Couldn’t load this product</p>
+            <p className="mt-2 text-sm text-primary/70">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => setRetryCount((c) => c + 1)}
+              className="mt-4 px-4 py-2 bg-accent text-primary rounded-lg font-medium hover:bg-amber-400"
+            >
+              Try again
+            </button>
+            <Link to="/shop" className="block mt-4 text-accent hover:underline text-sm">Return to Shop</Link>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -160,11 +212,15 @@ const ProductDetails = () => {
                       ? "Out of stock"
                       : "Limited stock available — add yours to cart today."}
               </p>
+              <p className="flex items-center justify-center gap-2 text-xs text-primary/60 mb-3">
+                <Lock className="w-3.5 h-3.5 text-accent" aria-hidden />
+                Secure checkout via PayFast · Nationwide delivery
+              </p>
               <button
                 type="button"
                 onClick={handleAddToCart}
                 disabled={!canAdd}
-                className="btn-primary w-full py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed border-2 border-amber-600/30 focus:ring-amber-500/20"
+                className="btn-primary w-full py-4 min-h-[48px] text-base disabled:opacity-50 disabled:cursor-not-allowed border-2 border-amber-600/30 focus:ring-amber-500/20 touch-manipulation"
               >
                 {variants.length > 0
                   ? !selectedVariant

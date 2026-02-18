@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Lock } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import SuccessModal from '../components/SuccessModal';
@@ -45,8 +46,9 @@ const Checkout = () => {
   const [preOrderName, setPreOrderName] = useState('');
   const [preOrderPhone, setPreOrderPhone] = useState('');
   const [error, setError] = useState('');
+  const [deliveryType, setDeliveryType] = useState('delivery'); // 'delivery' | 'collection'
   const subtotal = cartTotal;
-  const delivery = cart.length > 0 ? DELIVERY_FEE : 0;
+  const delivery = cart.length > 0 ? (deliveryType === 'collection' ? 0 : DELIVERY_FEE) : 0;
   const total = subtotal + delivery;
 
   const hasOutOfStockItems = useMemo(
@@ -114,12 +116,22 @@ const Checkout = () => {
       }
 
       // Create order (and order_items) so Admin Orders page and PayFast ITN can use it
+      const shippingPayload = {
+        delivery_type: deliveryType,
+        address_line1: (formData.address_line_1 ?? '').trim(),
+        address_line2: (formData.address_line_2 ?? '').trim(),
+        city: (formData.city ?? '').trim(),
+        postal_code: (formData.postal_code ?? '').trim(),
+        phone: (formData.cell_number ?? '').trim(),
+      };
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
           user_id: user.id,
           status: 'PENDING',
           total_amount: total,
+          customer_email: user.email ?? (formData.email_address || '').trim() || null,
+          shipping_data: shippingPayload,
         })
         .select('id')
         .single();
@@ -332,6 +344,34 @@ const Checkout = () => {
                 required
                 className="font-sans w-full p-3 border border-black/20 rounded focus:border-accent focus:ring-1 focus:ring-accent outline-none"
               />
+              {enableEcommerce && !hasOutOfStockItems && (
+                <div className="font-sans space-y-2">
+                  <p className="text-sm font-medium text-primary">Delivery method</p>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="delivery_type"
+                      checked={deliveryType === 'delivery'}
+                      onChange={() => setDeliveryType('delivery')}
+                      className="text-accent focus:ring-accent"
+                    />
+                    <span className="text-primary">Standard delivery — {formatPrice(DELIVERY_FEE)}</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="delivery_type"
+                      checked={deliveryType === 'collection'}
+                      onChange={() => setDeliveryType('collection')}
+                      className="text-accent focus:ring-accent"
+                    />
+                    <span className="text-primary">Collect in Cape Town (Bo-Kaap) — Free</span>
+                  </label>
+                  {deliveryType === 'collection' && (
+                    <p className="text-xs text-primary/60">We will contact you to arrange collection.</p>
+                  )}
+                </div>
+              )}
               <input
                 name="address_line_1"
                 placeholder="Address (street, suburb)"
@@ -366,7 +406,18 @@ const Checkout = () => {
                 />
               </div>
 
-              {error && <p className="font-sans text-red-600 text-sm text-center">{error}</p>}
+              {error && (
+                <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-center">
+                  <p className="font-sans text-red-700 text-sm">{error}</p>
+                  <button
+                    type="button"
+                    onClick={() => setError('')}
+                    className="font-sans text-sm text-accent font-medium mt-2 hover:underline"
+                  >
+                    Dismiss and try again
+                  </button>
+                </div>
+              )}
 
               {!enableEcommerce || hasOutOfStockItems ? (
                 <>
@@ -376,7 +427,7 @@ const Checkout = () => {
                   <button
                     type="submit"
                     disabled={loading || cart.length === 0}
-                    className="btn-primary font-sans w-full py-4 text-base mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                    className="btn-primary font-sans w-full py-4 min-h-[48px] text-base mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 touch-manipulation"
                   >
                     {loading ? 'Placing Pre-Order...' : 'Pre-Order Now'}
                   </button>
@@ -386,11 +437,15 @@ const Checkout = () => {
                   {!user && (
                     <p className="font-sans text-primary/70 text-sm mt-4">Sign in above to pay with PayFast. Your order will appear in Admin → Orders once payment is complete.</p>
                   )}
+                  <p className="font-sans flex items-center justify-center gap-2 text-xs text-primary/60 mt-4">
+                    <Lock className="w-3.5 h-3.5 text-accent" aria-hidden />
+                    Cape Town based · Nationwide delivery. Secure checkout.
+                  </p>
                   <button
                     type="button"
                     onClick={handlePayment}
                     disabled={loading || cart.length === 0 || !user}
-                    className="btn-primary font-sans w-full py-4 text-base mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                    className="btn-primary font-sans w-full py-4 min-h-[48px] text-base mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 touch-manipulation"
                   >
                     Pay with PayFast
                   </button>

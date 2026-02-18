@@ -44,6 +44,7 @@ export default function ProductCard({ product, index = 0 }) {
             width={400}
             height={400}
             loading={index < 3 ? "eager" : "lazy"}
+            decoding="async"
             className="w-full h-full object-cover object-center"
           />
           {available <= 0 && (
@@ -73,7 +74,7 @@ export default function ProductCard({ product, index = 0 }) {
           type="button"
           onClick={handleAddToCart}
           disabled={!canAdd}
-          className="btn-outline w-full py-3.5 text-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          className="btn-outline w-full py-3.5 min-h-[44px] text-sm uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 touch-manipulation"
         >
           {isReservationOnly ? "Reserve" : canAdd ? "Add to Cart" : "Out of stock"}
         </button>
