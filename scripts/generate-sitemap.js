@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
  * Generates public/sitemap.xml from static pages + COLLECTION_PRODUCTS.
- * Run during build. Uses VITE_SITE_URL from Netlify env — must match the domain
- * in Google Search Console (netlify.app or custom domain).
+ * Run during build. Always uses production domain so sitemap URLs match the
+ * Search Console property (www.alameencaps.com). Netlify build env may set
+ * VITE_SITE_URL to netlify.app — we ignore that for sitemap to avoid "URL not allowed" errors.
  */
+const SITEMAP_BASE_URL = 'https://www.alameencaps.com';
 
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -12,9 +14,7 @@ import { COLLECTION_PRODUCTS } from '../src/data/collection.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Base URL: strip trailing slash to avoid double slashes. Must match Search Console property.
-const rawBase = process.env.VITE_SITE_URL || process.env.VITE_APP_URL || 'https://www.alameencaps.com';
-const baseUrl = String(rawBase).trim().replace(/\/+$/, '');
+const baseUrl = SITEMAP_BASE_URL.replace(/\/+$/, '');
 
 const staticPages = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
