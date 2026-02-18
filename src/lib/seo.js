@@ -283,17 +283,16 @@ export function getLocalBusinessSchema() {
     sameAs: [FACEBOOK_URL],
     founder: getLeadCuratorPersonForOrg(),
     address: (() => {
-      const street = import.meta.env.VITE_ADDRESS_STREET?.trim() || undefined;
-      const postal = import.meta.env.VITE_ADDRESS_POSTAL_CODE?.trim() || undefined;
-      const addr = {
+      const street = import.meta.env.VITE_ADDRESS_STREET?.trim() || '205 Wallace Street, Glenwood, Cape Town';
+      const postal = import.meta.env.VITE_ADDRESS_POSTAL_CODE?.trim() || '7460';
+      return {
         '@type': 'PostalAddress',
-        addressCountry: 'ZA',
-        addressRegion: 'Western Cape',
+        streetAddress: street,
         addressLocality: 'Cape Town',
+        addressRegion: 'Western Cape',
+        postalCode: postal,
+        addressCountry: 'ZA',
       };
-      if (street) addr.streetAddress = street;
-      if (postal) addr.postalCode = postal;
-      return addr;
     })(),
     areaServed: AREAS_SERVED.map((name) =>
       name === 'South Africa'
