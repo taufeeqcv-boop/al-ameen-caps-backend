@@ -3,15 +3,15 @@
  * Target: first-page Google for Islamic fashion, kufi, fez, taj, Cape Town, South Africa, Ramadaan, Eid, Sufi
  */
 
-const BASE_URL = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 'https://www.alameencaps.com';
-/** Canonical domain for JSON-LD schema (always production so rich results use correct URLs). */
-const CANONICAL_SITE_URL = 'https://www.alameencaps.com';
+const BASE_URL = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 'https://alameencaps.com';
+/** Canonical domain for JSON-LD schema (primary = alameencaps.com; www redirects to apex in Netlify). */
+const CANONICAL_SITE_URL = 'https://alameencaps.com';
 
 export function getBaseUrl() {
   return BASE_URL.replace(/\/$/, '');
 }
 
-/** Base URL for schema.org JSON-LD — always canonical so Google shows www.alameencaps.com in rich results. */
+/** Base URL for schema.org JSON-LD — canonical alameencaps.com for rich results. */
 export function getSchemaBaseUrl() {
   return CANONICAL_SITE_URL.replace(/\/$/, '');
 }
@@ -42,6 +42,13 @@ export function getProductMetaDescription(product) {
   const text = snippet.length >= 50 ? `${snippet}… ${tail}` : `${product.name}. Handcrafted ${label}. ${tail}`;
   return text.slice(0, 160);
 }
+
+/** Homepage meta description — aimed at turning SERP impressions into clicks (≤160 chars). */
+export const HOMEPAGE_META_DESCRIPTION =
+  "Premium kufis, fez & Islamic headwear for Jumu'ah & Eid. Handcrafted in Cape Town. Nationwide delivery. Shop the collection — Al-Ameen Caps.";
+// Alternatives for A/B (replace HOMEPAGE_META_DESCRIPTION if testing):
+// "Restoring the crown of the believer. Premium handcrafted kufis, fez & taj. Cape Town & nationwide. Al-Ameen Caps." (102)
+// "Handcrafted kufis, fez & taj for Jumu'ah & Eid. Cape Town's premium Islamic headwear. Nationwide delivery. Shop Al-Ameen Caps." (107)
 
 /** Comma-separated meta keywords for key pages (Islamic fashion, location, occasions, Sufi) */
 export const SEO_KEYWORDS =

@@ -84,7 +84,7 @@ export default function Contact() {
                   name="name"
                   type="text"
                   required
-                  className="w-full px-4 py-3 border border-black/20 rounded focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                  className="w-full px-4 py-3 border border-black/20 rounded-lg transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
                   placeholder="Your name"
                 />
               </div>
@@ -95,7 +95,7 @@ export default function Contact() {
                   name="email"
                   type="email"
                   required
-                  className="w-full px-4 py-3 border border-black/20 rounded focus:border-accent focus:ring-1 focus:ring-accent outline-none"
+                  className="w-full px-4 py-3 border border-black/20 rounded-lg transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
                   placeholder="your@email.com"
                 />
               </div>
@@ -106,7 +106,7 @@ export default function Contact() {
                   name="message"
                   required
                   rows={5}
-                  className="w-full px-4 py-3 border border-black/20 rounded focus:border-accent focus:ring-1 focus:ring-accent outline-none resize-none"
+                  className="w-full px-4 py-3 border border-black/20 rounded-lg transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none resize-none"
                   placeholder="How can we help?"
                 />
               </div>

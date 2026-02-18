@@ -20,8 +20,8 @@ export default function StoreNotice() {
   if (!notice) return null;
 
   return (
-    <div className="bg-amber-500 text-black text-center py-2 px-4 text-sm font-bold">
-      {notice}
+    <div className="bg-amber-500 text-black text-center py-2.5 px-4 text-sm font-semibold">
+      <div className="max-w-7xl mx-auto">{notice}</div>
     </div>
   );
 }

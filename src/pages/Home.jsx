@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 import Seo from "../components/Seo";
-import { injectJsonLd, getLocalBusinessSchema, getWebSiteSchema } from "../lib/seo";
+import { injectJsonLd, getLocalBusinessSchema, getWebSiteSchema, HOMEPAGE_META_DESCRIPTION } from "../lib/seo";
 
 export default function Home() {
   useEffect(() => {
@@ -18,10 +18,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Seo
-        url="/"
-        description="Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa."
-      />
+      <Seo url="/" description={HOMEPAGE_META_DESCRIPTION} />
       <Navbar />
       <main className="flex-1 pt-32">
         <Hero />

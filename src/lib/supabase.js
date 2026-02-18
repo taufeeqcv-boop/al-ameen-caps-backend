@@ -134,7 +134,7 @@ export function normalizeImageUrl(url) {
   return path;
 }
 
-const IMAGE_BASE_HARDCODED = 'https://www.alameencaps.com';
+const IMAGE_BASE_HARDCODED = 'https://alameencaps.com';
 
 /** Force collection images to load from hardcoded URL. */
 export function sameOriginImageSrc(url) {

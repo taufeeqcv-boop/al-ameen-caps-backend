@@ -32,7 +32,7 @@ const supabase = supabaseUrl && serviceRoleKey
   : null;
 
 function getSiteUrl() {
-  return (process.env.VITE_SITE_URL || process.env.URL || "https://www.alameencaps.com").replace(/\/$/, "");
+  return (process.env.VITE_SITE_URL || process.env.URL || "https://alameencaps.com").replace(/\/$/, "");
 }
 
 function getShippingEmailHtml(data) {

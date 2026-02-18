@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { X } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../lib/format";
 
@@ -27,13 +28,18 @@ export default function CartSidebar({ isOpen, onClose }) {
       <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-secondary shadow-xl border-l border-black/10 flex flex-col">
         <div className="p-6 flex justify-between items-center border-b border-black/10">
           <h2 className="font-serif text-xl font-semibold text-primary">Your Cart</h2>
-          <button type="button" onClick={onClose} className="p-2 text-primary hover:text-accent" aria-label="Close cart">
-            Close
+          <button type="button" onClick={onClose} className="p-2 rounded text-primary hover:text-accent hover:bg-primary/5 transition-colors" aria-label="Close cart">
+            <X className="w-5 h-5" />
           </button>
         </div>
         <div className="p-6 flex-1 overflow-auto">
           {cart.length === 0 ? (
-            <p className="text-primary/70">Your cart is empty.</p>
+            <div className="text-center py-8">
+              <p className="text-primary/70 mb-4">Your cart is empty.</p>
+              <Link to="/shop" onClick={onClose} className="btn-outline px-6 py-2.5 text-sm">
+                Continue shopping
+              </Link>
+            </div>
           ) : (
             <ul className="space-y-4">
               {cart.map((item, i) => {

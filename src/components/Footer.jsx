@@ -57,14 +57,14 @@ export default function Footer() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Your email"
-              className="w-full sm:w-56 px-3 py-2 rounded-lg border border-white/30 bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-accent/50"
+              className="w-full sm:w-56 px-3 py-2 rounded-lg border border-white/30 bg-white/10 text-white placeholder-white/50 transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50"
               disabled={status === "sending"}
               required
             />
             <button
               type="submit"
               disabled={status === "sending"}
-              className="w-full sm:w-auto px-4 py-2 rounded-lg bg-accent text-primary font-medium hover:bg-amber-400 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-4 py-2 rounded-lg bg-accent text-primary font-medium hover:bg-accent-light transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {status === "sending" ? "…" : <Mail className="w-4 h-4" />}
               {status === "sending" ? "Submitting" : "Subscribe"}

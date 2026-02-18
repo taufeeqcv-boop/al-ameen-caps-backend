@@ -3,7 +3,7 @@
  * Receives POST with JSON: { formData, cart, total }
  * 1. Persists to public.reservations (Supabase, service role).
  * 2. Sends "NEW RESERVATION" email to admin and confirmation to customer.
- * CORS headers: * allows browser requests from any origin (localhost, www.alameencaps.com, legacy Netlify subdomain).
+ * CORS headers: * allows browser requests from any origin (localhost, alameencaps.com, legacy Netlify subdomain).
  */
 
 const nodemailer = require("nodemailer");

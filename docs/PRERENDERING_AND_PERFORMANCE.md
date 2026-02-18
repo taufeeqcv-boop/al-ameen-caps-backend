@@ -23,7 +23,7 @@ Crawlers and AI tools receive full HTML; normal visitors continue to get the sta
 2. **Enabled for this project** — In the al-ameen-caps-backend site, go to **Extensions** → **Prerender** → **Enable prerendering**, then save.
 3. **Legacy prerendering off** — In **Site configuration** (or **Build & deploy**) → **Post processing** → **Prerendering**, ensure the legacy “Prerendering” option is **OFF**.
 4. **Redeploy** — Trigger a new deploy (or push a commit) so the extension is active.
-5. **Verify** — Use the [prerendering checker tool](https://do-you-need-prerender.netlify.app/) with `https://www.alameencaps.com` to confirm crawlers receive full content.
+5. **Verify** — Use the [prerendering checker tool](https://do-you-need-prerender.netlify.app/) with `https://alameencaps.com` to confirm crawlers receive full content.
 
 ---
 

@@ -20,7 +20,7 @@ export const COLLECTION_IMAGE_FILENAMES = {
   "collection-14": "turkish-naqshbandi-taj.png",
 };
 
-const IMAGE_BASE = "https://www.alameencaps.com";
+const IMAGE_BASE = "https://alameencaps.com";
 
 /** Returns image URL. Hardcoded base, no env. No cache-bust param so browser can cache. */
 export function getCollectionImageUrl(product) {

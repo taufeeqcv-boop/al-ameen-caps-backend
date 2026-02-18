@@ -2,10 +2,10 @@
 /**
  * Generates public/sitemap.xml from static pages + COLLECTION_PRODUCTS.
  * Run during build. Always uses production domain so sitemap URLs match the
- * Search Console property (www.alameencaps.com). Netlify build env may set
+ * Search Console property (alameencaps.com). Netlify build env may set
  * VITE_SITE_URL to netlify.app — we ignore that for sitemap to avoid "URL not allowed" errors.
  */
-const SITEMAP_BASE_URL = 'https://www.alameencaps.com';
+const SITEMAP_BASE_URL = 'https://alameencaps.com';
 
 import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';

@@ -1,5 +1,5 @@
 # Force redirect from Netlify subdomain to primary domain
-https://al-ameen-caps.netlify.app/* https://www.alameencaps.com/:splat 301!
+https://al-ameen-caps.netlify.app/* https://alameencaps.com/:splat 301!
 
 # Handle React Router (fixes blank page on direct navigation / refresh)
 /*    /index.html   200

@@ -23,12 +23,12 @@ Use this **before you push to Git** and **after you deploy to Netlify**, so noth
    [search.google.com/search-console](https://search.google.com/search-console)
 
 2. **Add property** (if not already)  
-   - URL prefix: `https://www.alameencaps.com` (or your custom domain).  
+   - URL prefix: `https://alameencaps.com` (or your custom domain).  
    - Verify via HTML tag (add the meta tag to `index.html` if GSC gives you one) or DNS.
 
 3. **Submit sitemap**  
    - In GSC: **Sitemaps** → Add new sitemap.  
-   - Enter: `https://www.alameencaps.com/sitemap.xml`  
+   - Enter: `https://alameencaps.com/sitemap.xml`  
    - Submit. Status will show “Success” once Google has read it.
 
 4. **Request indexing (optional)**  

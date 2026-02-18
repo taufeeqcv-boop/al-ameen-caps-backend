@@ -22,7 +22,7 @@ Set these (same Supabase project for all four):
 | **VITE_PAYFAST_MERCHANT_KEY** | If using PayFast | Same as PAYFAST_MERCHANT_KEY |
 | **VITE_PAYFAST_PASSPHRASE** | If using PayFast | Same as PAYFAST_PASSPHRASE |
 | **VITE_ENABLE_ECOMMERCE** | Optional | `true` to show Pay Fast / checkout |
-| **VITE_SITE_URL** | Optional | e.g. `https://www.alameencaps.com` — PayFast return URLs; Netlify sets URL automatically |
+| **VITE_SITE_URL** | Optional | e.g. `https://alameencaps.com` — PayFast return URLs; Netlify sets URL automatically |
 | **VITE_IMAGE_BASE_URL** | Optional | If you have two deploys (frontend + backend) and images only work on one: set this on the **frontend** site to the backend URL (e.g. `https://al-ameen-caps-backend.netlify.app`) so product images load from there. Then redeploy frontend. |
 | **VITE_DELIVERY_FEE** | Optional | Default 99 (ZAR) |
 

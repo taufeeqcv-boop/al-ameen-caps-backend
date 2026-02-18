@@ -56,7 +56,7 @@ After you build and deploy, complete these three actions to finalise search and 
 
 ### 1. IndexNow verification
 
-- **Action:** Open `https://www.alameencaps.com/4ed08a1ef99a4e2c900e1f0cd2eb69f8.txt` in a browser.
+- **Action:** Open `https://alameencaps.com/4ed08a1ef99a4e2c900e1f0cd2eb69f8.txt` in a browser.
 - **Success:** The page shows only the key string `4ed08a1ef99a4e2c900e1f0cd2eb69f8` (no HTML, no extra text).
 - **Why:** Bing can then accept your site for IndexNow; new or updated URLs (e.g. new products like Afgani Star or Na'lain Cap) can be pushed to Bing for faster indexing.
 

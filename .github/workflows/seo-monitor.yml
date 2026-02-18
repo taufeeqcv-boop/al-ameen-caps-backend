@@ -1,0 +1,31 @@
+# Weekly SEO monitor — "Caps" keyword position in South Africa (GSC)
+# Runs every Monday 8:00 AM Cape Town time; can also be triggered manually.
+name: Weekly SEO Monitor
+
+on:
+  schedule:
+    # 6:00 UTC = 8:00 AM SAST (Cape Town) in winter; 7:00 AM in summer (UTC+2)
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  check-seo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run GSC Caps position check
+        env:
+          GSC_CLIENT_EMAIL: ${{ secrets.GSC_CLIENT_EMAIL }}
+          GSC_PRIVATE_KEY: ${{ secrets.GSC_PRIVATE_KEY }}
+        run: node scripts/gsc-check-caps-position.js

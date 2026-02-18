@@ -7,7 +7,7 @@ Set these in Netlify (Site settings → Environment variables) and in local `.en
 ```
 VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key
-VITE_SITE_URL=https://www.alameencaps.com
+VITE_SITE_URL=https://alameencaps.com
 ```
 
 - **VITE_SUPABASE_URL**: From Supabase Dashboard → Project Settings → API → Project URL  
@@ -19,11 +19,11 @@ VITE_SITE_URL=https://www.alameencaps.com
 In **Supabase Dashboard → Authentication → URL Configuration**:
 
 1. **Site URL** (default redirect):  
-   `https://www.alameencaps.com`
+   `https://alameencaps.com`
 
 2. **Redirect URLs** (allowed OAuth redirect targets):  
    Add **all** environments where users sign in, or Google will redirect to Site URL (production) instead of localhost:
-   - `https://www.alameencaps.com/**`
+   - `https://alameencaps.com/**`
    - `https://al-ameen-caps.netlify.app/**` (legacy/backup)
    - `http://localhost:8888/**` (for **netlify dev**)
    - `http://localhost:5173/**` (for **npm run dev** / Vite only)

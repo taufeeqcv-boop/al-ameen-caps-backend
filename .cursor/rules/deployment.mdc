@@ -12,7 +12,7 @@ alwaysApply: true
 # Deployment topology (single Netlify site)
 
 - **One site:** `al-ameen-caps-backend` serves both the React frontend and Netlify Functions. Do not split into separate frontend/backend sites or repos.
-- **Production domain:** https://www.alameencaps.com. In code, always use `import.meta.env.VITE_SITE_URL` for the site URL (OAuth redirects, PayFast return/cancel/notify URLs, links).
+- **Production domain:** https://alameencaps.com (primary in Netlify; www redirects to apex). In code, always use `import.meta.env.VITE_SITE_URL` for the site URL (OAuth redirects, PayFast return/cancel/notify URLs, links).
 - **PayFast:** Production (real money). `VITE_PAYFAST_SANDBOX = false`. Do not switch back to sandbox/test mode unless explicitly required.
 - **Functions:** Live at `/.netlify/functions/` on the same site; relative paths work. `src/` and `netlify/functions/` are one deployed unit.
 - **Source of truth:** See `docs/DEPLOYMENT_TOPOLOGY.md` for full details.

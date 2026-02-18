@@ -51,10 +51,10 @@
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# Force redirect from Netlify subdomain to primary domain (301 = permanent; tells Google to update index)
+# Force redirect from Netlify subdomain to primary domain (alameencaps.com = primary in Netlify; www redirects to apex)
 [[redirects]]
   from = "/*"
-  to = "https://www.alameencaps.com/:splat"
+  to = "https://alameencaps.com/:splat"
   status = 301
   force = true
   conditions = {Host = ["al-ameen-caps.netlify.app"]}

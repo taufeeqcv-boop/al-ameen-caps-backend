@@ -65,7 +65,7 @@ export default function ProductCard({ product, index = 0 }) {
             )}
           </p>
           {Number(price) > 0 && (
-            <p className="mt-2 text-2xl font-extrabold text-amber-700">{formatPrice(price)}</p>
+            <p className="mt-2 text-2xl font-semibold text-accent">{formatPrice(price)}</p>
           )}
         </div>
       </Link>

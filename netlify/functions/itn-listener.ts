@@ -97,7 +97,7 @@ export const handler: Handler = async (event) => {
   }
 
   // Fire-and-forget: send order confirmation email (do not block or fail ITN response)
-  const baseUrl = (process.env.URL || process.env.VITE_SITE_URL || 'https://www.alameencaps.com').replace(/\/$/, '');
+  const baseUrl = (process.env.URL || process.env.VITE_SITE_URL || 'https://alameencaps.com').replace(/\/$/, '');
   const secret = process.env.ORDER_CONFIRMATION_SECRET || '';
   const confirmUrl = `${baseUrl}/.netlify/functions/send-order-confirmation`;
   fetch(confirmUrl, {

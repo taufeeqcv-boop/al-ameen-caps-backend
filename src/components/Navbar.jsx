@@ -37,8 +37,15 @@ export default function Navbar() {
         setUserMenuOpen(false);
       }
     };
+    const handleEscape = (e) => {
+      if (e.key === "Escape") setUserMenuOpen(false);
+    };
     document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, []);
 
   const firstName = user ? getFirstName(user) : "";
@@ -46,9 +53,6 @@ export default function Navbar() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50">
-        <div className="bg-accent text-primary text-center py-2 px-4 text-sm font-medium">
-          Inaugural Collection Arriving Soon — Pre-Order Now.
-        </div>
         {authError && (
           <div className="bg-amber-100 text-amber-900 px-4 py-2 text-sm flex items-center justify-between gap-2">
             <span>{authError}</span>

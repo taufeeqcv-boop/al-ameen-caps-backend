@@ -17,7 +17,7 @@
 
 ### IndexNow verification file
 - **Mechanism:** Build script `scripts/write-indexnow-key.js` writes `dist/<KEY>.txt` when `INDEXNOW_KEY` is set at build time. File contains only the key string.
-- **Required:** Set `INDEXNOW_KEY=4ed08a1ef99a4e2c900e1f0cd2eb69f8` in **Netlify** (Build & deploy → Environment variables). After deploy, the file will be at `https://www.alameencaps.com/4ed08a1ef99a4e2c900e1f0cd2eb69f8.txt`.
+- **Required:** Set `INDEXNOW_KEY=4ed08a1ef99a4e2c900e1f0cd2eb69f8` in **Netlify** (Build & deploy → Environment variables). After deploy, the file will be at `https://alameencaps.com/4ed08a1ef99a4e2c900e1f0cd2eb69f8.txt`.
 - **Local test:** Run `INDEXNOW_KEY=4ed08a1ef99a4e2c900e1f0cd2eb69f8 npm run build` (or set in .env and build); confirm `dist/4ed08a1ef99a4e2c900e1f0cd2eb69f8.txt` exists and contains only the key.
 - **Verdict:** Compliant when `INDEXNOW_KEY` is set in Netlify; do not commit the key file to the repo.
 

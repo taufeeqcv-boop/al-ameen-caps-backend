@@ -36,7 +36,7 @@ export const handler: Handler = async (event) => {
   const { data: userData } = await supabaseAdmin.auth.admin.getUserById(order.user_id);
   const email_address = userData?.user?.email ?? '';
 
-  const baseUrl = (process.env.VITE_SITE_URL || process.env.URL || 'https://www.alameencaps.com').replace(/\/$/, '');
+  const baseUrl = (process.env.VITE_SITE_URL || process.env.URL || 'https://alameencaps.com').replace(/\/$/, '');
   const merchant_id = process.env.PAYFAST_MERCHANT_ID || '';
   const merchant_key = process.env.PAYFAST_MERCHANT_KEY || '';
   const passphrase = process.env.PAYFAST_PASSPHRASE || undefined;

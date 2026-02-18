@@ -1,6 +1,6 @@
 /**
  * Centralized config for Netlify Functions URL.
- * When frontend (www.alameencaps.com) and backend (al-ameen-caps-backend) are different Netlify sites,
+ * When frontend (alameencaps.com) and backend (al-ameen-caps-backend) are different Netlify sites,
  * set VITE_FUNCTIONS_BASE to the backend URL so all function calls go there.
  * When unset, uses relative paths (current origin) for same-site or localhost.
  */

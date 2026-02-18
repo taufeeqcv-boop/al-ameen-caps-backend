@@ -78,7 +78,16 @@ export default function Shop() {
           ))}
         </div>
         {filtered.length === 0 && (
-          <p className="text-center text-primary/70 py-12">No products match your search. Try a different term or category.</p>
+          <div className="text-center py-16">
+            <p className="text-primary/70 mb-4">No products match your search. Try a different term or category.</p>
+            <button
+              type="button"
+              onClick={() => { setSearchQuery(""); setCategoryFilter(""); }}
+              className="btn-outline px-6 py-2.5 text-sm"
+            >
+              Clear filters
+            </button>
+          </div>
         )}
       </main>
       <Footer />

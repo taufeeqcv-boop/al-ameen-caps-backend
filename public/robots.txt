@@ -1,5 +1,5 @@
 # Al-Ameen Caps — robots.txt
-# https://www.alameencaps.com — set VITE_SITE_URL for custom domain
+# https://alameencaps.com — set VITE_SITE_URL for custom domain
 
 User-agent: *
 Allow: /
@@ -8,4 +8,4 @@ Disallow: /success
 Disallow: /checkout
 Disallow: /login
 
-Sitemap: https://www.alameencaps.com/sitemap.xml
+Sitemap: https://alameencaps.com/sitemap.xml

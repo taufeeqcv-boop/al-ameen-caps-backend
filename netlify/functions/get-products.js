@@ -1,6 +1,6 @@
 /**
  * GET /.netlify/functions/get-products
- * Returns products from Supabase with CORS so https://www.alameencaps.com (or any origin) can fetch.
+ * Returns products from Supabase with CORS so https://alameencaps.com (or any origin) can fetch.
  */
 
 const { createClient } = require("@supabase/supabase-js");
