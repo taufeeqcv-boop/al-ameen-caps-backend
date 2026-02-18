@@ -204,6 +204,78 @@ export const getProducts = async () => {
   }
 };
 
+/** Fetch all product_variants (for admin). Returns [] if no Supabase or error. */
+export const getAllVariants = async () => {
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from('product_variants')
+      .select('id, product_id, sku, size, color, stock_quantity, price, price_adjustment')
+      .order('product_id')
+      .order('size', { ascending: true })
+      .order('color', { ascending: true });
+    if (error) return [];
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+};
+
+/** Fetch product_variants for a product (by Supabase product id). Returns [] if no Supabase or error. */
+export const getVariantsByProductId = async (productId) => {
+  if (!supabase || productId == null) return [];
+  try {
+    const { data, error } = await supabase
+      .from('product_variants')
+      .select('id, sku, size, color, stock_quantity, price, price_adjustment')
+      .eq('product_id', Number(productId))
+      .order('size', { ascending: true })
+      .order('color', { ascending: true });
+    if (error) return [];
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+};
+
+/** Update variant stock (admin). Returns { error } or {}. */
+export const updateVariantStock = async (variantId, stockQuantity) => {
+  if (!supabase || variantId == null) return { error: 'Not configured' };
+  const qty = Math.max(0, Math.floor(Number(stockQuantity) || 0));
+  const { error } = await supabase
+    .from('product_variants')
+    .update({ stock_quantity: qty })
+    .eq('id', variantId);
+  return error ? { error: error.message } : {};
+};
+
+/** Update product stock (admin, for products with no variants). Returns { error } or {}. */
+export const updateProductStock = async (productId, stockQuantity) => {
+  if (!supabase || productId == null) return { error: 'Not configured' };
+  const qty = Math.max(0, Math.floor(Number(stockQuantity) || 0));
+  const { error } = await supabase
+    .from('products')
+    .update({ stock_quantity: qty })
+    .eq('id', productId);
+  return error ? { error: error.message } : {};
+};
+
+/** Insert a new product variant (admin). Returns { error } or { data }. */
+export const insertVariant = async (payload) => {
+  if (!supabase || !payload?.product_id || !payload?.sku) return { error: 'product_id and sku required' };
+  const row = {
+    product_id: Number(payload.product_id),
+    sku: String(payload.sku).trim(),
+    size: payload.size != null ? String(payload.size).trim() || null : null,
+    color: payload.color != null ? String(payload.color).trim() || null : null,
+    stock_quantity: Math.max(0, Math.floor(Number(payload.stock_quantity) || 0)),
+    price_adjustment: payload.price_adjustment != null ? Number(payload.price_adjustment) || 0 : 0,
+  };
+  const { data, error } = await supabase.from('product_variants').insert(row).select('id').single();
+  if (error) return { error: error.message };
+  return { data };
+};
+
 // Fetch Single Product (same fallbacks as getProducts for incognito / strict RLS)
 export const getProductById = async (id) => {
   if (!supabase || !id) return null;

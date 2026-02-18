@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import { supabase, getAllVariants, updateVariantStock, updateProductStock, insertVariant } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
-import { Loader2, Plus, Pencil, Image as ImageIcon, Database } from "lucide-react";
+import { Loader2, Plus, Pencil, Image as ImageIcon, Database, ChevronDown, ChevronRight } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { COLLECTION_PRODUCTS } from "../../data/collection";
 
@@ -9,6 +9,7 @@ export default function AdminProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
   const editId = searchParams.get("edit");
   const [products, setProducts] = useState([]);
+  const [variants, setVariants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -26,16 +27,34 @@ export default function AdminProducts() {
   const [imageFile, setImageFile] = useState(null);
   const [seeding, setSeeding] = useState(false);
   const [seedMessage, setSeedMessage] = useState(null);
+  const [expandedProductId, setExpandedProductId] = useState(null);
+  const [updatingVariantId, setUpdatingVariantId] = useState(null);
+  const [addVariantProductId, setAddVariantProductId] = useState(null);
+  const [addVariantForm, setAddVariantForm] = useState({ sku: "", size: "", color: "", stock_quantity: "0", price_adjustment: "0" });
+  const [savingVariant, setSavingVariant] = useState(false);
+  const [updatingProductStockId, setUpdatingProductStockId] = useState(null);
+  const variantStockInputRefs = useRef({});
+
+  const variantsByProductId = useMemo(() => {
+    const map = {};
+    for (const v of variants) {
+      const pid = v.product_id;
+      if (!map[pid]) map[pid] = [];
+      map[pid].push(v);
+    }
+    return map;
+  }, [variants]);
 
   const fetchProducts = async () => {
     if (!supabase) return;
     setLoading(true);
-    const { data, error: e } = await supabase
-      .from("products")
-      .select("*")
-      .order("name");
-    if (e) setError(e.message);
-    else setProducts(data ?? []);
+    const [productsRes, variantsList] = await Promise.all([
+      supabase.from("products").select("*").order("name"),
+      getAllVariants(),
+    ]);
+    if (productsRes.error) setError(productsRes.error.message);
+    else setProducts(productsRes.data ?? []);
+    setVariants(Array.isArray(variantsList) ? variantsList : []);
     setLoading(false);
   };
 
@@ -215,45 +234,250 @@ export default function AdminProducts() {
         <div className="rounded-lg bg-red-50 text-red-800 p-4 text-sm">{error}</div>
       )}
 
-      <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-premium border border-amber-700/30 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-secondary/30 text-primary/80 text-sm">
+              <tr className="bg-primary text-secondary/90 text-sm border-b-2 border-amber-600/50">
+                <th className="px-4 py-3 font-medium w-10" aria-label="Expand" />
                 <th className="px-6 py-3 font-medium w-20">Image</th>
                 <th className="px-6 py-3 font-medium">Name</th>
                 <th className="px-6 py-3 font-medium">Price</th>
-                <th className="px-6 py-3 font-medium">Stock</th>
+                <th className="px-6 py-3 font-medium">Total Stock</th>
                 <th className="px-6 py-3 font-medium w-24">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
-                <tr key={p.id} className="border-t border-secondary/20">
-                  <td className="px-6 py-3">
-                    {p.image_url ? (
-                      <img src={p.image_url} alt="" className="w-14 h-14 object-cover rounded border border-secondary/30" />
-                    ) : (
-                      <div className="w-14 h-14 rounded border border-secondary/30 bg-secondary/20 flex items-center justify-center">
-                        <ImageIcon className="w-6 h-6 text-primary/40" />
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-3 text-primary font-medium">{p.name}</td>
-                  <td className="px-6 py-3 text-primary">{formatPrice(p.price)}</td>
-                  <td className="px-6 py-3 text-primary">{p.stock_quantity}</td>
-                  <td className="px-6 py-3">
-                    <button
-                      type="button"
-                      onClick={() => openEdit(p)}
-                      className="flex items-center gap-1 text-accent hover:underline text-sm"
+              {products.map((p) => {
+                const productVariants = variantsByProductId[p.id] ?? [];
+                const totalStock = productVariants.length > 0
+                  ? productVariants.reduce((sum, v) => sum + (Number(v.stock_quantity) || 0), 0)
+                  : (Number(p.stock_quantity) ?? 0);
+                const isExpanded = expandedProductId === p.id;
+
+                return (
+                  <React.Fragment key={p.id}>
+                    <tr
+                      className="border-t border-secondary/20 hover:bg-secondary/10"
                     >
-                      <Pencil className="w-4 h-4" />
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                      <td className="px-4 py-2">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedProductId((id) => (id === p.id ? null : p.id))}
+                          className="p-1 rounded hover:bg-amber-100 text-primary border border-transparent hover:border-amber-600/30"
+                          aria-expanded={isExpanded}
+                        >
+                          {isExpanded ? (
+                            <ChevronDown className="w-5 h-5" />
+                          ) : (
+                            <ChevronRight className="w-5 h-5" />
+                          )}
+                        </button>
+                      </td>
+                      <td className="px-6 py-3">
+                        {p.image_url ? (
+                          <img src={p.image_url} alt="" className="w-14 h-14 object-cover rounded border border-secondary/30" />
+                        ) : (
+                          <div className="w-14 h-14 rounded border border-secondary/30 bg-secondary/20 flex items-center justify-center">
+                            <ImageIcon className="w-6 h-6 text-primary/40" />
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-3 text-primary font-medium">{p.name}</td>
+                      <td className="px-6 py-3 text-primary">{formatPrice(p.price)}</td>
+                      <td className="px-6 py-3 text-primary">{totalStock}</td>
+                      <td className="px-6 py-3">
+                        <button
+                          type="button"
+                          onClick={() => openEdit(p)}
+                          className="flex items-center gap-1 text-amber-700 hover:text-amber-800 font-medium text-sm hover:underline"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          Edit
+                        </button>
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr key={`${p.id}-variants`} className="bg-amber-50/40 border-t-2 border-amber-700/20">
+                        <td colSpan={6} className="px-6 py-4">
+                          <div className="pl-8 space-y-3">
+                            <p className="text-sm font-semibold text-primary border-b border-amber-700/30 pb-1">
+                              {productVariants.length === 0 ? "Stock (no variants)" : "Variants — Size | Colour | Stock"}
+                            </p>
+                            {productVariants.length === 0 ? (
+                              <div className="flex flex-wrap items-center gap-3 py-2">
+                                <label className="text-sm text-primary/80">Default stock:</label>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  defaultValue={p.stock_quantity ?? 0}
+                                  id={`product-stock-${p.id}`}
+                                  className="w-24 border-2 border-amber-700/30 rounded-lg px-3 py-1.5 text-primary bg-white focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const input = document.getElementById(`product-stock-${p.id}`);
+                                    const val = input?.value ?? "";
+                                    setUpdatingProductStockId(p.id);
+                                    setError(null);
+                                    const { error: err } = await updateProductStock(p.id, val);
+                                    if (err) setError(err);
+                                    else await fetchProducts();
+                                    setUpdatingProductStockId(null);
+                                  }}
+                                  disabled={updatingProductStockId === p.id}
+                                  className="px-4 py-1.5 bg-amber-700 text-white rounded-lg text-sm font-medium hover:bg-amber-800 disabled:opacity-50 flex items-center gap-1 border border-amber-800"
+                                >
+                                  {updatingProductStockId === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                  Save
+                                </button>
+                              </div>
+                            ) : (
+                              <ul className="space-y-2">
+                                {productVariants.map((v) => (
+                                  <li
+                                    key={v.id}
+                                    className="flex flex-wrap items-center gap-4 py-2 px-3 rounded-lg bg-white border-2 border-amber-700/20 shadow-sm"
+                                  >
+                                    <span className="text-sm font-mono font-medium text-primary w-32">{v.sku}</span>
+                                    <span className="text-sm text-primary/80">Size: {v.size ?? "—"}</span>
+                                    <span className="text-sm text-primary/80">Colour: {v.color ?? "—"}</span>
+                                    <span className="flex items-center gap-2">
+                                      <label className="text-xs text-primary/60">Stock</label>
+                                      <input
+                                        type="number"
+                                        min={0}
+                                        defaultValue={v.stock_quantity ?? 0}
+                                        ref={(el) => { variantStockInputRefs.current[v.id] = el; }}
+                                        className="w-20 border-2 border-amber-700/30 rounded px-2 py-1 text-sm text-primary focus:ring-2 focus:ring-amber-500/30 focus:border-amber-600"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={async () => {
+                                          const input = variantStockInputRefs.current[v.id];
+                                          const val = input?.value ?? "";
+                                          setUpdatingVariantId(v.id);
+                                          setError(null);
+                                          const { error: err } = await updateVariantStock(v.id, val);
+                                          if (err) setError(err);
+                                          else await fetchProducts();
+                                          setUpdatingVariantId(null);
+                                        }}
+                                        disabled={updatingVariantId === v.id}
+                                        className="px-3 py-1 bg-amber-700 text-white rounded text-sm font-medium hover:bg-amber-800 disabled:opacity-50 flex items-center gap-1 border border-amber-800"
+                                      >
+                                        {updatingVariantId === v.id ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                        Save
+                                      </button>
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                            {addVariantProductId === p.id ? (
+                              <div className="mt-4 p-4 rounded-xl bg-white border-2 border-amber-700/40 shadow-md space-y-3 max-w-lg">
+                                <p className="text-sm font-semibold text-primary text-amber-900">Add new variant</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <input
+                                    type="text"
+                                    placeholder="SKU (e.g. NALAIN-BLK-58)"
+                                    value={addVariantForm.sku}
+                                    onChange={(e) => setAddVariantForm((f) => ({ ...f, sku: e.target.value }))}
+                                    className="border-2 border-amber-700/30 rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-amber-500/30"
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="Size"
+                                    value={addVariantForm.size}
+                                    onChange={(e) => setAddVariantForm((f) => ({ ...f, size: e.target.value }))}
+                                    className="border-2 border-amber-700/30 rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-amber-500/30"
+                                  />
+                                  <input
+                                    type="text"
+                                    placeholder="Colour"
+                                    value={addVariantForm.color}
+                                    onChange={(e) => setAddVariantForm((f) => ({ ...f, color: e.target.value }))}
+                                    className="border-2 border-amber-700/30 rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-amber-500/30"
+                                  />
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    placeholder="Stock"
+                                    value={addVariantForm.stock_quantity}
+                                    onChange={(e) => setAddVariantForm((f) => ({ ...f, stock_quantity: e.target.value }))}
+                                    className="border-2 border-amber-700/30 rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-amber-500/30"
+                                  />
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    placeholder="Price adjustment (R)"
+                                    value={addVariantForm.price_adjustment}
+                                    onChange={(e) => setAddVariantForm((f) => ({ ...f, price_adjustment: e.target.value }))}
+                                    className="border-2 border-amber-700/30 rounded-lg px-3 py-2 text-sm text-primary focus:ring-2 focus:ring-amber-500/30 col-span-2"
+                                  />
+                                </div>
+                                <div className="flex gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      if (!addVariantForm.sku.trim()) return;
+                                      setSavingVariant(true);
+                                      setError(null);
+                                      const result = await insertVariant({
+                                        product_id: p.id,
+                                        sku: addVariantForm.sku.trim(),
+                                        size: addVariantForm.size.trim() || null,
+                                        color: addVariantForm.color.trim() || null,
+                                        stock_quantity: addVariantForm.stock_quantity,
+                                        price_adjustment: addVariantForm.price_adjustment,
+                                      });
+                                      setSavingVariant(false);
+                                      if (result.error) setError(result.error);
+                                      else {
+                                        setAddVariantProductId(null);
+                                        setAddVariantForm({ sku: "", size: "", color: "", stock_quantity: "0", price_adjustment: "0" });
+                                        await fetchProducts();
+                                      }
+                                    }}
+                                    disabled={savingVariant || !addVariantForm.sku.trim()}
+                                    className="px-4 py-2 bg-amber-700 text-white rounded-lg text-sm font-medium hover:bg-amber-800 disabled:opacity-50 flex items-center gap-1 border border-amber-800"
+                                  >
+                                    {savingVariant ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                                    Save variant
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setAddVariantProductId(null);
+                                      setAddVariantForm({ sku: "", size: "", color: "", stock_quantity: "0", price_adjustment: "0" });
+                                    }}
+                                    className="px-4 py-2 border-2 border-amber-700/50 text-amber-900 rounded-lg text-sm font-medium hover:bg-amber-100"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAddVariantProductId(p.id);
+                                  setAddVariantForm({ sku: "", size: "", color: "", stock_quantity: "0", price_adjustment: "0" });
+                                }}
+                                className="mt-2 flex items-center gap-2 px-4 py-2.5 bg-amber-700 text-white border-2 border-amber-800 rounded-lg text-sm font-semibold hover:bg-amber-800 shadow-sm"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Add variant
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>

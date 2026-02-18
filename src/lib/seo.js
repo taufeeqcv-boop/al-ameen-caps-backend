@@ -9,6 +9,33 @@ export function getBaseUrl() {
   return BASE_URL.replace(/\/$/, '');
 }
 
+/** Category → SEO label for product meta (Kufi, Fez, Taj, etc.) */
+const CATEGORY_LABELS = { Caps: 'Kufi & Islamic cap', Taj: 'Taj', Rumal: 'Rumal & Turban', Perfumes: 'Islamic perfume' };
+
+/**
+ * Product page meta title (used with Seo; site name is appended by Seo).
+ * Includes product name and category for SERP clarity.
+ */
+export function getProductMetaTitle(product) {
+  if (!product?.name) return null;
+  const label = product.category ? CATEGORY_LABELS[product.category] || product.category : 'Islamic headwear';
+  return `${product.name} | ${label}`;
+}
+
+/**
+ * Product page meta description: unique, keyword-rich, ≤160 chars.
+ * Includes product type, Cape Town/South Africa, Al-Ameen Caps.
+ */
+export function getProductMetaDescription(product) {
+  if (!product?.name) return '';
+  const desc = (product.description || '').replace(/\n/g, ' ').trim();
+  const snippet = desc.slice(0, 100).replace(/\s+\S*$/, '');
+  const label = product.category ? (CATEGORY_LABELS[product.category] || product.category) : 'Islamic headwear';
+  const tail = ` — Al-Ameen Caps. Cape Town, South Africa.`;
+  const text = snippet.length >= 50 ? `${snippet}… ${tail}` : `${product.name}. Handcrafted ${label}. ${tail}`;
+  return text.slice(0, 160);
+}
+
 /** Comma-separated meta keywords for key pages (Islamic fashion, location, occasions, Sufi) */
 export const SEO_KEYWORDS =
   'Islamic fashion, fez, kufi, kufiyah, taj, Ashrafi, turban, salaah cap, South Africa, Cape Town, Durban, Johannesburg, PE, Port Elizabeth, Northern suburbs, Southern suburbs, Winelands, Mitchells Plain, Gatesville, Rylands, Athlone, Goodwood, Kensington, Maitland, Salt River, Woodstock, Bo-Kaap, Tableview, Bellville, Durbanville, online shop, Ramadaan, Eid, quality kufi, best price, Rumal, perfume, Al Hasan, Naqshbandi, Qadri, Chishti, Shadhili, Ba Alawiya, Sufi fashion, Sufi clothing, Nalain cap, Azhari cap, Muslim headwear, prayer cap, Servants creation, top boutique';

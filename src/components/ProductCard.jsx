@@ -44,7 +44,7 @@ export default function ProductCard({ product, index = 0 }) {
             width={400}
             height={400}
             loading={index < 3 ? "eager" : "lazy"}
-            className={`w-full h-full ${id === "collection-14" ? "object-cover object-center" : "object-contain"}`}
+            className="w-full h-full object-cover object-center"
           />
           {available <= 0 && (
             <span className="absolute top-2 right-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">

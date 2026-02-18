@@ -9,6 +9,8 @@ import { formatPrice } from "../lib/format";
 
 import { COLLECTION_PRODUCTS, getCollectionImageUrl } from "../data/collection";
 import { COLLECTION_IMAGE_IMPORTS } from "../data/collectionImages";
+import { getProductMetaTitle, getProductMetaDescription } from "../lib/seo";
+import { getProducts, getVariantsByProductId } from "../lib/supabase";
 import ImageMagnifier from "../components/ImageMagnifier";
 import ProductCard from "../components/ProductCard";
 
@@ -18,25 +20,81 @@ const ProductDetails = () => {
 
   const staticProduct = COLLECTION_PRODUCTS.find((item) => item.id === id);
   const [product, setProduct] = useState(staticProduct || null);
+  const [variants, setVariants] = useState([]);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
 
-  // Ensure product page always opens at the top (below nav)
+  // Load product (with product_id from Supabase when available) and variants
   useEffect(() => {
     window.scrollTo(0, 0);
+    let cancelled = false;
+    (async () => {
+      const list = await getProducts();
+      if (cancelled) return;
+      const fallback = COLLECTION_PRODUCTS.find((item) => item.id === id) || null;
+      const p = list.find((item) => item.id === id) || fallback || null;
+      setProduct(p);
+      setSelectedSize("");
+      setSelectedColor("");
+      const productId = p?.product_id != null ? Number(p.product_id) : NaN;
+      if (!Number.isNaN(productId) && productId > 0) {
+        const v = await getVariantsByProductId(productId);
+        if (!cancelled) setVariants(Array.isArray(v) ? v : []);
+      } else {
+        setVariants([]);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [id]);
 
   const bundledImg = product ? (COLLECTION_IMAGE_IMPORTS[product.id] || COLLECTION_IMAGE_IMPORTS[product.sku]) : null;
   const imageSrc = bundledImg || (product ? getCollectionImageUrl(product) : null);
-  const inCart = cart.filter((item) => item.id === product?.id).reduce((sum, item) => sum + (item.quantity || 1), 0);
+
+  // Unique sizes and colors from variants (order preserved)
+  const variantSizes = [...new Set(variants.map((v) => v.size).filter(Boolean))];
+  const variantColors = [...new Set(variants.map((v) => v.color).filter(Boolean))];
+  const selectedVariant = variants.find(
+    (v) => (v.size || "") === selectedSize && (v.color || "") === selectedColor
+  );
+  const variantInCart = selectedVariant
+    ? cart.filter((item) => item.variantId === selectedVariant.id).reduce((sum, item) => sum + (item.quantity || 1), 0)
+    : 0;
+  const variantAvailable = selectedVariant ? Math.max(0, (selectedVariant.stock_quantity ?? 0) - variantInCart) : 0;
+
+  const inCart = product
+    ? cart.filter((item) => item.id === product.id && !item.variantId).reduce((sum, item) => sum + (item.quantity || 1), 0)
+    : 0;
   const quantityAvailable = product?.quantityAvailable ?? 0;
-  const available = Math.max(0, quantityAvailable - inCart);
-  const isReservationOnly = product?.preOrderOnly && quantityAvailable <= 0;
-  const canAdd = available > 0 || isReservationOnly;
+  const available = variants.length > 0
+    ? (selectedVariant ? variantAvailable : 0)
+    : Math.max(0, quantityAvailable - inCart);
+  const isReservationOnly = product?.preOrderOnly && quantityAvailable <= 0 && variants.length === 0;
+  const canAdd = variants.length > 0
+    ? !!selectedVariant && variantAvailable > 0
+    : available > 0 || isReservationOnly;
 
   const handleAddToCart = () => {
     if (!product || !canAdd) return;
-    const item = { ...product, quantity: 1, quantityAvailable: product.quantityAvailable };
-    if (isReservationOnly) item.isPreOrder = true;
-    addToCart(item);
+    if (selectedVariant) {
+      const variantPrice = selectedVariant.price != null ? Number(selectedVariant.price) : null;
+      const priceAdjust = Number(selectedVariant.price_adjustment) || 0;
+      const finalPrice = variantPrice ?? (Number(product.price) + priceAdjust);
+      const item = {
+        ...product,
+        quantity: 1,
+        quantityAvailable: selectedVariant.stock_quantity ?? 0,
+        variantId: selectedVariant.id,
+        variantSku: selectedVariant.sku,
+        size: selectedVariant.size,
+        color: selectedVariant.color,
+        price: finalPrice,
+      };
+      addToCart(item);
+    } else {
+      const item = { ...product, quantity: 1, quantityAvailable: product.quantityAvailable };
+      if (isReservationOnly) item.isPreOrder = true;
+      addToCart(item);
+    }
   };
 
   if (!product) {
@@ -59,8 +117,8 @@ const ProductDetails = () => {
   return (
     <div className="min-h-screen flex flex-col bg-secondary/30 pb-20">
       <Seo
-        title={product.name}
-        description={((product.description || "").replace(/\n/g, " ").slice(0, 120) + " Cape Town, South Africa.").slice(0, 160)}
+        title={getProductMetaTitle(product) || product.name}
+        description={getProductMetaDescription(product)}
         url={`/product/${product.id}`}
         product={product}
         image={imageSrc}
@@ -84,25 +142,41 @@ const ProductDetails = () => {
                 src={imageSrc}
                 alt={product.name}
                 className="w-full h-full min-h-[460px] max-h-[75vh]"
-                imgClassName={product.id === "collection-14" ? "object-cover object-center" : ""}
+                imgClassName="object-cover object-center"
               />
             </div>
             <div className="p-6 border-t border-black/5">
               <p className="flex items-center gap-2 text-primary/70 text-sm mb-4">
                 <ShoppingCart className="w-4 h-4 text-accent shrink-0" />
-                {isReservationOnly
-                  ? "Out of stock — reserve yours now."
-                  : available <= 0
-                    ? "Out of stock"
-                    : "Limited stock available — add yours to cart today."}
+                {variants.length > 0
+                  ? !selectedVariant
+                    ? "Select size and colour above."
+                    : variantAvailable <= 0
+                      ? "Out of stock for this option."
+                      : "Limited stock — add yours to cart today."
+                  : isReservationOnly
+                    ? "Out of stock — reserve yours now."
+                    : available <= 0
+                      ? "Out of stock"
+                      : "Limited stock available — add yours to cart today."}
               </p>
               <button
                 type="button"
                 onClick={handleAddToCart}
                 disabled={!canAdd}
-                className="btn-primary w-full py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary w-full py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed border-2 border-amber-600/30 focus:ring-amber-500/20"
               >
-                {isReservationOnly ? "Reserve (Pre-Order)" : canAdd ? "Add to Cart" : "Out of stock"}
+                {variants.length > 0
+                  ? !selectedVariant
+                    ? "Select size and colour"
+                    : variantAvailable <= 0
+                      ? "Out of stock"
+                      : "Add to Cart"
+                  : isReservationOnly
+                    ? "Reserve (Pre-Order)"
+                    : canAdd
+                      ? "Add to Cart"
+                      : "Out of stock"}
               </button>
               <div className="grid grid-cols-2 gap-4 text-sm text-primary/60 mt-6">
                 <div className="flex items-center gap-2">
@@ -126,9 +200,72 @@ const ProductDetails = () => {
 
             <h1 className="text-3xl font-serif text-primary mb-2">{product.name}</h1>
             <p className="text-primary/70 text-sm mb-1">
-              {isReservationOnly ? "Pre-order only — reserve now" : available <= 0 ? "Out of stock" : `${available} available`}
+              {variants.length > 0
+                ? selectedVariant
+                  ? variantAvailable <= 0
+                    ? "Out of stock"
+                    : `${variantAvailable} available`
+                  : "Select size and colour"
+                : isReservationOnly
+                  ? "Pre-order only — reserve now"
+                  : available <= 0
+                    ? "Out of stock"
+                    : `${available} available`}
             </p>
-            <p className="text-2xl font-bold text-amber-700 mb-6">{formatPrice(product.price)}</p>
+            <p className="text-2xl font-bold text-amber-700 mb-6">
+              {selectedVariant
+                ? formatPrice(
+                    selectedVariant.price != null
+                      ? Number(selectedVariant.price)
+                      : Number(product.price) + (Number(selectedVariant.price_adjustment) || 0)
+                  )
+                : formatPrice(product.price)}
+            </p>
+
+            {variants.length > 0 && (
+              <div className="space-y-4 mb-6">
+                {variantSizes.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-primary mb-2">Size</label>
+                    <select
+                      value={selectedSize}
+                      onChange={(e) => setSelectedSize(e.target.value)}
+                      className="w-full rounded-lg border-2 border-amber-600/40 bg-secondary text-primary py-3 px-4 text-base focus:border-amber-600 focus:ring-2 focus:ring-amber-500/20 outline-none transition"
+                    >
+                      <option value="">Select size</option>
+                      {variantSizes.map((s) => {
+                        const outOfStock = variants.every((v) => v.size === s && (v.stock_quantity ?? 0) <= 0);
+                        return (
+                          <option key={s} value={s} disabled={outOfStock}>
+                            {s}{outOfStock ? " — Out of stock" : ""}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                )}
+                {variantColors.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-primary mb-2">Colour</label>
+                    <select
+                      value={selectedColor}
+                      onChange={(e) => setSelectedColor(e.target.value)}
+                      className="w-full rounded-lg border-2 border-amber-600/40 bg-secondary text-primary py-3 px-4 text-base focus:border-amber-600 focus:ring-2 focus:ring-amber-500/20 outline-none transition"
+                    >
+                      <option value="">Select colour</option>
+                      {variantColors.map((c) => {
+                        const outOfStock = variants.every((v) => v.color === c && (v.stock_quantity ?? 0) <= 0);
+                        return (
+                          <option key={c} value={c} disabled={outOfStock}>
+                            {c}{outOfStock ? " — Out of stock" : ""}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                )}
+              </div>
+            )}
 
             <p className="text-primary/80 leading-relaxed whitespace-pre-line">
               {product.description || "Authentic Naqshbandi craftsmanship. Premium quality."}
