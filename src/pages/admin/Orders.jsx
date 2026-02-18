@@ -333,6 +333,7 @@ export default function AdminOrders() {
           Export CSV
         </button>
       </div>
+      </div>
       <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
