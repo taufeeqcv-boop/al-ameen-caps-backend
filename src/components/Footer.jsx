@@ -17,7 +17,9 @@ export default function Footer() {
     if (!value) return;
     setStatus("sending");
     try {
-      const res = await fetch("/", {
+      // Post to site root so Netlify Forms receives it (form must exist in built index.html)
+      const url = typeof window !== "undefined" ? `${window.location.origin}/` : "/";
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
@@ -26,7 +28,8 @@ export default function Footer() {
           bot: "",
         }).toString(),
       });
-      if (res.ok) {
+      // Netlify returns 200 on success; 302 redirect is also success
+      if (res.ok || res.status === 302) {
         setEmail("");
         setStatus("success");
       } else {
@@ -55,7 +58,7 @@ export default function Footer() {
               id="footer-email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); if (status === "error") setStatus(""); }}
               placeholder="Your email"
               className="w-full sm:w-56 px-3 py-2 rounded-lg border border-white/30 bg-white/10 text-white placeholder-white/50 transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50"
               disabled={status === "sending"}
