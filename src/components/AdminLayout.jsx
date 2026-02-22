@@ -1,7 +1,6 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingBag, Users, ClipboardList, Truck, Settings, LogOut } from "lucide-react";
+import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { LayoutDashboard, Package, ShoppingBag, Users, ClipboardList, Truck, Settings, LogOut, ExternalLink, ChevronRight } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { supabase } from "../lib/supabase";
 
 const navItems = [
   { to: "/admin/dashboard", end: true, label: "Dashboard", icon: LayoutDashboard },
@@ -13,6 +12,30 @@ const navItems = [
   { to: "/admin/settings", end: false, label: "Settings", icon: Settings },
 ];
 
+const pathToLabel = {
+  dashboard: "Dashboard",
+  orders: "Orders",
+  logistics: "Logistics",
+  reservations: "Pre-Orders",
+  products: "Inventory",
+  customers: "Customers",
+  settings: "Settings",
+};
+
+function AdminBreadcrumbs() {
+  const location = useLocation();
+  const path = location.pathname.replace(/^\/admin\/?/, "") || "dashboard";
+  const segment = path.split("/")[0];
+  const label = pathToLabel[segment] || "Admin";
+  return (
+    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-primary/70 mb-4">
+      <Link to="/admin/dashboard" className="hover:text-accent transition-colors">Admin</Link>
+      <ChevronRight className="w-4 h-4 text-primary/50 shrink-0" />
+      <span className="text-primary font-medium">{label}</span>
+    </nav>
+  );
+}
+
 export default function AdminLayout() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
@@ -21,6 +44,10 @@ export default function AdminLayout() {
     await signOut();
     navigate("/");
   };
+
+  const siteUrl = typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL
+    ? import.meta.env.VITE_SITE_URL
+    : "/";
 
   return (
     <div className="min-h-screen flex bg-secondary">
@@ -47,12 +74,15 @@ export default function AdminLayout() {
           ))}
         </nav>
         <div className="p-3 border-t border-secondary/20">
-          <Link
-            to="/"
+          <a
+            href={siteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-secondary/80 hover:bg-secondary/10"
           >
-            ← Store
-          </Link>
+            <ExternalLink className="w-5 h-5 shrink-0" />
+            View store
+          </a>
           <button
             type="button"
             onClick={handleSignOut}
@@ -65,6 +95,7 @@ export default function AdminLayout() {
       </aside>
       <main className="flex-1 overflow-auto">
         <div className="p-6 md:p-8">
+          <AdminBreadcrumbs />
           <Outlet />
         </div>
       </main>

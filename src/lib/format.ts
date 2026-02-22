@@ -10,11 +10,11 @@ const zarFormatter = new Intl.NumberFormat("en-ZA", {
 });
 
 /**
- * Format price in ZAR for display (e.g. R 145.00, R 1,450.00).
- * @param {number} price - Amount in ZAR
- * @returns {string} Formatted string with R symbol
+ * Format price in ZAR for display (e.g. R 145,00 in en-ZA).
+ * @param price - Amount in ZAR (number or string)
+ * @returns Formatted string with R symbol
  */
-export function formatPrice(price) {
+export function formatPrice(price: number | string): string {
   const n = Number(price);
   if (Number.isNaN(n) || n < 0) return zarFormatter.format(0);
   return zarFormatter.format(n);

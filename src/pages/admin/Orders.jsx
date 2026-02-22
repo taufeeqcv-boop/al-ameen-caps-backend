@@ -8,10 +8,40 @@ import { useSearchParams } from "react-router-dom";
 const STATUS_OPTIONS = ["PENDING", "PAID", "SHIPPED", "CANCELLED"];
 const FASTWAY_TRACK_BASE = "https://www.fastway.co.za/our-services/track-your-parcel/";
 
+function getDatePreset(preset) {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const d = now.getDate();
+  const pad = (n) => String(n).padStart(2, "0");
+  if (preset === "today") {
+    const s = `${y}-${pad(m + 1)}-${pad(d)}`;
+    return { dateFrom: s, dateTo: s };
+  }
+  if (preset === "last7") {
+    const end = new Date(now);
+    const start = new Date(now);
+    start.setDate(start.getDate() - 6);
+    return {
+      dateFrom: `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`,
+      dateTo: `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`,
+    };
+  }
+  if (preset === "month") {
+    return {
+      dateFrom: `${y}-${pad(m + 1)}-01`,
+      dateTo: `${y}-${pad(m + 1)}-${pad(d)}`,
+    };
+  }
+  return { dateFrom: "", dateTo: "" };
+}
+
 export default function AdminOrders() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const statusFilter = searchParams.get("status") || "";
   const customerId = searchParams.get("customer") || "";
+  const urlDateFrom = searchParams.get("dateFrom") || "";
+  const urlDateTo = searchParams.get("dateTo") || "";
   const [orders, setOrders] = useState([]);
   const [customerLabel, setCustomerLabel] = useState("");
   const [loading, setLoading] = useState(true);
@@ -26,8 +56,8 @@ export default function AdminOrders() {
   const [notesValue, setNotesValue] = useState("");
   const [savingNotesId, setSavingNotesId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState(urlDateFrom);
+  const [dateTo, setDateTo] = useState(urlDateTo);
 
   const fetchOrders = async () => {
     if (!supabase) return;
@@ -56,6 +86,11 @@ export default function AdminOrders() {
     else setOrders(data ?? []);
     setLoading(false);
   };
+
+  useEffect(() => {
+    setDateFrom(urlDateFrom);
+    setDateTo(urlDateTo);
+  }, [urlDateFrom, urlDateTo]);
 
   useEffect(() => {
     fetchOrders();
@@ -280,6 +315,26 @@ export default function AdminOrders() {
               placeholder="Search by order ID, customer, email..."
               className="w-full pl-9 pr-3 py-2 rounded-lg border border-secondary/40 text-primary text-sm focus:ring-2 focus:ring-accent focus:border-accent"
             />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { label: "Today", preset: "today" },
+              { label: "Last 7 days", preset: "last7" },
+              { label: "This month", preset: "month" },
+            ].map(({ label, preset }) => {
+              const { dateFrom: df, dateTo: dt } = getDatePreset(preset);
+              const isActive = dateFrom === df && dateTo === dt;
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => { setDateFrom(df); setDateTo(dt); }}
+                  className={`px-3 py-2 rounded-lg text-sm font-medium ${isActive ? "bg-accent text-primary" : "bg-white border border-secondary/40 text-primary hover:bg-secondary/20"}`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
           <input
             type="date"

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
 import { getFunctionUrl } from "../../lib/config";
-import { Banknote, ShoppingBag, Inbox, AlertTriangle, Loader2, Calendar, TrendingUp, Mail } from "lucide-react";
+import { Banknote, ShoppingBag, Inbox, AlertTriangle, Loader2, Calendar, TrendingUp, Mail, Truck, Package, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const LOW_STOCK_THRESHOLD = 5;
@@ -23,6 +23,8 @@ export default function AdminDashboard() {
   const [reportMessage, setReportMessage] = useState(null);
 
   const [lowStockThreshold, setLowStockThreshold] = useState(LOW_STOCK_THRESHOLD);
+  const [ordersToday, setOrdersToday] = useState(0);
+  const [revenueToday, setRevenueToday] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,12 +47,16 @@ export default function AdminDashboard() {
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
       const startOfMonthIso = startOfMonth.toISOString();
       const startOfLastMonthIso = startOfLastMonth.toISOString();
       const endOfLastMonthIso = endOfLastMonth.toISOString();
+      const startOfTodayIso = startOfToday.toISOString();
+      const endOfTodayIso = endOfToday.toISOString();
 
       try {
-        const [paidRes, paidCountRes, ordersMonthRes, revenueMonthRes, revenueLastMonthRes, inquiriesRes, lowRes, itemsRes, statusRes] = await Promise.all([
+        const [paidRes, paidCountRes, ordersMonthRes, revenueMonthRes, revenueLastMonthRes, inquiriesRes, lowRes, itemsRes, statusRes, ordersTodayRes, revenueTodayRes] = await Promise.all([
           supabase.from("orders").select("total_amount").eq("status", "PAID"),
           supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "PAID"),
           supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "PAID").gte("created_at", startOfMonthIso),
@@ -65,6 +71,8 @@ export default function AdminDashboard() {
             .order("stock_quantity", { ascending: true }),
           supabase.from("order_items").select("product_id, quantity, products(name)"),
           Promise.all(["PENDING", "PAID", "SHIPPED", "CANCELLED"].map((s) => supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", s).then((r) => ({ s, c: r.count ?? 0 })))),
+          supabase.from("orders").select("id", { count: "exact", head: true }).eq("status", "PAID").gte("created_at", startOfTodayIso).lte("created_at", endOfTodayIso),
+          supabase.from("orders").select("total_amount").eq("status", "PAID").gte("created_at", startOfTodayIso).lte("created_at", endOfTodayIso),
         ]);
 
         if (cancelled) return;
@@ -93,6 +101,10 @@ export default function AdminDashboard() {
           .sort((a, b) => b.quantity - a.quantity)
           .slice(0, 5);
         setTopProducts(top);
+        if (!cancelled) {
+          setOrdersToday(ordersTodayRes.count ?? 0);
+          setRevenueToday((revenueTodayRes.data ?? []).reduce((sum, o) => sum + Number(o.total_amount || 0), 0));
+        }
       } catch (e) {
         if (!cancelled) setError(e.message);
       } finally {
@@ -114,11 +126,16 @@ export default function AdminDashboard() {
     setSendingReport(true);
     setReportMessage(null);
     try {
+      let toEmail = "";
+      try {
+        const { data: settingsRow } = await supabase.from("site_settings").select("value").eq("key", "admin_notification_email").maybeSingle();
+        toEmail = (settingsRow?.value || "").trim();
+      } catch (_) {}
       const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch(getFunctionUrl("send-low-stock-report"), {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }) },
-        body: JSON.stringify({ threshold: lowStockThreshold }),
+        body: JSON.stringify({ threshold: lowStockThreshold, ...(toEmail && { to_email: toEmail }) }),
       });
       const json = await res.json().catch(() => ({}));
       setReportMessage(res.ok ? (json.message || "Report sent.") : (json.error || "Failed"));
@@ -137,9 +154,44 @@ export default function AdminDashboard() {
     );
   }
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const ordersTodayUrl = `/admin/orders?dateFrom=${todayStr}&dateTo=${todayStr}`;
+
   return (
     <div className="space-y-8">
       <h1 className="font-serif text-2xl font-semibold text-primary">Dashboard</h1>
+
+      <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl bg-primary/5 border border-secondary/20">
+        <span className="text-sm font-medium text-primary/80">Quick actions</span>
+        <Link to="/admin/logistics" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-accent/20 text-accent hover:bg-accent/30 transition-colors">
+          <Truck className="w-4 h-4" />
+          Orders to ship
+        </Link>
+        <Link to="/admin/products?low_stock=1" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-amber-100 text-amber-800 hover:bg-amber-200 transition-colors">
+          <Package className="w-4 h-4" />
+          Low stock
+        </Link>
+        <Link to="/admin/reservations" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 transition-colors">
+          <Inbox className="w-4 h-4" />
+          Pre-orders
+        </Link>
+        <Link to={ordersTodayUrl} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 transition-colors">
+          <Download className="w-4 h-4" />
+          Today&apos;s orders
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">
+          <div className="flex items-center gap-3 text-primary/70">
+            <Calendar className="w-8 h-8 text-accent" />
+            <span className="font-medium">Today</span>
+          </div>
+          <p className="mt-2 text-2xl font-semibold text-primary">{ordersToday} orders</p>
+          <p className="text-sm text-primary/60">{formatPrice(revenueToday)} revenue (PAID)</p>
+          <Link to={ordersTodayUrl} className="text-sm text-accent hover:underline mt-1 inline-block">View today →</Link>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl shadow-premium p-6 border border-secondary/30">

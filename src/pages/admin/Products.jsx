@@ -1,15 +1,19 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { supabase, getAllVariants, updateVariantStock, updateProductStock, insertVariant } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
-import { Loader2, Plus, Pencil, Image as ImageIcon, Database, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Pencil, Image as ImageIcon, Database, ChevronDown, ChevronRight, Package } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { COLLECTION_PRODUCTS } from "../../data/collection";
+
+const DEFAULT_LOW_STOCK_THRESHOLD = 5;
 
 export default function AdminProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
   const editId = searchParams.get("edit");
+  const lowStockOnly = searchParams.get("low_stock") === "1";
   const [products, setProducts] = useState([]);
   const [variants, setVariants] = useState([]);
+  const [lowStockThreshold, setLowStockThreshold] = useState(DEFAULT_LOW_STOCK_THRESHOLD);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -44,6 +48,28 @@ export default function AdminProducts() {
     }
     return map;
   }, [variants]);
+
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.from("site_settings").select("value").eq("key", "low_stock_threshold").maybeSingle()
+      .then(({ data }) => {
+        const v = data?.value;
+        const n = Math.max(0, parseInt(v, 10));
+        if (!Number.isNaN(n)) setLowStockThreshold(n);
+      })
+      .catch(() => {});
+  }, []);
+
+  const displayProducts = useMemo(() => {
+    if (!lowStockOnly) return products;
+    return products.filter((p) => {
+      const productVariants = variantsByProductId[p.id] ?? [];
+      const totalStock = productVariants.length > 0
+        ? productVariants.reduce((sum, v) => sum + (Number(v.stock_quantity) || 0), 0)
+        : (Number(p.stock_quantity) ?? 0);
+      return totalStock < lowStockThreshold;
+    });
+  }, [products, variantsByProductId, lowStockOnly, lowStockThreshold]);
 
   const fetchProducts = async () => {
     if (!supabase) return;
@@ -207,6 +233,25 @@ export default function AdminProducts() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="font-serif text-2xl font-semibold text-primary">Inventory</h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSearchParams(lowStockOnly ? {} : { low_stock: "1" })}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${lowStockOnly ? "bg-amber-100 text-amber-800 border-amber-300" : "bg-white border-secondary/40 text-primary hover:bg-secondary/20"}`}
+          >
+            <Package className="w-4 h-4" />
+            Low stock only (&lt; {lowStockThreshold})
+          </button>
+          {lowStockOnly && (
+            <button
+              type="button"
+              onClick={() => setSearchParams({})}
+              className="px-3 py-2 rounded-lg text-sm text-primary/70 hover:bg-secondary/20"
+            >
+              Show all
+            </button>
+          )}
+          <div className="w-px h-8 bg-secondary/30 hidden sm:block" />
         <div className="flex gap-2">
           <button
             type="button"
@@ -225,6 +270,7 @@ export default function AdminProducts() {
             <Plus className="w-5 h-5" />
             Add Product
           </button>
+        </div>
         </div>
       </div>
       {seedMessage && (
@@ -248,7 +294,7 @@ export default function AdminProducts() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => {
+              {displayProducts.map((p) => {
                 const productVariants = variantsByProductId[p.id] ?? [];
                 const totalStock = productVariants.length > 0
                   ? productVariants.reduce((sum, v) => sum + (Number(v.stock_quantity) || 0), 0)
@@ -482,7 +528,9 @@ export default function AdminProducts() {
           </table>
         </div>
         {products.length === 0 && (
-          <p className="px-6 py-8 text-center text-primary/60">No products. Add one to get started.</p>
+          <p className="px-6 py-8 text-center text-primary/60">
+            {lowStockOnly ? "No products below the low-stock threshold. Show all to see full inventory." : "No products. Add one to get started."}
+          </p>
         )}
       </div>
 

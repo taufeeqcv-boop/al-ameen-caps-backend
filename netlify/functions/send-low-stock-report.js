@@ -34,7 +34,12 @@ exports.handler = async (event) => {
   const { data: profile } = await supabaseAuth.from("profiles").select("is_admin").eq("id", user.id).single();
   if (!profile?.is_admin) return jsonRes(403, { error: "Admin access required" });
 
-  const threshold = (event.body && JSON.parse(event.body).threshold) ?? 5;
+  let body = {};
+  try {
+    body = event.body ? JSON.parse(event.body) : {};
+  } catch (_) {}
+  const threshold = body.threshold ?? 5;
+  const toEmailOverride = body.to_email && String(body.to_email).trim() ? String(body.to_email).trim() : null;
   const numThreshold = Math.max(0, parseInt(threshold, 10) || 5);
 
   if (!supabaseAdmin) return jsonRes(500, { error: "Server not configured" });
@@ -48,7 +53,7 @@ exports.handler = async (event) => {
 
   if (fetchError) return jsonRes(500, { error: fetchError.message });
 
-  const toEmail = process.env.ADMIN_EMAIL || user.email;
+  const toEmail = toEmailOverride || process.env.ADMIN_EMAIL || user.email;
   if (!toEmail) return jsonRes(200, { ok: true, message: "Low-stock list generated. No admin email configured to send to." });
 
   const emailUser = process.env.EMAIL_USER || "";

@@ -11,32 +11,10 @@ import { formatPrice } from '../lib/format';
 import { generateSignature } from '../utils/payfast';
 import { supabase } from '../lib/supabase';
 import { getFunctionUrl, getFunctionUrlAbsolute } from '../lib/config';
+import { validateCheckoutForm } from '../lib/validateCheckoutForm';
 
 const DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 const enableEcommerce = import.meta.env.VITE_ENABLE_ECOMMERCE === 'true';
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_MIN_DIGITS = 9;
-
-function validateCheckoutForm(formData, requireAddress = true) {
-  const first = (formData.name_first ?? '').trim();
-  const last = (formData.name_last ?? '').trim();
-  const email = (formData.email_address ?? '').trim();
-  const phone = (formData.cell_number ?? '').trim();
-  if (!first) return { valid: false, message: 'Please enter your first name.' };
-  if (!last) return { valid: false, message: 'Please enter your last name.' };
-  if (!email) return { valid: false, message: 'Please enter your email address.' };
-  if (!EMAIL_REGEX.test(email)) return { valid: false, message: 'Please enter a valid email address.' };
-  if (!phone) return { valid: false, message: 'Please enter your phone number.' };
-  const digits = phone.replace(/\D/g, '');
-  if (digits.length < PHONE_MIN_DIGITS) return { valid: false, message: 'Please enter a valid phone number (at least 9 digits).' };
-  if (requireAddress) {
-    if (!(formData.address_line_1 ?? '').trim()) return { valid: false, message: 'Please enter your address.' };
-    if (!(formData.city ?? '').trim()) return { valid: false, message: 'Please enter your city.' };
-    if (!(formData.postal_code ?? '').trim()) return { valid: false, message: 'Please enter your postal code.' };
-  }
-  return { valid: true, message: '' };
-}
 
 const Checkout = () => {
   const { cart, cartTotal, clearCart, getItemPrice } = useCart();
@@ -407,7 +385,7 @@ const Checkout = () => {
               </div>
 
               {error && (
-                <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-center">
+                <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-center" role="alert" aria-live="assertive">
                   <p className="font-sans text-red-700 text-sm">{error}</p>
                   <button
                     type="button"

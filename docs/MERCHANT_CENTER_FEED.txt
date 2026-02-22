@@ -1,0 +1,9 @@
+Google Merchant Center - Search Shopping tab
+
+Feed URL (after deploy): https://alameencaps.com/product-feed.xml
+
+Steps:
+1. Merchant Center -> Products -> Feeds -> Add feed
+2. Website / Fetch from URL -> enter the feed URL above
+3. Country: South Africa, Language: English
+4. Save and run fetch. Check Diagnostics for errors.

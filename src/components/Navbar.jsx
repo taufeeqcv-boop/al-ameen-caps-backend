@@ -1,6 +1,6 @@
 // Navbar – glass effect, logo left, links center, cart right; mobile hamburger
 
-import { Link } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useState, useRef, useEffect } from "react";
@@ -25,7 +25,7 @@ function getFirstName(user) {
 
 export default function Navbar() {
   const { cartCount } = useCart();
-  const { user, signOut, isConfigured: authConfigured, authError, clearAuthError } = useAuth();
+  const { user, signOut, isConfigured: authConfigured } = useAuth();
   const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -49,29 +49,33 @@ export default function Navbar() {
   }, []);
 
   const firstName = user ? getFirstName(user) : "";
+  const location = useLocation();
 
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50">
-        {authError && (
-          <div className="bg-amber-100 text-amber-900 px-4 py-2 text-sm flex items-center justify-between gap-2">
-            <span>{authError}</span>
-            <button type="button" onClick={clearAuthError} className="shrink-0 px-2 py-1 rounded hover:bg-amber-200" aria-label="Dismiss">✕</button>
-          </div>
-        )}
-        <nav className="bg-primary border-b-2 border-accent shadow-lg">
+        <nav className="bg-primary shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between min-h-[5.5rem] py-2">
             <Link to="/" className="flex items-center gap-3 flex-shrink-0">
               <img src={logoImg} alt="Al-Ameen Caps" width={80} height={80} className="h-20 w-auto object-contain" />
               <span className="font-serif text-xl font-semibold text-accent hidden sm:inline">Al-Ameen Caps</span>
             </Link>
-            <div className="hidden md:flex items-center gap-8">
-              {navLinks.map(({ to, label }) => (
-                <Link key={to} to={to} className="text-secondary hover:text-accent transition-colors font-medium">
-                  {label}
-                </Link>
-              ))}
+            <div className="hidden md:flex items-center gap-8" role="navigation" aria-label="Main">
+              {navLinks.map(({ to, label }) => {
+                const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
+                return (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={to === "/"}
+                    className={"font-medium transition-colors " + (isActive ? "text-accent" : "text-secondary hover:text-accent")}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    {label}
+                  </NavLink>
+                );
+              })}
             </div>
             <div className="flex items-center gap-3">
               <a
@@ -147,16 +151,20 @@ export default function Navbar() {
         {menuOpen && (
           <div className="md:hidden border-t border-accent/50 bg-primary">
             <div className="px-4 py-4 flex flex-col gap-2">
-              {navLinks.map(({ to, label }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  onClick={() => setMenuOpen(false)}
-                  className="py-3 text-secondary hover:text-accent font-medium transition-colors"
-                >
-                  {label}
-                </Link>
-              ))}
+              {navLinks.map(({ to, label }) => {
+                const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={() => setMenuOpen(false)}
+                    className={"py-3 font-medium transition-colors " + (isActive ? "text-accent" : "text-secondary hover:text-accent")}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
               <a
                 href={FACEBOOK_URL}
                 target="_blank"

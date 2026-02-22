@@ -20,7 +20,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <Seo url="/" description={HOMEPAGE_META_DESCRIPTION} />
       <Navbar />
-      <main className="flex-1 pt-32">
+      <main className="flex-1 pt-32 bg-primary">
         <Hero />
         <section className="bg-secondary py-16 px-4">
           <div className="max-w-4xl mx-auto text-center">

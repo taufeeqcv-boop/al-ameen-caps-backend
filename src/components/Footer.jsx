@@ -70,8 +70,8 @@ export default function Footer() {
               {status === "sending" ? "Submitting" : "Subscribe"}
             </button>
           </form>
-          {status === "success" && <p className="mt-2 text-sm text-green-300">Thanks for subscribing.</p>}
-          {status === "error" && <p className="mt-2 text-sm text-amber-200">Something went wrong. Try again or contact us.</p>}
+          {status === "success" && <p className="mt-2 text-sm text-green-300" role="status" aria-live="polite">Thanks for subscribing.</p>}
+          {status === "error" && <p className="mt-2 text-sm text-amber-200" role="alert" aria-live="assertive">Something went wrong. Try again or contact us.</p>}
         </div>
 
         <div className="mt-6 flex flex-wrap justify-center items-center gap-x-6 gap-y-1 text-sm text-white/70">

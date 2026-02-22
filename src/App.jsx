@@ -1,36 +1,39 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import AdminRoute from "./components/AdminRoute";
 import ScrollToTop from "./components/ScrollToTop";
-import StoreNotice from "./components/StoreNotice";
-import AdminLayout from "./components/AdminLayout";
-import Home from "./pages/Home";
-import Shop from "./pages/Shop";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import Shipping from "./pages/Shipping";
-import Heritage from "./pages/Heritage";
-import EvolutionFezKufi from "./pages/EvolutionFezKufi";
-import LocalBoKaap from "./pages/LocalBoKaap";
-import LocalAthlone from "./pages/LocalAthlone";
-import ProductDetails from "./pages/ProductDetails";
-import Checkout from "./pages/Checkout";
-import Success from "./pages/Success";
-import Cancel from "./pages/Cancel";
-import OrderTracking from "./pages/OrderTracking";
-import Account from "./pages/Account";
-import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
-import AdminDashboard from "./pages/admin/Dashboard";
-import AdminOrders from "./pages/admin/Orders";
-import AdminProducts from "./pages/admin/Products";
-import AdminCustomers from "./pages/admin/Customers";
-import AdminReservations from "./pages/admin/Reservations";
-import AdminLogistics from "./pages/admin/Logistics";
-import AdminSettings from "./pages/admin/Settings";
+import PageLoader from "./components/PageLoader";
+
+// Lazy-loaded route components (code splitting)
+const Home = lazy(() => import("./pages/Home"));
+const Shop = lazy(() => import("./pages/Shop"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Shipping = lazy(() => import("./pages/Shipping"));
+const Heritage = lazy(() => import("./pages/Heritage"));
+const EvolutionFezKufi = lazy(() => import("./pages/EvolutionFezKufi"));
+const LocalBoKaap = lazy(() => import("./pages/LocalBoKaap"));
+const LocalAthlone = lazy(() => import("./pages/LocalAthlone"));
+const ProductDetails = lazy(() => import("./pages/ProductDetails"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Success = lazy(() => import("./pages/Success"));
+const Cancel = lazy(() => import("./pages/Cancel"));
+const OrderTracking = lazy(() => import("./pages/OrderTracking"));
+const Account = lazy(() => import("./pages/Account"));
+const Login = lazy(() => import("./pages/Login"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminLayout = lazy(() => import("./components/AdminLayout"));
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
+const AdminOrders = lazy(() => import("./pages/admin/Orders"));
+const AdminProducts = lazy(() => import("./pages/admin/Products"));
+const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
+const AdminReservations = lazy(() => import("./pages/admin/Reservations"));
+const AdminLogistics = lazy(() => import("./pages/admin/Logistics"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 
 function App() {
   return (
@@ -38,7 +41,7 @@ function App() {
       <CartProvider>
         <BrowserRouter>
         <ScrollToTop />
-        <StoreNotice />
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
@@ -77,6 +80,7 @@ function App() {
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </BrowserRouter>
     </CartProvider>
     </AuthProvider>

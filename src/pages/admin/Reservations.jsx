@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
-import { Loader2, Mail, MessageCircle } from "lucide-react";
+import { Loader2, Mail, MessageCircle, Download } from "lucide-react";
 
 const STATUS_OPTIONS = ["pending", "contacted", "completed"];
 
@@ -10,22 +10,31 @@ export default function AdminReservations() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
       return;
     }
+    setLoading(true);
+    setError(null);
     (async () => {
-      const { data, error: e } = await supabase
+      let q = supabase
         .from("reservations")
         .select("id, created_at, customer_name, customer_email, customer_phone, items, total_amount, notes, status")
         .order("created_at", { ascending: false });
+      if (statusFilter) q = q.eq("status", statusFilter);
+      if (dateFrom) q = q.gte("created_at", dateFrom + "T00:00:00.000Z");
+      if (dateTo) q = q.lte("created_at", dateTo + "T23:59:59.999Z");
+      const { data, error: e } = await q;
       if (e) setError(e.message);
       else setReservations(data ?? []);
       setLoading(false);
     })();
-  }, []);
+  }, [statusFilter, dateFrom, dateTo]);
 
   const updateStatus = async (id, newStatus) => {
     if (!supabase) return;
@@ -35,6 +44,38 @@ export default function AdminReservations() {
     if (e) setError(e.message);
     else setReservations((prev) => prev.map((r) => (r.id === id ? { ...r, status: newStatus } : r)));
     setUpdatingId(null);
+  };
+
+  const escapeCsv = (v) => {
+    const s = String(v ?? "").replace(/"/g, '""');
+    return /[",\n\r]/.test(s) ? `"${s}"` : s;
+  };
+
+  const exportCsv = () => {
+    const headers = ["Date", "Customer", "Email", "Phone", "Total", "Items", "Status", "Notes"];
+    const rows = reservations.map((r) => {
+      const itemsStr = Array.isArray(r.items) && r.items.length > 0
+        ? r.items.map((i) => `${i.name || "Item"} × ${i.quantity || 1}`).join("; ")
+        : "";
+      return [
+        r.created_at ? new Date(r.created_at).toISOString().slice(0, 19) : "",
+        r.customer_name ?? "",
+        r.customer_email ?? "",
+        r.customer_phone ?? "",
+        r.total_amount ?? "",
+        itemsStr,
+        r.status ?? "",
+        r.notes ?? "",
+      ].map(escapeCsv);
+    });
+    const csv = [headers.map(escapeCsv).join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `pre-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   if (loading) {
@@ -51,6 +92,50 @@ export default function AdminReservations() {
       {error && (
         <div className="rounded-lg bg-red-50 text-red-800 p-4 text-sm">{error}</div>
       )}
+      <div className="flex flex-wrap items-center gap-2">
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="px-3 py-2 rounded-lg border border-secondary/40 text-primary text-sm focus:ring-2 focus:ring-accent"
+        >
+          <option value="">All statuses</option>
+          {STATUS_OPTIONS.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={(e) => setDateFrom(e.target.value)}
+          className="px-3 py-2 rounded-lg border border-secondary/40 text-primary text-sm"
+          title="From date"
+        />
+        <input
+          type="date"
+          value={dateTo}
+          onChange={(e) => setDateTo(e.target.value)}
+          className="px-3 py-2 rounded-lg border border-secondary/40 text-primary text-sm"
+          title="To date"
+        />
+        {(statusFilter || dateFrom || dateTo) && (
+          <button
+            type="button"
+            onClick={() => { setStatusFilter(""); setDateFrom(""); setDateTo(""); }}
+            className="px-3 py-2 rounded-lg text-sm text-primary/70 hover:bg-secondary/20"
+          >
+            Clear
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={exportCsv}
+          disabled={reservations.length === 0}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 disabled:opacity-50"
+        >
+          <Download className="w-4 h-4" />
+          Export CSV
+        </button>
+      </div>
       <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">

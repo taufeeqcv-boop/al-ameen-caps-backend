@@ -11,6 +11,7 @@ export default function AdminSettings() {
   const [message, setMessage] = useState(null);
   const [lowStockThreshold, setLowStockThreshold] = useState(String(DEFAULT_THRESHOLD));
   const [storeNotice, setStoreNotice] = useState("");
+  const [adminNotificationEmail, setAdminNotificationEmail] = useState("");
 
   useEffect(() => {
     if (!supabase) {
@@ -18,7 +19,7 @@ export default function AdminSettings() {
       return;
     }
     (async () => {
-      const { data, error: e } = await supabase.from("site_settings").select("key, value").in("key", ["low_stock_threshold", "store_notice"]);
+      const { data, error: e } = await supabase.from("site_settings").select("key, value").in("key", ["low_stock_threshold", "store_notice", "admin_notification_email"]);
       if (e) {
         setError(e.message);
         setLoading(false);
@@ -28,6 +29,7 @@ export default function AdminSettings() {
       (data || []).forEach((r) => { map[r.key] = r.value; });
       setLowStockThreshold(map.low_stock_threshold ?? String(DEFAULT_THRESHOLD));
       setStoreNotice(map.store_notice ?? "");
+      setAdminNotificationEmail(map.admin_notification_email ?? "");
       setLoading(false);
     })();
   }, []);
@@ -44,6 +46,7 @@ export default function AdminSettings() {
       await supabase.from("site_settings").upsert([
         { key: "low_stock_threshold", value: thresholdStr },
         { key: "store_notice", value: (storeNotice || "").trim() },
+        { key: "admin_notification_email", value: (adminNotificationEmail || "").trim() },
       ], { onConflict: "key" });
       setLowStockThreshold(thresholdStr);
       setMessage("Settings saved.");
@@ -80,6 +83,18 @@ export default function AdminSettings() {
             className="w-full px-3 py-2 border border-secondary/40 rounded-lg text-primary focus:ring-2 focus:ring-accent focus:border-accent"
           />
           <p className="mt-1 text-xs text-primary/60">Products with stock below this number appear in the Dashboard low-stock list.</p>
+        </div>
+        <div>
+          <label htmlFor="admin_notification_email" className="block text-sm font-medium text-primary mb-1">Admin notification email</label>
+          <input
+            id="admin_notification_email"
+            type="email"
+            value={adminNotificationEmail}
+            onChange={(e) => setAdminNotificationEmail(e.target.value)}
+            placeholder="e.g. admin@alameencaps.com"
+            className="w-full px-3 py-2 border border-secondary/40 rounded-lg text-primary focus:ring-2 focus:ring-accent focus:border-accent"
+          />
+          <p className="mt-1 text-xs text-primary/60">Used for low-stock report emails when set. Otherwise the logged-in admin or ADMIN_EMAIL is used.</p>
         </div>
         <div>
           <label htmlFor="store_notice" className="block text-sm font-medium text-primary mb-1">Store notice</label>

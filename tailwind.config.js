@@ -26,6 +26,15 @@ export default {
         "btn-gold-hover": "0 6px 20px 0 rgba(212, 175, 55, 0.5)",
         "btn-outline": "0 2px 8px rgba(0, 0, 0, 0.08)",
       },
+      keyframes: {
+        "route-load": {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(400%)" },
+        },
+      },
+      animation: {
+        "route-load": "route-load 1.2s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

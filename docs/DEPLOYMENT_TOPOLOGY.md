@@ -27,6 +27,7 @@
   - Google OAuth redirects
   - PayFast return/cancel/notify URLs
   - Any code that needs the canonical site URL
+- **INDEXNOW_KEY:** Optional. When set in Netlify (Build & deploy → Environment), the build writes `dist/<key>.txt` for IndexNow/Bing. Enables faster indexing of new or updated pages. See `scripts/write-indexnow-key.js` and `.env.example`.
 - **PayFast:** **LIVE (real money).** `VITE_PAYFAST_SANDBOX = false`. Production merchant ID and key are set. Do not revert to test/sandbox mode without explicit intent.
 - **Email:** Gmail SMTP env vars (EMAIL_*) are set for production (e.g. reservation and order emails).
 
@@ -73,6 +74,15 @@ Use this list to confirm Al-Ameen Caps is officially live and professional after
   - Submit sitemap: `https://alameencaps.com/sitemap.xml`.  
   - **Note:** URL Inspection may show “Duplicate, Google chose different canonical than user” for a few days while Google processes the www → apex change; the new canonicals will align it.
 
+- [ ] **2b. Google Merchant Center (Search Shopping tab)**  
+  To get products on the **Search Shopping** tab, add a product feed in Merchant Center:  
+  1. Go to [Google Merchant Center](https://merchantcenter.google.com/) and add or select your business (alameencaps.com).  
+  2. **Products** → **Feeds** → **Add feed** (or **Add product data**).  
+  3. Choose **Website** (or “Fetch from URL”) and enter: **`https://alameencaps.com/product-feed.xml`**  
+  4. Set **Country of sale** to **South Africa** and **Language** to **English**.  
+  5. Save and run a fetch. The feed is generated at build time (RSS 2.0 with required attributes).  
+  6. After approval, fix any “Needs attention” issues in Merchant Center if the feed reports errors.
+
 - [ ] **3. PayFast & ITN verification**  
   - Run one small test transaction.  
   - Confirm PayFast redirects back to `https://alameencaps.com/success` (not www or .netlify.app) to avoid session/auth issues.  
@@ -94,6 +104,18 @@ Use this list to confirm Al-Ameen Caps is officially live and professional after
   3. Store credentials (e.g. `GOOGLE_APPLICATION_CREDENTIALS` or JSON key) in env and never in the repo. A small script can live in `scripts/` (e.g. `scripts/gsc-check-caps-position.js`) when you are ready to add it.
 
   **Implemented:** The script **`scripts/gsc-check-caps-position.js`** is now the standard for tracking the "Caps" keyword. It targets `https://alameencaps.com`, filters for query **"Caps"** and country **South Africa (zaf)**, uses the last 3 days of data, and logs **SUCCESS** when average position ≤ 10 (otherwise logs current position). Run with `node scripts/gsc-check-caps-position.js`; requires `GSC_CLIENT_EMAIL` and `GSC_PRIVATE_KEY` in env. Can be wired into a deploy smoke test or a GitHub Action (e.g. every Monday 8:00 AM).
+
+---
+
+---
+
+## 9. Google Merchant Center (Search Shopping tab)
+
+To get products on the **Search Shopping** tab, add a product feed in [Google Merchant Center](https://merchantcenter.google.com/):
+
+- **Feed URL:** `https://alameencaps.com/product-feed.xml` (generated at build time; 14 products, RSS 2.0 with Google product attributes).
+- **Steps:** Products → Feeds → Add feed → Website / Fetch from URL → enter the feed URL → Country: South Africa, Language: English → Save and run fetch.
+- Then check Products → Diagnostics for any "Needs attention" issues.
 
 ---
 

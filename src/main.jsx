@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 // Supabase (and fetch) can abort in-flight requests on nav/unmount; avoid uncaught AbortError in console
 window.addEventListener("unhandledrejection", (event) => {
@@ -13,6 +14,8 @@ window.addEventListener("unhandledrejection", (event) => {
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>
 );

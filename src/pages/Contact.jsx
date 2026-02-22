@@ -56,6 +56,8 @@ export default function Contact() {
               className="bg-primary/5 border border-accent/30 rounded-lg p-8 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              role="status"
+              aria-live="polite"
             >
               <p className="text-primary font-medium">Thank you for your message.</p>
               <p className="mt-2 text-primary/70 text-sm">
