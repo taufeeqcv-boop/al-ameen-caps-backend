@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import AdminRoute from "./components/AdminRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import PageLoader from "./components/PageLoader";
+import ConsentBanner from "./components/ConsentBanner";
 
 // Lazy-loaded route components (code splitting)
 const Home = lazy(() => import("./pages/Home"));
@@ -42,6 +43,7 @@ function App() {
         <BrowserRouter>
         <ScrollToTop />
         <Suspense fallback={<PageLoader />}>
+        <ConsentBanner />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
