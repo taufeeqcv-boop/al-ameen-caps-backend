@@ -40,6 +40,12 @@ function productToItem(p) {
   const price = Math.max(0, Number(p.price) ?? 0);
   const priceStr = price > 0 ? price.toFixed(2) + ' ZAR' : '0.00 ZAR';
   const googleProductCategory = '166';
+  // Required for US (and good for SA): age_group, gender, color. Islamic headwear = adult, male (or unisex), Multi.
+  const ageGroup = 'adult';
+  const gender = 'male';
+  const color = (p.color && String(p.color).trim()) || 'Multi';
+  // Shipping: South Africa only (standard delivery fee).
+  const shippingZA = 'ZA::Standard:99.00 ZAR';
 
   return [
     '  <item>',
@@ -53,6 +59,10 @@ function productToItem(p) {
     '    <g:condition>new</g:condition>',
     '    <g:brand>Al-Ameen Caps</g:brand>',
     '    <g:google_product_category>' + escapeXml(googleProductCategory) + '</g:google_product_category>',
+    '    <g:age_group>' + escapeXml(ageGroup) + '</g:age_group>',
+    '    <g:gender>' + escapeXml(gender) + '</g:gender>',
+    '    <g:color>' + escapeXml(color) + '</g:color>',
+    '    <g:shipping>' + escapeXml(shippingZA) + '</g:shipping>',
     '  </item>',
   ].join('\n');
 }
