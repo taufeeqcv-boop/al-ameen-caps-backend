@@ -11,6 +11,7 @@ import { writeFileSync, mkdirSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { COLLECTION_PRODUCTS } from '../src/data/collection.js';
+import { BLOG_POSTS } from '../src/data/blogPosts.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -19,6 +20,12 @@ const baseUrl = SITEMAP_BASE_URL.replace(/\/+$/, '');
 const staticPages = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
   { path: '/shop', changefreq: 'weekly', priority: '0.9' },
+  { path: '/blog', changefreq: 'weekly', priority: '0.8' },
+  { path: '/guides', changefreq: 'monthly', priority: '0.7' },
+  { path: '/guides/kufi-care', changefreq: 'monthly', priority: '0.6' },
+  { path: '/guides/eid-headwear-south-africa', changefreq: 'monthly', priority: '0.6' },
+  { path: '/guides/islamic-headwear-cape-town', changefreq: 'monthly', priority: '0.6' },
+  { path: '/community', changefreq: 'weekly', priority: '0.6' },
   { path: '/about', changefreq: 'monthly', priority: '0.7' },
   { path: '/heritage', changefreq: 'monthly', priority: '0.7' },
   { path: '/culture/evolution-fez-kufi-cape', changefreq: 'monthly', priority: '0.6' },
@@ -30,13 +37,19 @@ const staticPages = [
   { path: '/terms', changefreq: 'yearly', priority: '0.4' },
 ];
 
+const blogPages = (BLOG_POSTS || []).map((p) => ({
+  path: `/blog/${p.slug}`,
+  changefreq: 'monthly',
+  priority: '0.7',
+}));
+
 const productPages = (COLLECTION_PRODUCTS || []).map((p) => ({
   path: `/product/${p.id}`,
   changefreq: 'weekly',
   priority: '0.8',
 }));
 
-const urls = [...staticPages, ...productPages];
+const urls = [...staticPages, ...blogPages, ...productPages];
 
 // Build absolute URL: baseUrl (no trailing /) + path (starts with /) = no double slashes
 function toAbsoluteUrl(path) {

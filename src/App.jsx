@@ -19,6 +19,13 @@ const Heritage = lazy(() => import("./pages/Heritage"));
 const EvolutionFezKufi = lazy(() => import("./pages/EvolutionFezKufi"));
 const LocalBoKaap = lazy(() => import("./pages/LocalBoKaap"));
 const LocalAthlone = lazy(() => import("./pages/LocalAthlone"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Community = lazy(() => import("./pages/Community"));
+const GuidesIndex = lazy(() => import("./pages/guides/GuidesIndex"));
+const KufiCare = lazy(() => import("./pages/guides/KufiCare"));
+const EidHeadwearGuide = lazy(() => import("./pages/guides/EidHeadwearGuide"));
+const IslamicHeadwearCapeTown = lazy(() => import("./pages/guides/IslamicHeadwearCapeTown"));
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Success = lazy(() => import("./pages/Success"));
@@ -56,6 +63,13 @@ function App() {
           <Route path="/culture/evolution-fez-kufi-cape" element={<EvolutionFezKufi />} />
           <Route path="/near/bo-kaap" element={<LocalBoKaap />} />
           <Route path="/near/athlone" element={<LocalAthlone />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/guides" element={<GuidesIndex />} />
+          <Route path="/guides/kufi-care" element={<KufiCare />} />
+          <Route path="/guides/eid-headwear-south-africa" element={<EidHeadwearGuide />} />
+          <Route path="/guides/islamic-headwear-cape-town" element={<IslamicHeadwearCapeTown />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/success" element={<Success />} />
