@@ -134,10 +134,16 @@ const Checkout = () => {
       }
 
       const origin = window.location.origin;
+      const { count: orderCount } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+      const newCustomer = orderCount === 1;
+      const successParams = new URLSearchParams({ order_id: order.id, new_customer: newCustomer ? '1' : '0' });
       const data = {
         merchant_id: merchantId,
         merchant_key: merchantKey,
-        return_url: `${origin}/success`,
+        return_url: `${origin}/success?${successParams.toString()}`,
         cancel_url: `${origin}/checkout`,
         notify_url: getFunctionUrlAbsolute('itn-listener'),
         name_first: formData.name_first?.trim() || 'Guest',

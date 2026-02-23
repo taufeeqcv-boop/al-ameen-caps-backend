@@ -1,15 +1,32 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCart } from "../context/CartContext";
 
+const GOOGLE_ADS_PURCHASE_SEND_TO = "AW-17950617988/gDANCJvFo_0bEITjwu9C";
+
 export default function Success() {
   const { clearCart } = useCart();
+  const [searchParams] = useSearchParams();
+  const transactionId = searchParams.get("order_id") || "";
+  const newCustomerParam = searchParams.get("new_customer");
 
   useEffect(() => {
     clearCart();
   }, [clearCart]);
+
+  // Google Ads Purchase conversion (page load) – transaction_id + new_customer
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.gtag) return;
+    const payload = {
+      send_to: GOOGLE_ADS_PURCHASE_SEND_TO,
+      transaction_id: transactionId,
+    };
+    if (newCustomerParam === "1") payload.new_customer = true;
+    else if (newCustomerParam === "0") payload.new_customer = false;
+    window.gtag("event", "conversion", payload);
+  }, [transactionId, newCustomerParam]);
 
   return (
     <div className="min-h-screen flex flex-col">

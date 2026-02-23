@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
-
+/* Fonts loaded from index.html for faster LCP; Tailwind font-sans / font-serif reference them */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -65,6 +64,19 @@
   .btn-outline:focus-visible,
   .btn-primary:focus-visible {
     @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-secondary;
+  }
+  /* Outline button on light background: primary text/border for WCAG contrast */
+  .btn-outline-contrast {
+    @apply inline-flex items-center justify-center font-semibold tracking-wide transition-all duration-200 rounded;
+    @apply border-2 border-primary text-primary bg-transparent;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .btn-outline-contrast:hover {
+    @apply bg-primary text-secondary -translate-y-0.5;
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.2);
+  }
+  .btn-outline-contrast:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-secondary;
   }
 }
 

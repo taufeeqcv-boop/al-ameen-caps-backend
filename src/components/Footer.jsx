@@ -44,8 +44,8 @@ export default function Footer() {
     <footer className="bg-primary text-secondary py-12 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <Link to="/" className="inline-block">
-          <div className="h-24 w-24 mx-auto overflow-hidden flex items-start justify-center">
-            <img src={logoImg} alt="Al-Ameen Caps" width={96} height={96} className="h-48 w-auto object-contain object-top opacity-90" />
+          <div className="h-24 w-24 mx-auto flex items-center justify-center">
+            <img src={logoImg} alt="Al-Ameen Caps" width={96} height={96} className="h-24 w-24 object-contain opacity-90" loading="lazy" decoding="async" />
           </div>
         </Link>
         <p className="mt-1 text-sm text-white/80">Restoring the Crown of the Believer</p>

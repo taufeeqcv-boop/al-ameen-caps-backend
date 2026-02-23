@@ -26,20 +26,20 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-3">Browse the collection</h2>
             <p className="text-primary/80 mb-6">Premium handcrafted caps and Islamic headwear. Secure checkout, nationwide delivery.</p>
-            <Link to="/shop" className="btn-outline px-10 py-4 text-base">
+            <Link to="/shop" className="btn-outline-contrast px-10 py-4 text-base">
               Shop now
             </Link>
             <p className="mt-6 text-sm text-primary/70">
-              Popular: <Link to="/product/collection-1" className="text-accent hover:underline">Na&apos;lain Cap</Link>
+              Popular: <Link to="/product/collection-1" className="text-primary hover:text-accent hover:underline">Na&apos;lain Cap</Link>
               {" · "}
-              <Link to="/product/collection-14" className="text-accent hover:underline">Turkish Naqshbandi Taj</Link>
+              <Link to="/product/collection-14" className="text-primary hover:text-accent hover:underline">Turkish Naqshbandi Taj</Link>
               {" · "}
-              <Link to="/product/collection-9" className="text-accent hover:underline">Al Hassan Perfume</Link>
+              <Link to="/product/collection-9" className="text-primary hover:text-accent hover:underline">Al Hassan Perfume</Link>
             </p>
             <p className="mt-2 text-sm text-primary/70">
-              Cape Town: <Link to="/near/bo-kaap" className="text-accent hover:underline">Bo-Kaap</Link>
+              Cape Town: <Link to="/near/bo-kaap" className="text-primary hover:text-accent hover:underline">Bo-Kaap</Link>
               {" · "}
-              <Link to="/near/athlone" className="text-accent hover:underline">Athlone</Link>
+              <Link to="/near/athlone" className="text-primary hover:text-accent hover:underline">Athlone</Link>
             </p>
           </div>
         </section>

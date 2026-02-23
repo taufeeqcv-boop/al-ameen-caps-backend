@@ -281,6 +281,28 @@ export default function AdminOrders() {
     URL.revokeObjectURL(url);
   };
 
+  /** CSV for Google Ads Customer Match: Email + Phone, one row per unique email (from current filter). */
+  const exportCustomerListCsv = () => {
+    const seen = new Set();
+    const rows = [];
+    for (const o of filteredOrders) {
+      const email = (o.customer_email ?? "").trim().toLowerCase();
+      if (!email || seen.has(email)) continue;
+      seen.add(email);
+      const phone = (o.shipping_data?.phone ?? "").trim();
+      rows.push([email, phone].map(escapeCsv));
+    }
+    const headers = ["Email", "Phone"];
+    const csv = [headers.map(escapeCsv).join(","), ...rows].join("\r\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `customer-list-google-ads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -378,15 +400,27 @@ export default function AdminOrders() {
               </a>
             ))}
           </div>
-          <button
-            type="button"
-            onClick={exportCsv}
-            disabled={filteredOrders.length === 0}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2 disabled:opacity-50"
-          >
-          <Download className="w-4 h-4" />
-          Export CSV
-        </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={exportCsv}
+              disabled={filteredOrders.length === 0}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2 disabled:opacity-50"
+            >
+              <Download className="w-4 h-4" />
+              Export CSV
+            </button>
+            <button
+              type="button"
+              onClick={exportCustomerListCsv}
+              disabled={filteredOrders.length === 0}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2 disabled:opacity-50"
+              title="One row per customer (Email + Phone) for Google Ads Customer Match"
+            >
+              <FileText className="w-4 h-4" />
+              Customer list (Google Ads)
+            </button>
+          </div>
       </div>
       </div>
       <div className="bg-white rounded-xl shadow-premium border border-secondary/30 overflow-hidden">

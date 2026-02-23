@@ -1,4 +1,4 @@
-// Hero – full-screen background image, headline, premium CTA + Framer Motion
+// Hero – full-screen LCP image (fetchpriority=high), headline, premium CTA + Framer Motion
 
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -7,11 +7,16 @@ import heroBg from "../assets/hero-bg.png";
 export default function Hero() {
   return (
     <section className="relative min-h-[90vh] flex flex-col items-center justify-center bg-primary text-secondary overflow-hidden pt-24 pb-12 sm:pt-28">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})` }}
+      <img
+        src={heroBg}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        fetchPriority="high"
+        loading="eager"
+        decoding="async"
+        sizes="100vw"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-black/90" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-black/90" aria-hidden="true" />
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <motion.h1
           className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold text-white leading-tight"
