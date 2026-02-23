@@ -176,7 +176,7 @@ export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE
     '@type': 'Product',
     name: product.name,
     description: (product.description || '').replace(/\n/g, ' ').slice(0, 300),
-    image: imageUrl,
+    image: imageUrl ? (Array.isArray(imageUrl) ? imageUrl : [imageUrl]) : [],
     url,
     sku: product.id,
     brand: {

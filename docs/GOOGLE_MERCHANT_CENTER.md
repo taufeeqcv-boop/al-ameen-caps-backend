@@ -66,4 +66,34 @@ After changing the feed, run `node scripts/generate-product-feed.js` (or `npm ru
 
 ---
 
-Once the feed is processed and approved, products can appear in the Search Shopping tab.
+## Product images: why they don’t show in search or Shopping
+
+### 1. Image URLs must work (no 404)
+
+The feed uses `g:image_link` like `https://alameencaps.com/collection/nalain-cap.png`. Google and Merchant Center fetch these URLs; if they get **404**, products are rejected or images don’t show.
+
+- **Build step:** `node scripts/copy-collection-images.js` copies images from `src/assets/collection/` to `public/collection/` during `npm run build`, so the live site serves them at `/collection/*.png`.
+- **Check:** After deploy, open e.g. https://alameencaps.com/collection/nalain-cap.png in a browser. It must return **200** and show the image (not 404).
+- If you add new products, add the image file to `src/assets/collection/` with the same filename as in `src/data/collection.js` (e.g. `nalain-cap.png`), then rebuild and deploy.
+
+### 2. Image size (Merchant Center)
+
+- **Minimum:** 100×100 px.
+- **Recommended:** At least **800×800** px (or 800 on the longest side) for better display in Shopping.
+- Use square or near-square images where possible.
+
+### 3. Why Merchant products don’t appear when you search
+
+- **Feed approved:** In Merchant Center → **Products** → **Diagnostics**, fix any errors. “Image link returns 404” or “Image too small” will block products.
+- **Shopping campaign:** Products in the feed only show in the **Shopping** tab (or Shopping ads) if you have a **Shopping campaign** in Google Ads targeting South Africa (or your country). Create a campaign that uses “Merchant Center” as the product source and the feed you added.
+- **Review time:** New feeds can take up to **3 business days** to finish review. Until then, products may show as “Pending” or not at all.
+
+### 4. Why product images don’t show in organic search
+
+- **Product pages indexed:** Use Search Console → URL inspection for e.g. `https://alameencaps.com/product/collection-1` and request indexing if needed.
+- **Product schema:** The site outputs Product JSON-LD with `image` (array). Google uses this for rich results; the `image` URL must be the same working URL (e.g. `https://alameencaps.com/collection/nalain-cap.png`).
+- **Same image URL everywhere:** Feed, schema, and `og:image` on product pages all point to `/collection/<filename>.png`. Keeping images in `public/collection/` (via the copy script) keeps these consistent.
+
+---
+
+Once the feed is processed and approved **and** image links return 200, products can appear in the Search Shopping tab (with a Shopping campaign) and product images can appear in organic rich results.
