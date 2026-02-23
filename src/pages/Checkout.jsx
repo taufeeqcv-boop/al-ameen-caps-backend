@@ -262,7 +262,7 @@ const Checkout = () => {
                 {user ? (
                   <div className="flex items-center justify-center gap-2">
                     {user.user_metadata?.avatar_url && (
-                      <img src={user.user_metadata.avatar_url} alt="" className="w-8 h-8 rounded-full" />
+                      <img src={user.user_metadata.avatar_url} alt="" width={32} height={32} className="w-8 h-8 rounded-full object-cover" loading="lazy" decoding="async" />
                     )}
                     <span className="font-sans text-sm text-primary/80">{user.email}</span>
                     <button

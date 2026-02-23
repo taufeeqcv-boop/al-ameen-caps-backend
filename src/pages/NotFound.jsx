@@ -13,7 +13,7 @@ export default function NotFound() {
           <Link to="/" className="btn-primary px-10 py-4 inline-block">
             Back to Home
           </Link>
-          <Link to="/shop" className="btn-outline px-10 py-4 inline-block">
+          <Link to="/shop" className="btn-outline-contrast px-10 py-4 inline-block">
             Shop
           </Link>
         </div>

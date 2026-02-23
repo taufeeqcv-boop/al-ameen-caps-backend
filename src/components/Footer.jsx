@@ -45,7 +45,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <Link to="/" className="inline-block">
           <div className="h-24 w-24 mx-auto flex items-center justify-center">
-            <img src={logoImg} alt="Al-Ameen Caps" width={96} height={96} className="h-24 w-24 object-contain opacity-90" loading="lazy" decoding="async" />
+            <picture>
+              <source srcSet="/logo.webp" type="image/webp" />
+              <img src={logoImg} alt="Al-Ameen Caps" width={96} height={96} className="h-24 w-24 object-contain opacity-90" loading="lazy" decoding="async" />
+            </picture>
           </div>
         </Link>
         <p className="mt-1 text-sm text-white/80">Restoring the Crown of the Believer</p>

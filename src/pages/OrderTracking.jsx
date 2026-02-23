@@ -67,7 +67,7 @@ export default function OrderTracking() {
     <div className="min-h-screen bg-white flex flex-col">
       <header className="py-8 px-4 border-b border-secondary/20">
         <Link to="/" className="flex justify-center">
-          <img src={logoImg} alt="Al-Ameen Caps" className="h-20 w-auto object-contain" />
+          <img src={logoImg} alt="Al-Ameen Caps" width={80} height={80} className="h-20 w-20 object-contain" loading="lazy" decoding="async" />
         </Link>
       </header>
 

@@ -19,12 +19,13 @@
         'analytics_storage': 'denied'
       });
     </script>
-    <!-- Google Tag Manager – first in head so verification and crawlers detect it -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-M8S7HCWM');</script>
+    <!-- GTM deferred to after first paint to reduce main-thread blocking (Lighthouse) -->
+    <script>
+    (function(w,d,s,l,i){var f=function(){var j=d.createElement(s);j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;var h=d.getElementsByTagName(s)[0];h.parentNode.insertBefore(j,h);};
+    if(w.requestIdleCallback) w.requestIdleCallback(f,{timeout:2500}); else w.setTimeout(f,500);
+    w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+    })(window,document,'script','dataLayer','GTM-M8S7HCWM');
+    </script>
     <!-- End Google Tag Manager -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -58,6 +59,11 @@
     <meta name="twitter:title" content="Al-Ameen Caps | Premium Islamic Headwear &amp; Scents" />
     <meta name="twitter:description" content="Premium kufis, fez &amp; Islamic headwear for Jumu'ah &amp; Eid. Handcrafted in Cape Town. Nationwide delivery. Shop the collection — Al-Ameen Caps." />
     <title>Al-Ameen Caps | Premium Islamic Headwear &amp; Scents</title>
+    <!-- Critical above-the-fold: prevent FOUC and layout shift for #root placeholder -->
+    <style>
+      #root{min-height:100vh;display:flex;align-items:center;justify-content:center;background-color:#E8DFD2}
+      .loading-placeholder{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#E8DFD2;font-family:system-ui,sans-serif;color:#333}
+    </style>
   </head>
   <body>
     <!-- Google Tag Manager (noscript) – must be immediately after opening <body> for verification -->
@@ -69,7 +75,7 @@
       <input type="text" name="email" />
       <input type="text" name="bot" />
     </form>
-    <div id="root"><p class="loading-placeholder" style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#E8DFD2;font-family:system-ui,sans-serif;color:#333;">Loading…</p></div>
+    <div id="root"><p class="loading-placeholder">Loading…</p></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

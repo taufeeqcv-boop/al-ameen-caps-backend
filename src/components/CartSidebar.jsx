@@ -36,7 +36,7 @@ export default function CartSidebar({ isOpen, onClose }) {
           {cart.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-primary/70 mb-4">Your cart is empty.</p>
-              <Link to="/shop" onClick={onClose} className="btn-outline px-6 py-2.5 text-sm">
+              <Link to="/shop" onClick={onClose} className="btn-outline-contrast px-6 py-2.5 text-sm">
                 Continue shopping
               </Link>
             </div>

@@ -83,7 +83,7 @@ export default function Shop() {
             <button
               type="button"
               onClick={() => { setSearchQuery(""); setCategoryFilter(""); }}
-              className="btn-outline px-6 py-2.5 text-sm"
+              className="btn-outline-contrast px-6 py-2.5 text-sm"
             >
               Clear filters
             </button>

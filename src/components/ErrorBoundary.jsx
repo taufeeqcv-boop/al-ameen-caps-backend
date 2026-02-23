@@ -45,7 +45,7 @@ export default class ErrorBoundary extends Component {
             >
               Try again
             </button>
-            <Link to="/" className="btn-outline px-6 py-3" onClick={this.handleTryAgain}>
+            <Link to="/" className="btn-outline-contrast px-6 py-3" onClick={this.handleTryAgain}>
               Go to home
             </Link>
           </div>
