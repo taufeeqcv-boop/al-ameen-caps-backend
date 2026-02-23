@@ -31,9 +31,20 @@ export default {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(400%)" },
         },
+        "loading-bar": {
+          "0%": { transform: "translateX(-100%)" },
+          "50%": { transform: "translateX(20%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        "loading-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.6" },
+        },
       },
       animation: {
         "route-load": "route-load 1.2s ease-in-out infinite",
+        "loading-bar": "loading-bar 1.5s ease-in-out infinite",
+        "loading-pulse": "loading-pulse 1.2s ease-in-out infinite",
       },
     },
   },

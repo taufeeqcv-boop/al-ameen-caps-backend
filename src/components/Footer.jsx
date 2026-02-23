@@ -41,17 +41,21 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-primary text-secondary py-12 mt-auto">
+    <footer className="bg-[#0d0d0d] text-secondary py-12 mt-auto border-t border-accent/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <Link to="/" className="inline-block">
-          <div className="h-24 w-24 mx-auto flex items-center justify-center">
-            <picture>
-              <source srcSet="/logo.webp" type="image/webp" />
-              <img src={logoImg} alt="Al-Ameen Caps" width={96} height={96} className="h-24 w-24 object-contain opacity-90" loading="lazy" decoding="async" />
-            </picture>
-          </div>
+        <Link to="/" className="inline-flex flex-col items-center gap-2" aria-label="Al-Ameen Caps home">
+          <img
+            src={logoImg}
+            alt=""
+            width={96}
+            height={96}
+            className="h-20 w-20 sm:h-24 sm:w-24 object-contain flex-shrink-0"
+            loading="lazy"
+            decoding="async"
+          />
+          <span className="font-serif text-lg font-semibold text-accent">Al-Ameen Caps</span>
         </Link>
-        <p className="mt-1 text-sm text-white/80">Restoring the Crown of the Believer</p>
+        <p className="mt-2 text-sm text-white/80 font-serif">Restoring the Crown of the Believer</p>
 
         <div className="mt-6 max-w-sm mx-auto">
           <p className="text-sm text-white/70 mb-2">Get updates on new arrivals and offers</p>

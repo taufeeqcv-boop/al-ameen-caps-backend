@@ -53,8 +53,8 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50">
-        <nav className="bg-primary shadow-lg">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-accent/40 bg-[#0d0d0d] shadow-md">
+        <nav className="bg-[#0d0d0d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between min-h-[5.5rem] py-2">
             <Link to="/" className="flex items-center gap-3 flex-shrink-0">

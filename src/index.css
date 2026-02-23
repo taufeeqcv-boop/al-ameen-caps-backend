@@ -33,6 +33,16 @@
   }
 }
 
+/* Home page only: hero and main stretch full viewport width on desktop; footer stays consistent everywhere */
+.page-home {
+  width: 100%;
+}
+.page-home .home-main-full {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  max-width: none;
+}
+
 @layer components {
   /* Premium primary button – gold fill */
   .btn-primary {
