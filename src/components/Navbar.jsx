@@ -58,12 +58,12 @@ export default function Navbar() {
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-accent/40 bg-[#0d0d0d] shadow-md">
         <nav className="bg-[#0d0d0d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between min-h-[5.5rem] py-2">
-            <Link to="/" className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center justify-between min-h-[5.5rem] py-2 gap-6 lg:gap-10">
+            <Link to="/" className="flex items-center gap-3 flex-shrink-0 mr-4">
               <img src={logoImg} alt="Al-Ameen Caps" width={80} height={80} className="h-20 w-auto object-contain" />
               <span className="font-serif text-xl font-semibold text-accent hidden sm:inline">Al-Ameen Caps</span>
             </Link>
-            <div className="hidden md:flex items-center gap-8" role="navigation" aria-label="Main">
+            <div className="hidden md:flex items-center gap-6 lg:gap-8 mx-4" role="navigation" aria-label="Main">
               {navLinks.map(({ to, label }) => {
                 const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
                 return (
@@ -79,12 +79,12 @@ export default function Navbar() {
                 );
               })}
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4 lg:gap-6 flex-shrink-0">
               <a
                 href={FACEBOOK_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 text-secondary hover:text-accent transition-colors rounded"
+                className="p-2 text-secondary hover:text-accent transition-colors rounded ml-2"
                 aria-label="Al-Ameen Caps on Facebook"
               >
                 <Facebook className="w-5 h-5" />

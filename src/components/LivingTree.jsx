@@ -36,7 +36,11 @@ function buildTree(items) {
 /** Static paths for portraits we have in the repo — show even if DB has no image_url (e.g. migrations not run). */
 const HERITAGE_PORTRAIT_FALLBACKS = {
   "Sultan Saifuddin of Tidore": "/images/heritage/sultan-saifuddin-tidore.png",
+  "Sunan Gunung Jati (Syarif Hidayatullah)": "/images/heritage/sunan-gunung-jati.png",
+  "Imam Abdullah Kadi Abdus Salaam (Tuan Guru)": "/images/heritage/tuan-guru-portrait.png",
+  "Imam Abdurauf": "/images/heritage/imam-abdur-raof-1863.png",
   "Imam Achmat Talaabodien (Bappa)": "/images/heritage/imam-achmat-talaabodien-bappa.png",
+  "Asia Taliep (Oemie)": "/images/heritage/asia-taliep-oemie.png",
 };
 
 function TreeNode({ node, depth = 0 }) {

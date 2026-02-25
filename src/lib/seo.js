@@ -61,9 +61,10 @@ export const SEO_KEYWORDS =
 
 /** Unified Heritage narrative — single source for meta description and keywords (entity anchors). */
 export const HERITAGE_META = {
-  description: 'Preserving 200 years of dignity. From the royal lineage of Sultan Saifuddin and Tuan Guru to the heart of District Six and Asia Taliep (Oemie).',
+  description:
+    'Preserving 200 years of dignity. From Sultan Saifuddin and Tuan Guru to Imam Abdur-Raof, Ou Bappa, Bappa, and Asia Taliep (Oemie). Tana Baru, Chiappini Street Mosque, Malay Quarter, Cape Malay headwear.',
   keywords:
-    'Tuan Guru, Imam Abdullah Kadi Abdus Salaam, Tana Baru Cemetery, Imam Mogamat Talaabodien, District Six, Taliep Lineage, Rakiep Heritage, Al-Ameen Caps',
+    'Tuan Guru, Imam Abdullah Kadi Abdus Salaam, Tana Baru Cemetery, Imam Mogamat Talaabodien, Ou Bappa, Imam Achmat Bappa, Imam Taliep, Asia Taliep Oemie, Imam Abdur-Raof, Imam Abdur-Rakieb, Chiappini Street Mosque, Quawwatul Islam Mosque, Malay Quarter, District Six, Taliep Lineage, Rakiep Heritage, Cape Malay fez, Cape Malay Kufi, Al-Ameen Caps',
 };
 
 /** @deprecated Use HERITAGE_META.description */
@@ -479,8 +480,29 @@ export function getHeritageCreativeWorkSchema() {
       { '@type': 'Person', ...TUAN_GURU_ENTITY, knowsAbout: 'Cape Malay History', memberOf: CAPE_MALAY_CULTURAL_ENTITY },
       {
         '@type': 'Person',
+        name: 'Sultan Saifuddin of Tidore',
+        description: 'King of Tidore; royal lineage ancestor of Tuan Guru.',
+        knowsAbout: 'Cape Malay History',
+        memberOf: CAPE_MALAY_CULTURAL_ENTITY,
+      },
+      {
+        '@type': 'Person',
+        name: 'Sunan Gunung Jati (Syarif Hidayatullah)',
+        description: 'Key ancestor in the lineage of Tuan Guru.',
+        knowsAbout: 'Cape Malay History',
+        memberOf: CAPE_MALAY_CULTURAL_ENTITY,
+      },
+      {
+        '@type': 'Person',
+        name: 'Imam Abdur-Raof',
+        description: 'Son of Tuan Guru; ancestor of Abdurauf and Rakiep families. Imam of Auwal Mosque. Photo with Imam Abdur-Rakieb at welcome of Shaykh Abu-Bakr Effendi, Cape Town 1863.',
+        knowsAbout: 'Cape Malay History',
+        memberOf: CAPE_MALAY_CULTURAL_ENTITY,
+      },
+      {
+        '@type': 'Person',
         name: 'Imam Mogamat Talaabodien (Ou Bappa)',
-        description: 'Great-grandson of Tuan Guru; Patriarch of District Six with 80+ grandchildren. Taliep family.',
+        description: 'Great-grandson of Tuan Guru; Patriarch of District Six with 80+ grandchildren. First Imam of Quawwatul Islam Mosque, Loop Street, Bo-Kaap.',
         homeLocation: { '@type': 'Place', name: 'District Six', addressLocality: 'Cape Town', addressCountry: 'ZA' },
         knowsAbout: 'Cape Malay History',
         memberOf: CAPE_MALAY_CULTURAL_ENTITY,
@@ -488,7 +510,7 @@ export function getHeritageCreativeWorkSchema() {
       {
         '@type': 'Person',
         name: 'Imam Achmat Talaabodien (Bappa)',
-        description: 'Verified link between the Patriarch of District Six and Asia Taliep (Oemie). Married Gadija Rakiep; father of Oemie.',
+        description: 'Verified link between the Patriarch of District Six and Asia Taliep (Oemie). Married Gadija Rakiep; father of Oemie. Imam Taliep.',
         knowsAbout: 'Cape Malay History',
         memberOf: CAPE_MALAY_CULTURAL_ENTITY,
       },
@@ -516,7 +538,22 @@ export function getHeritageCreativeWorkSchema() {
       { '@type': 'Place', name: 'District Six', addressLocality: 'Cape Town', addressCountry: 'ZA' },
       { '@type': 'Place', name: 'Bridgetown', addressLocality: 'Cape Town', addressCountry: 'ZA' },
       { '@type': 'Place', name: 'Auwal Masjid', addressLocality: 'Bo-Kaap, Cape Town', addressCountry: 'ZA' },
+      {
+        '@type': 'Place',
+        name: 'Quawwatul Islam Mosque',
+        description: 'Second Indian mosque and Hanafi, Loop Street, Bo-Kaap. First Imam: Ou Bappa.',
+        addressLocality: 'Bo-Kaap, Cape Town',
+        addressCountry: 'ZA',
+      },
+      {
+        '@type': 'Place',
+        name: 'Chiappini Street Mosque',
+        description: 'Historic mosque in the Malay Quarter, Cape Town.',
+        addressLocality: 'Cape Town',
+        addressCountry: 'ZA',
+      },
       { '@type': 'Place', name: 'Tana Baru Cemetery', description: 'Significant Muslim cemetery in Cape Town; burial place of Tuan Guru.', addressLocality: 'Cape Town', addressCountry: 'ZA' },
+      { '@type': 'Place', name: 'Malay Quarter', description: 'Cape Malay community area, Cape Town.', addressLocality: 'Cape Town', addressCountry: 'ZA' },
     ],
     isFamilyFriendly: true,
     inLanguage: 'en-ZA',

@@ -129,7 +129,7 @@ export default function Heritage() {
 
               <h3 className="font-serif text-xl font-semibold text-primary mt-8 mb-2">Why We Preserve the Craft</h3>
               <p>
-                At Al-Ameen Caps, we see ourselves as custodians of this evolution. Our designs honour the lineage of the <strong>Essop</strong> and <strong>Rakiep</strong> families, rooted in the heritage of those who built the vibrant tapestry of Cape Town. Every stitch in our modern <Link to="/product/collection-1" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Na&apos;lain Cap</Link> or breathable cotton <Link to="/shop" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Taqiyah</Link> is a tribute to the craftsmen who walked before us.
+                At Al-Ameen Caps, we see ourselves as custodians of this evolution. Our designs honour the lineage of the <strong>Essop</strong> and <strong>Rakiep</strong> families—from <strong>Imam Abdur-Raof</strong> and <strong>Imam Abdur-Rakieb</strong> to <strong>Ou Bappa</strong> at the <strong>Quawwatul Islam Mosque</strong> in Loop Street—rooted in the heritage of those who built the vibrant tapestry of Cape Town. Every stitch in our modern <Link to="/product/collection-1" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Na&apos;lain Cap</Link> or breathable cotton <Link to="/shop" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Taqiyah</Link> is a tribute to the craftsmen who walked before us.
               </p>
             </div>
           </motion.section>
@@ -232,6 +232,19 @@ export default function Heritage() {
               </p>
             </div>
 
+            {/* Map: Places of origin and transportation routes to the Cape */}
+            <figure className="max-w-4xl mx-auto mt-10 rounded-xl border-2 border-[#065f46]/15 bg-secondary/50 p-4 sm:p-6">
+              <img
+                src="/images/heritage/cape-slaves-routes-map.png"
+                alt="Cape Slaves: Places of Origin and Main Transportation Routes (17th–19th centuries)—map showing flow from Africa and Asia to Cape Town."
+                className="w-full rounded-lg object-contain"
+                loading="lazy"
+              />
+              <figcaption className="mt-2 text-sm text-primary/60 italic text-center">
+                Cape Slaves: Places of Origin and Main Transportation Routes (17th–19th centuries). (Historical map)
+              </figcaption>
+            </figure>
+
             {/* Row 1: Text left, image right — 1700s / Auwal / journey to Robben Island */}
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div className="space-y-3 text-primary/90 leading-relaxed order-2 md:order-1">
@@ -301,7 +314,7 @@ export default function Heritage() {
             </div>
           </motion.section>
 
-          {/* Heritage Portraits — the three archive photos we have (always shown) */}
+          {/* Heritage Portraits — Golden Thread and family */}
           <motion.section
             className="mt-14 pt-10 border-t border-primary/10"
             initial={{ opacity: 0 }}
@@ -309,11 +322,11 @@ export default function Heritage() {
             transition={{ duration: 0.5, delay: 0.34 }}
             aria-labelledby="heritage-portraits-heading"
           >
-            <h2 id="heritage-portraits-heading" className="font-serif text-2xl font-semibold text-primary mb-4">Heritage Portraits</h2>
+            <h2 id="heritage-portraits-heading" className="font-serif text-2xl font-semibold text-primary mb-2">Heritage Portraits</h2>
             <p className="text-primary/80 text-sm mb-6 max-w-xl">
-              From the archive: Sultan Saifuddin of Tidore, Imam Achmat (Bappa), and Imam Ebrahiem with his grandson Imam Abdulatiief.
+              From the archive: Sultan Saifuddin of Tidore, Sunan Gunung Jati, Tuan Guru (Imam Abdullah Kadi Abdus Salaam), Imam Achmat (Bappa), Asia Taliep (Oemie), and Imam Ebrahiem Talaboedien with his grandson Imam Abdulatiief Talaaboedien.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <img
                   src="/images/heritage/sultan-saifuddin-tidore.png"
@@ -326,6 +339,26 @@ export default function Heritage() {
               </div>
               <div>
                 <img
+                  src="/images/heritage/sunan-gunung-jati.png"
+                  alt="Sunan Gunung Jati (Syarif Hidayatullah) — portrait."
+                  className="aspect-[3/4] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+                  loading="lazy"
+                />
+                <p className="mt-2 text-sm text-primary/70 font-medium">Sunan Gunung Jati</p>
+                <p className="text-xs text-primary/60 italic">Syarif Hidayatullah</p>
+              </div>
+              <div>
+                <img
+                  src="/images/heritage/tuan-guru-portrait.png"
+                  alt="Tuan Guru (Imam Abdullah Kadi Abdus Salaam), founding scholar of Islam at the Cape — white turban, patterned shawl, walking stick."
+                  className="aspect-[3/4] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+                  loading="lazy"
+                />
+                <p className="mt-2 text-sm text-primary/70 font-medium">Tuan Guru</p>
+                <p className="text-xs text-primary/60 italic">Imam Abdullah Kadi Abdus Salaam</p>
+              </div>
+              <div>
+                <img
                   src="/images/heritage/imam-achmat-talaabodien-bappa.png"
                   alt="Imam Achmat Talaabodien (Bappa), known as Imam Taliep — archival portrait."
                   className="aspect-[3/4] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
@@ -333,6 +366,16 @@ export default function Heritage() {
                 />
                 <p className="mt-2 text-sm text-primary/70 font-medium">Imam Achmat (Bappa)</p>
                 <p className="text-xs text-primary/60 italic">Imam Taliep</p>
+              </div>
+              <div>
+                <img
+                  src="/images/heritage/asia-taliep-oemie.png"
+                  alt="Asia Taliep (Oemie) — the heart of the Al-Ameen legacy, daughter of Imam Achmat (Bappa)."
+                  className="aspect-[3/4] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+                  loading="lazy"
+                />
+                <p className="mt-2 text-sm text-primary/70 font-medium">Asia Taliep (Oemie)</p>
+                <p className="text-xs text-primary/60 italic">The heart of the Al-Ameen legacy</p>
               </div>
               <div>
                 <img
@@ -347,7 +390,7 @@ export default function Heritage() {
             </div>
           </motion.section>
 
-          {/* Lineage Gallery — heritage imagery: Tuan Guru, Cape Malay fez, journey to the Cape */}
+          {/* Lineage Gallery — Tuan Guru, fez, ships (visual journey) */}
           <motion.section
             className="mt-14 pt-10 border-t border-primary/10"
             initial={{ opacity: 0 }}
@@ -355,9 +398,9 @@ export default function Heritage() {
             transition={{ duration: 0.5, delay: 0.35 }}
             aria-labelledby="lineage-gallery-heading"
           >
-            <h2 id="lineage-gallery-heading" className="font-serif text-2xl font-semibold text-primary mb-4">Lineage Gallery</h2>
+            <h2 id="lineage-gallery-heading" className="font-serif text-2xl font-semibold text-primary mb-2">Lineage Gallery</h2>
             <p className="text-primary/80 text-sm mb-6 max-w-xl">
-              A visual journey through Cape Malay and Islamic headwear heritage—from the founding scholar and the fez in Cape Town to the voyage that brought tradition to our shores.
+              A visual journey through Cape Malay and Islamic headwear heritage—from <strong>Tuan Guru</strong> and the <strong>Auwal Masjid</strong> to the fez in Cape Town and the voyage that brought tradition to our shores.
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <HeritageImage
@@ -378,37 +421,109 @@ export default function Heritage() {
             </div>
           </motion.section>
 
-          {/* Family portrait: Die Kaapenaar Imam Ebrahiem Talaboedien and Imam Abdulatiief Talaaboedien */}
+          {/* From the Archive — Fez, mosques, katil, family (entity-rich for SEO) */}
           <motion.section
-            className="mt-14 pt-10 border-t border-primary/10"
+            className="mt-14 pt-10 border-t-2 border-[#065f46]/20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.35 }}
-            aria-labelledby="family-portrait-heading"
+            aria-labelledby="archive-heading"
           >
-            <h2 id="family-portrait-heading" className="font-serif text-2xl font-semibold text-primary mb-4">Family Portrait</h2>
-            <div className="max-w-2xl mx-auto">
-              <HeritageImage
-                src="/images/heritage/ebrahim-abdul-latief-talaabodien.png"
-                alt="Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien—archival portrait."
-                caption="Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien. (Archival photo)"
-                className="aspect-[4/3] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
-              />
-              <p className="mt-2 text-sm text-primary/60 italic">
-                Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien. (Archival photo)
+            <h2 id="archive-heading" className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-2">From the Archive</h2>
+            <p className="text-primary/80 text-sm mb-8 max-w-2xl">
+              Archival photographs of the <strong>Malay Quarter</strong>, <strong>Chiappini Street Mosque</strong>, and Cape Malay tradition—the fez, the katil, and the Imams who shaped our community.
+            </p>
+
+            {/* Fez in the Malay Quarter — Ideroos and Abubakar Dantu */}
+            <div className="mb-12">
+              <h3 id="fez-malay-quarter-heading" className="font-serif text-xl font-semibold text-primary mb-3">Fez in the Malay Quarter</h3>
+              <figure className="max-w-xl rounded-xl overflow-hidden border-2 border-[#065f46]/20 shadow-sm">
+                <img
+                  src="/images/heritage/fez-malay-quarter-old-school.png"
+                  alt="Ideroos and Abubakar Dantu at an old-fashioned window in the Malay Quarter, wearing fezzes."
+                  className="w-full object-cover"
+                  loading="lazy"
+                />
+                <figcaption className="p-3 bg-primary/5 text-sm text-primary/70 italic">
+                  Ideroos and Abubakar Dantu at an old-fashioned window in the Malay Quarter. Forebears of the Dantu family. (Archival photo)
+                </figcaption>
+              </figure>
+            </div>
+
+            {/* Old Chiappini Street Mosque */}
+            <div className="mb-12">
+              <h3 id="chiappini-mosque-heading" className="font-serif text-xl font-semibold text-primary mb-3">Old Chiappini Street Mosque</h3>
+              <p className="text-primary/80 text-sm mb-4 max-w-2xl">
+                The historic <strong>Chiappini Street Mosque</strong> in the <strong>Malay Quarter</strong>—ceremonies, Imams, and the fez as a mark of dignity.
               </p>
+              <div className="max-w-2xl space-y-6">
+                <figure className="rounded-xl overflow-hidden border-2 border-[#065f46]/20 shadow-sm">
+                  <img
+                    src="/images/heritage/chiappini-street-mosque.png"
+                    alt="Interior of the old Chiappini Street mosque during a ceremony with a bridegroom and four Imams."
+                    className="w-full object-cover"
+                    loading="lazy"
+                  />
+                  <figcaption className="p-3 bg-primary/5 text-sm text-primary/70 italic">
+                    A bridegroom with Imams Achmat Jamja, Sayed Saafi Alwia, Bassier, and Ishmael Moos. (Archival photo)
+                  </figcaption>
+                </figure>
+                <figure className="max-w-md rounded-xl overflow-hidden border-2 border-[#065f46]/20 shadow-sm">
+                  <img
+                    src="/images/heritage/imam-chiappini-street-mosque.png"
+                    alt="An Imam of the old Chiappini Street mosque — traditional headwear and prayer beads."
+                    className="w-full object-cover"
+                    loading="lazy"
+                  />
+                  <figcaption className="p-3 bg-primary/5 text-sm text-primary/70 italic">
+                    An Imam of the old Chiappini Street mosque. (Archival photo)
+                  </figcaption>
+                </figure>
+              </div>
+            </div>
+
+            {/* To the Burial Ground — katil */}
+            <div className="mb-12">
+              <h3 id="katil-burial-heading" className="font-serif text-xl font-semibold text-primary mb-3">To the Burial Ground</h3>
+              <figure className="max-w-2xl rounded-xl overflow-hidden border-2 border-[#065f46]/20 shadow-sm">
+                <img
+                  src="/images/heritage/malay-bearers-katil-burial.png"
+                  alt="Malay bearers carrying the katil to the burial ground. No vehicles are used."
+                  className="w-full object-cover"
+                  loading="lazy"
+                />
+                <figcaption className="p-3 bg-primary/5 text-sm text-primary/70 italic">
+                  Malay bearers carrying the katil to the burial ground. No vehicles are used. (Archival photo)
+                </figcaption>
+              </figure>
+            </div>
+
+            {/* Family Portrait — Imam Ebrahiem and Imam Abdulatiief */}
+            <div>
+              <h3 id="family-portrait-heading" className="font-serif text-xl font-semibold text-primary mb-3">Family Portrait</h3>
+              <figure className="max-w-2xl mx-auto rounded-xl overflow-hidden border-2 border-[#065f46]/20 shadow-sm">
+                <HeritageImage
+                  src="/images/heritage/ebrahim-abdul-latief-talaabodien.png"
+                  alt="Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien—archival portrait."
+                  caption="Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien. (Archival photo)"
+                  className="aspect-[4/3] w-full object-cover"
+                />
+                <figcaption className="p-3 bg-primary/5 text-sm text-primary/70 italic">
+                  Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien. (Archival photo)
+                </figcaption>
+              </figure>
             </div>
           </motion.section>
 
           <motion.section
-            className="mt-14 pt-10 border-t border-black/10"
+            className="mt-14 pt-10 border-t border-primary/10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.35 }}
           >
             <h2 className="font-serif text-2xl font-semibold text-primary mb-4">From the Cape to the World</h2>
             <p className="text-primary/90 leading-relaxed mb-4">
-              The Cape has long been a meeting point of cultures. Islamic headwear here reflects that diversity: the soft Kufi for daily wear and prayer, the structured Taj for scholars and those in the Naqshbandi path, the <Link to="/product/collection-1" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Na&apos;lain cap</Link> with its emblematic symbolism, and the <Link to="/shop" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Fez</Link> for occasions and tradition. Each style carries the weight of heritage and the intention of the wearer.
+              The Cape has long been a meeting point of cultures—from <strong>Tana Baru</strong> and the <strong>Auwal Masjid</strong> to the <strong>Chiappini Street Mosque</strong> and the <strong>Malay Quarter</strong>. Islamic headwear here reflects that diversity: the soft Kufi for daily wear and prayer, the structured Taj for scholars and those in the Naqshbandi path, the <Link to="/product/collection-1" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Na&apos;lain cap</Link> with its emblematic symbolism, and the <Link to="/shop" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Fez</Link> for occasions and tradition. Each style carries the weight of heritage and the intention of the wearer.
             </p>
             <p className="text-primary/90 leading-relaxed">
               At Al-Ameen Caps, our Lead Curator draws on this history to select and quality-check every piece—so that you receive headwear that is both authentic to tradition and built to last. Learn more

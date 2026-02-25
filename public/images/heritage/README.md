@@ -4,15 +4,9 @@ Place your heritage images here so they appear on the site.
 
 ## Tana Baru Spotlight (first card on The Wall)
 
-- **Filename:** `tana-baru-spotlight.jpg` (or `.png`)
-- **Use:** Photo of Tana Baru Cemetery or the grave marker of Tuan Guru (Imam Abdullah Kadi Abdus Salaam). This image is shown on the very first Admin Post card—“Tana Baru — Resting Place of Tuan Guru”—that greets visitors to The Wall.
-- **Suggested:** The image you shared of the grave marker with Arabic calligraphy and draped cloths is ideal. Save it as `tana-baru-spotlight.jpg` in this folder.
-
-The site will serve it at:
-
-`https://alameencaps.com/images/heritage/tana-baru-spotlight.jpg`
-
-The database is already set to use this path for the Tana Baru Spotlight card. Once the file is in place, it will appear automatically.
+- **Filename:** `tana-baru-spotlight.png` (or `.jpg`)
+- **Use:** Photo of Tana Baru—the white domed kramat/shrine in the garden, with city and bay in the background. Shown on the very first Admin Post card—“Tana Baru — Resting Place of Tuan Guru”—that greets visitors to The Wall.
+- **Location:** `public/images/heritage/`. Migration 20250246 sets `image_url = '/images/heritage/tana-baru-spotlight.png'` for the Tana Baru Spotlight card.
 
 ## Royal roots (family tree)
 
@@ -31,9 +25,8 @@ The tree order will be: **Sultan Saifuddin of Tidore** → **Sunan Gunung Jati (
 
 ## Imam Abdur-Raof & Imam Abdur-Rakieb, 1863 (Living Tree)
 
-- **Filename:** `imam-abdur-raof-1863.png` (or `.jpg`)
-- **Use:** Sepia photograph of Imam Abdur-Raof (d.1864), son of Tuan Guru and ancestor of the Abdurauf and Rakiep families, standing with his son Imam Abdur-Rakieb (Ta Tuan) at the welcome of Shaykh Abu-Bakr Effendi to Cape Town in 1863, with other Imams. This image is shown for **Imam Abdurauf** (Level 1) in The Living Tree.
-- **Location:** Place the file in this folder. The database is set to use `/images/heritage/imam-abdur-raof-1863.png` for the Imam Abdurauf row.
+- **Filename:** `imam-abdur-raof-1863.png` ✓ (in place)
+- **Use:** Sepia photograph of Imam Abdur-Raof (d.1864), son of Tuan Guru and ancestor of the Abdurauf and Rakiep families, standing with his son Imam Abdur-Rakieb (Ta Tuan) at the welcome of Shaykh Abu-Bakr Effendi to Cape Town in 1863. Shown for **Imam Abdurauf** (Level 1) in The Living Tree.
 
 ## Ebrahiem & Abdulatiief Talaabodien (Heritage — Family Portrait)
 
@@ -47,6 +40,30 @@ The tree order will be: **Sultan Saifuddin of Tidore** → **Sunan Gunung Jati (
 - **Use:** Archival portrait of Imam Achmat Talaabodien (Bappa), known as Imam Taliep—elderly man in kufi and suit, Bishop Lavis. Shown in **The Living Tree** next to his name (Level 4). Biography: lived in Bishop Lavis in 1966; oldest Imam of that year; spoke seven languages; died age 91 on 16 August 1966; 800 attended his funeral at Muir Street Mosque, conducted by Sheikh Abubakr Najaar.
 - **Location:** Place the file in this folder. The database is set to use `/images/heritage/imam-achmat-talaabodien-bappa.png` for the Bappa row. Copy from Cursor assets: `Ima_achamat_talabudien-7760ef19-e070-4c0e-aa1d-0438e97f2b99.png` → save as `imam-achmat-talaabodien-bappa.png`.
 
+## Old Chiappini Street Mosque (Heritage page)
+
+- **Interior ceremony:** `chiappini-street-mosque.png` — bridegroom with four Imams. Page references `/images/heritage/chiappini-street-mosque.png`.
+- **Imam portrait:** `imam-chiappini-street-mosque.png` — An Imam of the old Chiappini Street mosque (traditional headwear, prayer beads). Caption: “An Imam of the old Chiappini Street mosque. (Archival photo)” Page references `/images/heritage/imam-chiappini-street-mosque.png`.
+- **Location:** Place both files in `public/images/heritage/`.
+
+## Malay bearers — katil to the burial ground (Heritage page)
+
+- **Filename:** `malay-bearers-katil-burial.png` (or `.jpg`)
+- **Use:** Funeral procession—Malay bearers carrying the katil to the burial ground. No vehicles are used. Shown in the **To the Burial Ground** section. Caption: “Malay bearers carrying the katil to the burial ground. No vehicles are used. (Archival photo)”
+- **Location:** `public/images/heritage/`. Page references `/images/heritage/malay-bearers-katil-burial.png`.
+
+## Asia Taliep (Oemie) (Heritage Portraits + Living Tree)
+
+- **Filename:** `asia-taliep-oemie.png` (or `.jpg`)
+- **Use:** Portrait of Asia Taliep (Oemie)—daughter of Imam Achmat (Bappa), granddaughter of Ou Bappa; the heart of the Al-Ameen legacy. Shown in **Heritage Portraits** and in **The Living Tree** (Level 5).
+- **Location:** `public/images/heritage/`. Page and Living Tree reference `/images/heritage/asia-taliep-oemie.png`.
+
+## Fez in the Malay Quarter — old school (Heritage page)
+
+- **Filename:** `fez-malay-quarter-old-school.png` (or `.jpg`)
+- **Use:** Vintage photo of Ideroos and Abubakar Dantu at an old-fashioned window in the Malay Quarter, both wearing fezzes. Shown in the **Fez in the Malay Quarter** section. Caption: “Ideroos and Abubakar Dantu at an old-fashioned window in the Malay Quarter. Forebears of the Dantu family. (Archival photo)”
+- **Location:** `public/images/heritage/`. Page references `/images/heritage/fez-malay-quarter-old-school.png`.
+
 ## The fez back then — Abu Bakr Efendi (Heritage timeline + Lineage Gallery)
 
 - **Filename:** `fez-cape-malay-archival.png` (or `.jpg`)
@@ -58,6 +75,12 @@ The tree order will be: **Sultan Saifuddin of Tidore** → **Sunan Gunung Jati (
 - **Filename:** `present-cape-town.png` (or `.jpg`)
 - **Use:** Contemporary image for the **Present · Cape Town** row—modern Cape Town Islamic headwear, Al-Ameen Caps craftsmanship, or the Bo-Kaap/community today. Caption: “Today: the crown of the believer in Cape Town and beyond.”
 - **Location:** Place the file in this folder. The page references `/images/heritage/present-cape-town.png`.
+
+## Cape Slaves Routes Map (Heritage timeline)
+
+- **Filename:** `cape-slaves-routes-map.png` (or `.jpg`)
+- **Use:** Map showing places of origin and main transportation routes (17th–19th centuries) to Cape Town from Africa and Asia. Shown in the timeline section. Caption: “Cape Slaves: Places of Origin and Main Transportation Routes (17th–19th centuries). (Historical map)”
+- **Location:** `public/images/heritage/`. Page references `/images/heritage/cape-slaves-routes-map.png`.
 
 ## Ships to the Cape / Robben Island (Heritage timeline + Lineage Gallery)
 
