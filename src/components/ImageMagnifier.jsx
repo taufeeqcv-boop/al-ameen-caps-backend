@@ -3,15 +3,29 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 const LENS_SIZE = 140;
 const ZOOM_LEVEL = 2;
 
+function webpUrl(s) {
+  return typeof s === "string" ? s.replace(/\.(png|jpg|jpeg)$/i, ".webp") : s;
+}
+function canUseWebP(s) {
+  return (
+    typeof s === "string" &&
+    /\.(png|jpg|jpeg)$/i.test(s) &&
+    (s.includes("/collection/") || s.includes("alameencaps.com/collection"))
+  );
+}
+
 /**
  * Wraps a product image with object-contain (full product visible) and
- * a hover-to-zoom lens on desktop. Mobile: static image only.
+ * a hover-to-zoom lens on desktop. Uses WebP when available; blur until loaded.
  */
 export default function ImageMagnifier({ src, alt, className = "", imgClassName = "" }) {
   const containerRef = useRef(null);
+  const [loaded, setLoaded] = useState(false);
   const [hovering, setHovering] = useState(false);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ w: 400, h: 400 });
+  const usePicture = !!src && canUseWebP(src);
+  const webp = usePicture ? webpUrl(src) : null;
 
   const updateSize = useCallback(() => {
     if (containerRef.current) {
@@ -50,6 +64,38 @@ export default function ImageMagnifier({ src, alt, className = "", imgClassName 
   const bgX = -(mouse.x * ZOOM_LEVEL - LENS_SIZE / 2);
   const bgY = -(mouse.y * ZOOM_LEVEL - LENS_SIZE / 2);
 
+  const imgCls = `w-full h-full object-contain object-center transition-[filter,opacity] duration-300 ${loaded ? "opacity-100 blur-0" : "opacity-90 blur-[6px]"} ${imgClassName}`.trim();
+  const lensImageUrl = usePicture ? webp : src;
+
+  const imgNode = usePicture && webp ? (
+    <picture className="contents">
+      <source type="image/webp" srcSet={webp} />
+      <img
+        src={src}
+        alt={alt}
+        loading="eager"
+        width={600}
+        height={600}
+        className={imgCls}
+        draggable={false}
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+      />
+    </picture>
+  ) : (
+    <img
+      src={src}
+      alt={alt}
+      loading="eager"
+      width={600}
+      height={600}
+      className={imgCls}
+      draggable={false}
+      decoding="async"
+      onLoad={() => setLoaded(true)}
+    />
+  );
+
   return (
     <div
       ref={containerRef}
@@ -58,16 +104,8 @@ export default function ImageMagnifier({ src, alt, className = "", imgClassName 
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <img
-        src={src}
-        alt={alt}
-        loading="eager"
-        width={600}
-        height={600}
-        className={`w-full h-full object-contain object-center ${imgClassName}`}
-        draggable={false}
-      />
-      {hovering && src && (
+      {imgNode}
+      {hovering && lensImageUrl && (
         <div
           className="hidden md:block absolute pointer-events-none rounded-full border-2 border-white/80 shadow-xl overflow-hidden"
           style={{
@@ -80,7 +118,7 @@ export default function ImageMagnifier({ src, alt, className = "", imgClassName 
           <div
             className="absolute bg-no-repeat"
             style={{
-              backgroundImage: `url(${src})`,
+              backgroundImage: `url(${lensImageUrl})`,
               backgroundSize: `${bgW}px ${bgH}px`,
               backgroundPosition: `${bgX}px ${bgY}px`,
               width: LENS_SIZE,

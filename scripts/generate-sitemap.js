@@ -27,7 +27,7 @@ const staticPages = [
   { path: '/guides/islamic-headwear-cape-town', changefreq: 'monthly', priority: '0.6' },
   { path: '/community', changefreq: 'weekly', priority: '0.6' },
   { path: '/about', changefreq: 'monthly', priority: '0.7' },
-  { path: '/heritage', changefreq: 'monthly', priority: '0.7' },
+  { path: '/heritage', changefreq: 'monthly', priority: '0.7', video: true },
   { path: '/culture/evolution-fez-kufi-cape', changefreq: 'monthly', priority: '0.6' },
   { path: '/near/bo-kaap', changefreq: 'monthly', priority: '0.7' },
   { path: '/near/athlone', changefreq: 'monthly', priority: '0.7' },
@@ -35,6 +35,7 @@ const staticPages = [
   { path: '/shipping', changefreq: 'monthly', priority: '0.6' },
   { path: '/privacy', changefreq: 'yearly', priority: '0.4' },
   { path: '/terms', changefreq: 'yearly', priority: '0.4' },
+  { path: '/review', changefreq: 'monthly', priority: '0.5' },
 ];
 
 const blogPages = (BLOG_POSTS || []).map((p) => ({
@@ -60,18 +61,51 @@ function toAbsoluteUrl(path) {
 // lastmod in ISO date format (build date) — helps search engines prioritize crawling
 const lastmod = new Date().toISOString().split('T')[0];
 
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls
-  .map(
-    (u) => `  <url>
-    <loc>${toAbsoluteUrl(u.path)}</loc>
+// Video sitemap extension: one video on /heritage so "Discovered videos" > 0
+const VIDEO_HERITAGE = {
+  content_loc: `${baseUrl}/videos/heritage-timeline.mp4`,
+  thumbnail_loc: `${baseUrl}/images/heritage/present-cape-town.png`,
+  title: 'Development of Cape Islamic heritage and headwear (1600s to today)',
+  description: 'The journey of faith, scholarship, and craft from the 1600s to today. Cape Malay and Islamic headwear heritage.',
+};
+
+function urlBlock(u) {
+  const loc = toAbsoluteUrl(u.path);
+  let videoBlock = '';
+  if (u.video && u.path === '/heritage') {
+    videoBlock = `
+    <video:video>
+      <video:thumbnail_loc>${VIDEO_HERITAGE.thumbnail_loc}</video:thumbnail_loc>
+      <video:title>${escapeXml(VIDEO_HERITAGE.title)}</video:title>
+      <video:description>${escapeXml(VIDEO_HERITAGE.description)}</video:description>
+      <video:content_loc>${VIDEO_HERITAGE.content_loc}</video:content_loc>
+    </video:video>`;
+  }
+  return `  <url>
+    <loc>${loc}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
-    <priority>${u.priority}</priority>
-  </url>`
-  )
-  .join('\n')}
+    <priority>${u.priority}</priority>${videoBlock}
+  </url>`;
+}
+
+function escapeXml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+const hasVideo = urls.some((u) => u.video);
+const urlsetAttrs = hasVideo
+  ? 'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"'
+  : 'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
+
+const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset ${urlsetAttrs}>
+${urls.map(urlBlock).join('\n')}
 </urlset>`;
 
 const outDir = join(__dirname, '..', 'public');

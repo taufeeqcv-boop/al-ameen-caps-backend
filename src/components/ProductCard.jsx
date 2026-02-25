@@ -7,6 +7,7 @@ import { formatPrice } from "../lib/format";
 import { getCollectionImageUrl } from "../data/collection";
 import { COLLECTION_IMAGE_IMPORTS } from "../data/collectionImages";
 import { sameOriginImageSrc } from "../lib/supabase";
+import OptimizedImage from "./OptimizedImage";
 import defaultProductImg from "../assets/caps-collection.png";
 
 export default function ProductCard({ product, index = 0 }) {
@@ -38,14 +39,14 @@ export default function ProductCard({ product, index = 0 }) {
     >
       <Link to={`/product/${id}`} className="block">
         <div className="aspect-square bg-primary/5 relative">
-          <img
+          <OptimizedImage
             src={displaySrc}
             alt={name}
             width={400}
             height={400}
             loading={index < 3 ? "eager" : "lazy"}
-            decoding="async"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full"
+            imgClassName="object-cover object-center"
           />
           {available <= 0 && (
             <span className="absolute top-2 right-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">
