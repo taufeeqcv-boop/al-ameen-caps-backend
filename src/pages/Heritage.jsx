@@ -301,15 +301,17 @@ export default function Heritage() {
                 </p>
               </div>
               <div className="order-1 md:order-2">
-                <HeritageImage
-                  src="/images/heritage/present-cape-town.png"
-                  alt="Modern Cape Town Islamic headwear and Al-Ameen Caps craftsmanship: Kufi, Taj, and Fez honouring the legacy of the Cape."
-                  caption="Today: the crown of the believer in Cape Town and beyond."
-                  className="aspect-[4/3] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
-                />
-                <p className="mt-2 text-sm text-primary/60 italic">
-                  Today: the crown of the believer in Cape Town and beyond.
-                </p>
+                <Link to="/shop" className="block group">
+                  <HeritageImage
+                    src="/images/heritage/present-cape-town.png"
+                    alt="Ottoman fez—traditional red fez with tassel. Shop our Fez collection at Al-Ameen Caps."
+                    caption="Today: the crown of the believer in Cape Town and beyond."
+                    className="aspect-[4/3] w-full rounded-lg border-2 border-[#065f46]/20 object-cover group-hover:border-accent/50 transition-colors"
+                  />
+                  <p className="mt-2 text-sm text-primary/60 italic group-hover:text-accent transition-colors">
+                    Ottoman fez—today&apos;s crown of the believer. <span className="font-medium text-accent">Shop the collection →</span>
+                  </p>
+                </Link>
               </div>
             </div>
           </motion.section>

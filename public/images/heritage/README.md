@@ -72,10 +72,8 @@ The tree order will be: **Sultan Saifuddin of Tidore** → **Sunan Gunung Jati (
 
 ## Present · Cape Town (Heritage timeline)
 
-- **Filename:** `present-cape-town.png` (or `.jpg`)
+- **Filename:** `present-cape-town.png` ✓ (Ottoman fez product shot—links to /shop)
 - **Use:** Contemporary image for the **Present · Cape Town** row—modern Cape Town Islamic headwear, Al-Ameen Caps craftsmanship, or the Bo-Kaap/community today. Caption: “Today: the crown of the believer in Cape Town and beyond.”
-- **Location:** Place the file in this folder. The page references `/images/heritage/present-cape-town.png`.
-
 ## Cape Slaves Routes Map (Heritage timeline)
 
 - **Filename:** `cape-slaves-routes-map.png` (or `.jpg`)
