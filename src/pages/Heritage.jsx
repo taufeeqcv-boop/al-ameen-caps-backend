@@ -1,21 +1,37 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
+import MajlisForm from "../components/MajlisForm";
+import MajlisWall from "../components/MajlisWall";
+import LivingTree from "../components/LivingTree";
+import { getFirstApprovedMajlisImageUrl } from "../lib/supabase";
+import { HERITAGE_SEO_KEYWORDS, HERITAGE_DESCRIPTION } from "../lib/seo";
 
 export default function Heritage() {
+  const [ogImage, setOgImage] = useState(null);
+  useEffect(() => {
+    getFirstApprovedMajlisImageUrl().then(setOgImage);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Seo
         title="History of Cape Islamic Headwear"
-        description="The heritage of Islamic headwear in the Cape: from the Bo-Kaap to the Winelands. Kufi, Taj, Fez, and the Naqshbandi tradition. Cape Town, South Africa."
+        description={HERITAGE_DESCRIPTION}
         url="/heritage"
+        image={ogImage || undefined}
+        keywords={HERITAGE_SEO_KEYWORDS}
         heritageArticle
+        heritageAboutPage
+        heritageCreativeWork
       />
       <Navbar />
       <main className="flex-1 pt-32 pb-16">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h1
             className="font-serif text-4xl md:text-5xl font-semibold text-primary text-center mb-4"
             initial={{ opacity: 0, y: 20 }}
@@ -40,7 +56,7 @@ export default function Heritage() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <p className="text-lg">
-              Islamic headwear in the Cape has been shaped by centuries of faith, trade, and community. From the
+              Our story begins with <strong className="text-emerald-800">Tuan Guru</strong>—Imam Abdurahman Matebe Shah—the father of Islam in the Cape (Master Teacher; Imam Abdullah Kadi Abdus Salaam), who is buried at the <strong className="text-emerald-800">Tana Baru Cemetery</strong> in Cape Town. Islamic headwear here has been shaped by that legacy: centuries of faith, trade, and community. From the
               <Link to="/near/bo-kaap" className="text-primary font-semibold hover:text-accent hover:underline"> Bo-Kaap</Link> to the Northern and Southern suburbs, the
               <strong className="text-primary"> Winelands</strong>, and beyond, the Kufi, Taj, and Fez carry meanings that go far beyond fashion. See also <Link to="/near/athlone" className="text-accent hover:underline">Athlone</Link>.
             </p>
@@ -56,20 +72,323 @@ export default function Heritage() {
             </p>
           </motion.section>
 
+          {/* SEO Heart: Evolution of the Fez & Kufi — entity-rich, E-E-A-T aligned */}
+          <motion.section
+            className="mt-14 bg-secondary rounded-2xl border border-primary/10 p-6 sm:p-8 md:p-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            aria-labelledby="evolution-fez-heading"
+          >
+            <h2 id="evolution-fez-heading" className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-2">
+              The Evolution of the Fez &amp; Kufi in the Cape
+            </h2>
+            <p className="font-serif text-lg text-emerald-800 mb-8">The Legacy of the Cape Fez: From Bo-Kaap to the Modern Day</p>
+
+            <div className="space-y-6 text-primary/90 leading-relaxed">
+              <p>
+                The story of the Fez (or <strong>Tarboosh</strong>) in South Africa is inextricably linked to the resilience and identity of the <strong className="text-emerald-800">Cape Malay</strong> community. While its roots trace back to the <strong>Ottoman Empire</strong> and North Africa, the Fez found a unique home in the steep, cobbled streets of the <Link to="/near/bo-kaap" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Bo-Kaap</Link>.
+              </p>
+
+              <h3 className="font-serif text-xl font-semibold text-primary mt-8 mb-2">A Symbol of Scholars and Resilience</h3>
+              <p>
+                When the first political exiles and scholars—most notably <strong className="text-emerald-800">Tuan Guru</strong>—established the foundations of Islam at the Cape, the headwear was more than a garment. It was a statement of faith and community. In the early days of the <strong className="text-emerald-800">Auwal Masjid</strong>, the traditional red Fez became a hallmark of the learned and the devout during <strong>Jumu&apos;ah</strong> and <strong>Salah</strong>.
+              </p>
+
+              <h3 className="font-serif text-xl font-semibold text-primary mt-8 mb-2">From the &quot;Kappie&quot; to the Modern Kufi</h3>
+              <p>
+                Over centuries, the tradition evolved. The high, stiff Fez often worn for formal occasions and weddings began to share space with more breathable, versatile designs. This gave rise to the Cape <strong>Kufi</strong> and <strong>Taqiyah</strong>—styles that maintained the dignity of the tradition while adapting to the South African climate.
+              </p>
+
+              <h3 className="font-serif text-xl font-semibold text-primary mt-8 mb-2">Why We Preserve the Craft</h3>
+              <p>
+                At Al-Ameen Caps, we see ourselves as custodians of this evolution. Our designs honour the lineage of the <strong>Essop</strong> and <strong>Rakiep</strong> families, rooted in the heritage of those who built the vibrant tapestry of Cape Town. Every stitch in our modern <Link to="/product/collection-1" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Na&apos;lain Cap</Link> or breathable cotton <Link to="/shop" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Taqiyah</Link> is a tribute to the craftsmen who walked before us.
+              </p>
+            </div>
+          </motion.section>
+
+          {/* A Legacy of Scholarship & Craft — family lineage, E-E-A-T / historical authority */}
+          <motion.section
+            className="mt-14 bg-secondary rounded-2xl border-2 border-[#065f46]/30 p-6 sm:p-8 md:p-10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.28 }}
+            aria-labelledby="legacy-heading"
+          >
+            <h2 id="legacy-heading" className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-6">
+              A Legacy of Scholarship &amp; Craft
+            </h2>
+            <div className="space-y-6 text-primary/90 leading-relaxed" itemScope itemType="https://schema.org/Article">
+              <p>
+                <strong>Maternal lineage:</strong> Al-Ameen Caps carries direct descent from <span itemProp="author" itemScope itemType="https://schema.org/Person"><span itemProp="name">Tuan Guru</span></span> (<span itemProp="author" itemScope itemType="https://schema.org/Person"><span itemProp="name">Imam Abdurahman Matebe Shah</span></span>), the founding scholar of Islam at the Cape, via <span itemProp="author" itemScope itemType="https://schema.org/Person"><span itemProp="name">Asia Taliep (Oemie)</span></span>. This lineage connects our craft to the very establishment of the <strong>Auwal Masjid</strong> in the <Link to="/near/bo-kaap" className="text-[#065f46] font-semibold hover:underline">Bo-Kaap</Link> and the first generations of Cape Malay scholarship.
+              </p>
+              <p>
+                <strong>Paternal lineage:</strong> Through the line of <span itemProp="author" itemScope itemType="https://schema.org/Person"><span itemProp="name">Sayed Abdurrahman Motura</span></span>, we honour a tradition of piety and leadership that has shaped Islamic life at the Cape for centuries. Together, these lineages inform every choice we make—from the <Link to="/shop" className="text-[#065f46] font-semibold hover:underline">Kufi</Link> and <Link to="/shop" className="text-[#065f46] font-semibold hover:underline">Fez</Link> we offer to the standards we hold for <strong>Jumu&apos;ah</strong> and <strong>Salah</strong>.
+              </p>
+            </div>
+          </motion.section>
+
+          {/* Founder's Note — full-width emerald tint; bridges heritage and mission (E-E-A-T) */}
+          <motion.section
+            className="mt-14 relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen max-w-none bg-emerald-50/30 border-y border-emerald-200/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.29 }}
+            aria-labelledby="founder-note-heading"
+          >
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+              <h2 id="founder-note-heading" className="font-serif text-2xl md:text-3xl font-semibold text-primary text-center mb-2">
+                A Note from the Founder
+              </h2>
+              <p className="font-serif text-lg text-emerald-800 text-center mb-8">The Golden Thread</p>
+
+              <div className="border-l-4 border-emerald-800 pl-6 sm:pl-8 space-y-5 text-primary/90 leading-relaxed">
+                <p>
+                  My journey is anchored in the light of my maternal grandmother, <strong className="text-emerald-800">Asia Taliep (Oemie)</strong>. She was the daughter of <strong className="text-emerald-800">Imam Achmat Taliep (Bappa)</strong> and the granddaughter of the great <strong className="text-emerald-800">Imam Mogamat Talaabodien (Ou Bappa)</strong>—the Patriarch of District Six. Our lineage reaches back to the royal scholarship of <strong className="text-emerald-800">Tuan Guru (Imam Abdullah)</strong>, Prince of Tidore and descendant of Sultan Saifuddin. These six generations of dignity are the fabric of Al-Ameen.
+                </p>
+                <p>
+                  — <strong className="text-emerald-800">Taufeeq Essop</strong>
+                </p>
+              </div>
+
+              <p id="al-kimya" className="mt-6 text-sm text-primary/70 border-l-2 border-emerald-600/50 pl-4">
+                <strong className="text-primary">Al-Kimya Origin</strong> is a spiritual recovery companion—blending Sufi wisdom with therapeutic techniques to support spiritual recovery and mental well-being in our community.
+              </p>
+
+              <div className="mt-8 text-center">
+                <p className="font-serif italic text-primary/90">With gratitude and purpose,</p>
+                <p className="font-serif italic text-2xl md:text-3xl text-primary mt-1">Taufeeq Essop</p>
+                <p className="text-primary/80 font-medium mt-1">Founder &amp; Director</p>
+              </div>
+
+              <div className="mt-10 text-center">
+                <Link
+                  to="/shop"
+                  className="btn-primary px-8 py-3.5 min-h-[48px] inline-flex items-center justify-center font-medium"
+                >
+                  Shop the Legacy
+                </Link>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Historical Story — staggered layout: 1700s → present */}
+          <motion.section
+            className="mt-14 space-y-12"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            aria-labelledby="story-heading"
+          >
+            <h2 id="story-heading" className="font-serif text-2xl font-semibold text-primary mb-8 text-center sr-only">
+              A Timeline of Cape Islamic Headwear
+            </h2>
+
+            {/* Row 1: Text left, image right — 1700s / Auwal */}
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="space-y-3 text-primary/90 leading-relaxed order-2 md:order-1">
+                <p className="font-serif text-sm text-[#065f46] font-medium">1700s · Foundations</p>
+                <p>
+                  The first scholars and political exiles—including <strong>Tuan Guru</strong>—brought the Fez and the traditions of the <strong>Auwal Masjid</strong> to the <strong>Bo-Kaap</strong>. Headwear became a mark of faith and learning for <strong>Jumu&apos;ah</strong> and <strong>Salah</strong>.
+                </p>
+              </div>
+              <div className="order-1 md:order-2">
+                <div
+                  className="aspect-[4/3] rounded-lg bg-primary/10 border-2 border-[#065f46]/20 flex items-center justify-center text-primary/40 text-sm font-serif"
+                  role="img"
+                  aria-label="Historical depiction of Bo-Kaap scholarship and early Cape Islamic community"
+                >
+                  [Historical image]
+                </div>
+              </div>
+            </div>
+
+            {/* Pull quote — emerald border */}
+            <blockquote className="border-l-4 border-[#065f46] pl-6 py-2 my-8 text-primary/90 font-serif italic">
+              &ldquo;The traditional red Fez became a hallmark of the learned and the devout.&rdquo;
+            </blockquote>
+
+            {/* Row 2: Image left, text right — 1800s / evolution */}
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div>
+                <div
+                  className="aspect-[4/3] rounded-lg bg-primary/10 border-2 border-[#065f46]/20 flex items-center justify-center text-primary/40 text-sm font-serif"
+                  role="img"
+                  aria-label="Evolution of Cape Malay headwear from Fez to Kufi and Taqiyah"
+                >
+                  [Historical image]
+                </div>
+              </div>
+              <div className="space-y-3 text-primary/90 leading-relaxed">
+                <p className="font-serif text-sm text-[#065f46] font-medium">1800s · Evolution</p>
+                <p>
+                  The high, stiff Fez worn for formal occasions and weddings began to share space with breathable, versatile designs—the Cape <strong>Kufi</strong> and <strong>Taqiyah</strong>—that maintained dignity while adapting to the South African climate.
+                </p>
+              </div>
+            </div>
+
+            {/* Row 3: Text left, image right — present day */}
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="space-y-3 text-primary/90 leading-relaxed order-2 md:order-1">
+                <p className="font-serif text-sm text-[#065f46] font-medium">Present · Cape Town</p>
+                <p>
+                  Today, Al-Ameen Caps continues this legacy in Cape Town. Every <Link to="/product/collection-1" className="text-[#065f46] font-semibold hover:underline">Na&apos;lain Cap</Link> and <Link to="/shop" className="text-[#065f46] font-semibold hover:underline">Kufi</Link> we offer is a tribute to the craftsmen and scholars who walked before us.
+                </p>
+              </div>
+              <div className="order-1 md:order-2">
+                <div
+                  className="aspect-[4/3] rounded-lg bg-primary/10 border-2 border-[#065f46]/20 flex items-center justify-center text-primary/40 text-sm font-serif"
+                  role="img"
+                  aria-label="Modern Cape Town Islamic headwear and Al-Ameen Caps craftsmanship"
+                >
+                  [Contemporary image]
+                </div>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Lineage Gallery — placeholders with descriptive labels; use <img loading="lazy" alt="..."> when real photos are added */}
+          <motion.section
+            className="mt-14 pt-10 border-t border-primary/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            aria-labelledby="lineage-gallery-heading"
+          >
+            <h2 id="lineage-gallery-heading" className="font-serif text-2xl font-semibold text-primary mb-4">Lineage Gallery</h2>
+            <p className="text-primary/80 text-sm mb-6 max-w-xl">
+              A visual journey through Cape Malay and Islamic headwear heritage. Historical imagery and community moments will be added here.
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div
+                className="aspect-[4/3] rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary/40 text-sm font-serif"
+                role="img"
+                aria-label="Historical depiction of Bo-Kaap scholarship"
+              >
+                [Photo 1]
+              </div>
+              <div
+                className="aspect-[4/3] rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary/40 text-sm font-serif"
+                role="img"
+                aria-label="Cape Malay community and traditional headwear"
+              >
+                [Photo 2]
+              </div>
+              <div
+                className="aspect-[4/3] rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary/40 text-sm font-serif"
+                role="img"
+                aria-label="Heritage of the Fez and Kufi in the Cape"
+              >
+                [Photo 3]
+              </div>
+            </div>
+          </motion.section>
+
           <motion.section
             className="mt-14 pt-10 border-t border-black/10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
           >
             <h2 className="font-serif text-2xl font-semibold text-primary mb-4">From the Cape to the World</h2>
             <p className="text-primary/90 leading-relaxed mb-4">
-              The Cape has long been a meeting point of cultures. Islamic headwear here reflects that diversity: the soft Kufi for daily wear and prayer, the structured Taj for scholars and those in the Naqshbandi path, the Na&apos;lain cap with its emblematic symbolism, and the Fez for occasions and tradition. Each style carries the weight of heritage and the intention of the wearer.
+              The Cape has long been a meeting point of cultures. Islamic headwear here reflects that diversity: the soft Kufi for daily wear and prayer, the structured Taj for scholars and those in the Naqshbandi path, the <Link to="/product/collection-1" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Na&apos;lain cap</Link> with its emblematic symbolism, and the <Link to="/shop" className="text-emerald-800 font-semibold hover:text-emerald-700 hover:underline">Fez</Link> for occasions and tradition. Each style carries the weight of heritage and the intention of the wearer.
             </p>
             <p className="text-primary/90 leading-relaxed">
               At Al-Ameen Caps, our Lead Curator draws on this history to select and quality-check every piece—so that you receive headwear that is both authentic to tradition and built to last. Learn more
               <Link to="/about" className="text-accent hover:underline font-medium"> about our approach and our artisan process</Link>.
             </p>
+          </motion.section>
+
+          {/* Digital Majlis — interactive wall + submission form */}
+          <motion.section
+            className="mt-14 pt-10 border-t border-primary/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.36 }}
+            aria-labelledby="digital-majlis-heading"
+          >
+            <h2 id="digital-majlis-heading" className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-2 scroll-mt-24">
+              The Digital Majlis
+            </h2>
+            <p className="text-primary/80 mb-8 max-w-2xl">
+              Rooted in the legacy of <strong className="text-primary">Tuan Guru</strong>, our mission is to discover the specific branches of the Taliep and Rakiep families—from Imam Mogamat Talaabodien (Ou Bappa)&apos;s 80+ branches to every thread of the Golden Thread. Submit your ancestor&apos;s story and photo; once verified, it appears on the wall for the family to see and add memories.
+            </p>
+            <div className="grid lg:grid-cols-[minmax(340px,1fr)_2fr] gap-8">
+              <div className="min-w-0">
+                <MajlisForm />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-serif text-lg font-semibold text-primary mb-4">The Wall</h3>
+                <p className="text-primary/60 text-sm mb-4">
+                  Approved ancestor photos and stories appear here. Once you submit and we verify, your contribution shows on the wall for the family to see.
+                </p>
+                <MajlisWall />
+              </div>
+            </div>
+          </motion.section>
+
+          {/* The Living Tree — hierarchical lineage (parent_id). Future Phase: Full SVG tree. */}
+          <motion.section
+            className="mt-14 pt-10 border-t border-primary/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.37 }}
+            aria-labelledby="living-tree-heading"
+          >
+            <h2 id="living-tree-heading" className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-2">
+              The Living Tree
+            </h2>
+            <p className="text-primary/80 mb-4 max-w-2xl">
+              <strong className="text-primary">Tuan Guru</strong> sits at the root (Level 0). His grandson, <strong className="text-primary">Imam Mogamat Talaabodien (Ou Bappa)</strong>, and his son, <strong className="text-primary">Imam Achmat (Bappa)</strong>, lead directly to <strong className="text-primary">Asia Taliep (Oemie)</strong>. Every branch here is a verified thread of our shared history.
+            </p>
+            <LivingTree />
+          </motion.section>
+
+          {/* Carry the Legacy — CTA to collections */}
+          <motion.section
+            className="mt-14 bg-secondary rounded-2xl border-2 border-[#065f46]/30 p-8 sm:p-10 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.38 }}
+            aria-labelledby="carry-legacy-heading"
+          >
+            <h2 id="carry-legacy-heading" className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-3">
+              Carry the Legacy
+            </h2>
+            <p className="text-primary/80 mb-6 max-w-xl mx-auto">
+              Honour the tradition with handcrafted headwear for <strong>Jumu&apos;ah</strong>, <strong>Salah</strong>, and <strong>Eid</strong>. Shop our Na&apos;lain and Kufi collections.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link
+                to="/product/collection-1"
+                className="btn-outline-contrast px-8 py-3.5 min-h-[48px] inline-flex items-center justify-center font-medium"
+              >
+                Na&apos;lain Cap
+              </Link>
+              <Link
+                to="/shop"
+                className="btn-primary px-8 py-3.5 min-h-[48px] inline-flex items-center justify-center font-medium"
+              >
+                Kufi &amp; Fez Collection
+              </Link>
+            </div>
+          </motion.section>
+
+          {/* Emerald Star motif — ties to Featured Reviews / community voice */}
+          <motion.section
+            className="mt-14 pt-10 flex flex-col items-center gap-3 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            aria-label="Community recognition"
+          >
+            <div className="flex items-center gap-1 text-emerald-800" aria-hidden>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} className="w-6 h-6 fill-emerald-800" aria-hidden />
+              ))}
+            </div>
+            <p className="font-serif text-sm text-primary/70">Rated by our community</p>
           </motion.section>
         </div>
       </main>

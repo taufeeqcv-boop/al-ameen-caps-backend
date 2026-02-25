@@ -106,7 +106,10 @@ export default function Footer() {
           <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
           <Link to="/terms" className="hover:text-accent transition-colors">Terms</Link>
         </div>
-        <p className="mt-4 text-xs text-white/50">
+        <p className="mt-4 text-xs text-white/50" role="doc-credit">
+          Lineage and historical information courtesy of the Tuan Guru Family Tree group (Facebook).
+        </p>
+        <p className="mt-2 text-xs text-white/50">
           Cape Town based · Nationwide delivery. &nbsp;·&nbsp; Secure payment via PayFast. &nbsp;·&nbsp; © {new Date().getFullYear()} Al-Ameen Caps. All rights reserved.
         </p>
       </div>

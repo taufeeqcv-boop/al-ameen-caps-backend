@@ -19,6 +19,14 @@ export function getSchemaBaseUrl() {
 /** Category → SEO label for product meta (Kufi, Fez, Taj, etc.) */
 const CATEGORY_LABELS = { Caps: 'Kufi & Islamic cap', Taj: 'Taj', Rumal: 'Rumal & Turban', Perfumes: 'Islamic perfume' };
 
+/** Category → short entity snippet for schema/meta (semantic SEO). Perfect for Jumu'ah/Eid on headwear. */
+const CATEGORY_ENTITY_TAILS = {
+  Caps: 'Perfect for Jumu\'ah and Eid. Kufi, Taqiyah, breathable cotton, Salah. Cape Town.',
+  Taj: 'Perfect for Jumu\'ah and Eid. Taj, Islamic headwear. Cape Town.',
+  Rumal: 'Rumal, turban, Islamic headwear. Cape Town.',
+  Perfumes: 'Attar, Oud, alcohol-free perfume. Cape Town, South Africa.',
+};
+
 /**
  * Product page meta title (used with Seo; site name is appended by Seo).
  * Includes product name and category for SERP clarity.
@@ -30,29 +38,56 @@ export function getProductMetaTitle(product) {
 }
 
 /**
- * Product page meta description: unique, keyword-rich, ≤160 chars.
- * Includes product type, Cape Town/South Africa, Al-Ameen Caps.
+ * Product page meta description: unique, entity-rich, ≤160 chars.
  */
 export function getProductMetaDescription(product) {
   if (!product?.name) return '';
   const desc = (product.description || '').replace(/\n/g, ' ').trim();
-  const snippet = desc.slice(0, 100).replace(/\s+\S*$/, '');
+  const snippet = desc.slice(0, 92).replace(/\s+\S*$/, '');
   const label = product.category ? (CATEGORY_LABELS[product.category] || product.category) : 'Islamic headwear';
-  const tail = ` — Al-Ameen Caps. Cape Town, South Africa.`;
+  const entityTail = product.category ? (CATEGORY_ENTITY_TAILS[product.category] || '') : '';
+  const tail = entityTail ? ` — Al-Ameen Caps. ${entityTail}` : ' — Al-Ameen Caps. Cape Town, South Africa.';
   const text = snippet.length >= 50 ? `${snippet}… ${tail}` : `${product.name}. Handcrafted ${label}. ${tail}`;
   return text.slice(0, 160);
 }
 
-/** Homepage meta description — aimed at turning SERP impressions into clicks (≤160 chars). */
+/** Homepage meta description — entity-rich for semantic search (≤160 chars). */
 export const HOMEPAGE_META_DESCRIPTION =
-  "Premium kufis, fez & Islamic headwear for Jumu'ah & Eid. Handcrafted in Cape Town. Nationwide delivery. Shop the collection — Al-Ameen Caps.";
-// Alternatives for A/B (replace HOMEPAGE_META_DESCRIPTION if testing):
-// "Restoring the crown of the believer. Premium handcrafted kufis, fez & taj. Cape Town & nationwide. Al-Ameen Caps." (102)
-// "Handcrafted kufis, fez & taj for Jumu'ah & Eid. Cape Town's premium Islamic headwear. Nationwide delivery. Shop Al-Ameen Caps." (107)
+  "Premium Kufi, Taqiyah, Fez & Islamic headwear for Jumu'ah, Salah & Eid. Handcrafted in Cape Town. Nationwide delivery. Al-Ameen Caps.";
 
-/** Comma-separated meta keywords for key pages (Islamic fashion, location, occasions, Sufi) */
+/** Comma-separated meta keywords: headwear entities, fragrance, Cape Malay/local, occasions (semantic SEO). */
 export const SEO_KEYWORDS =
-  'Islamic fashion, fez, kufi, kufiyah, taj, Ashrafi, turban, salaah cap, South Africa, Cape Town, Durban, Johannesburg, PE, Port Elizabeth, Northern suburbs, Southern suburbs, Winelands, Mitchells Plain, Gatesville, Rylands, Athlone, Goodwood, Kensington, Maitland, Salt River, Woodstock, Bo-Kaap, Tableview, Bellville, Durbanville, online shop, Ramadaan, Eid, quality kufi, best price, Rumal, perfume, Al Hasan, Naqshbandi, Qadri, Chishti, Shadhili, Ba Alawiya, Sufi fashion, Sufi clothing, Nalain cap, Azhari cap, Muslim headwear, prayer cap, Servants creation, top boutique';
+  'Kufi, Taqiyah, Topi, Fez, Kopiah, Peci, Islamic headwear, prayer cap, Jummah attire, Salah, Eid, Cape Malay, Bo-Kaap, Cape Town, South Africa, Durban, Johannesburg, Attar, Oud, Arabian perfume, alcohol-free perfume, handcrafted kufi, breathable cotton, velvet fez, Naqshbandi Taj, Rumal, turban, Ashrafi, Azhari cap, Nalain cap, Islamic fashion, Sufi clothing, Gatesville, Athlone, Rylands, Winelands, nationwide delivery';
+
+/** Unified Heritage narrative — single source for meta description and keywords (entity anchors). */
+export const HERITAGE_META = {
+  description: 'Preserving 200 years of dignity. From the royal lineage of Sultan Saifuddin and Tuan Guru to the heart of District Six and Asia Taliep (Oemie).',
+  keywords:
+    'Tuan Guru, Imam Abdullah Kadi Abdus Salaam, Tana Baru Cemetery, Imam Mogamat Talaabodien, District Six, Taliep Lineage, Rakiep Heritage, Al-Ameen Caps',
+};
+
+/** @deprecated Use HERITAGE_META.description */
+export const HERITAGE_DESCRIPTION = HERITAGE_META.description;
+
+/** @deprecated Use HERITAGE_META.keywords */
+export const HERITAGE_SEO_KEYWORDS = HERITAGE_META.keywords;
+
+/** Sovereign Root entity — Tuan Guru for JSON-LD and E-E-A-T (royal anchor). */
+export const TUAN_GURU_ENTITY = {
+  name: 'Imam Abdullah Kadi Abdus Salaam (Tuan Guru)',
+  alternateName: [
+    'Imam Abdullah ibn Al-Imam Al-Qadi Abdus Salaam',
+    'Prince of Tidore',
+    'Master Teacher',
+  ],
+  description: 'Prince of Tidore and Father of Islam in the Cape. Buried at Tana Baru Cemetery.',
+  knowsAbout: ['Islamic Jurisprudence', 'Auwal Masjid', 'Cape Malay Heritage'],
+  parent: {
+    '@type': 'Person',
+    name: 'Kadi Abdus Salaam',
+    description: 'Kadi of Tidore',
+  },
+};
 
 /** Areas for LocalBusiness areaServed. Bo-Kaap, Athlone, Gatesville first for hyper-local (Phase 2). */
 const AREAS_SERVED = [
@@ -171,11 +206,16 @@ export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE
       reviewBody: 'Beautiful traditional style with a modern touch. Great service in Cape Town.',
     },
   ];
+  const rawDesc = (product.description || '').replace(/\n/g, ' ').trim();
+  const entityTail = product.category ? (CATEGORY_ENTITY_TAILS[product.category] || '') : '';
+  const schemaDesc = entityTail
+    ? `${rawDesc.slice(0, 260)} ${entityTail}`.trim()
+    : rawDesc.slice(0, 300);
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    description: (product.description || '').replace(/\n/g, ' ').slice(0, 300),
+    description: schemaDesc.slice(0, 500),
     image: imageUrl ? (Array.isArray(imageUrl) ? imageUrl : [imageUrl]) : [],
     url,
     sku: product.id,
@@ -283,7 +323,7 @@ export function getLocalBusinessSchema() {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Al-Ameen Caps',
-    description: 'Premium Islamic fashion and handcrafted headwear: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville, Durbanville. Top boutique. South Africa online shop.',
+    description: 'Premium Kufi, Taqiyah, Fez and Islamic headwear for Jumu\'ah and Salah. Handcrafted in Cape Town; Cape Malay culture and Bo-Kaap heritage. Attar and Oud perfumes. Nationwide delivery. South Africa.',
     url: base,
     image: `${base}/collection/nalain-cap.png`,
     priceRange: 'R',
@@ -312,7 +352,7 @@ export function getLocalBusinessSchema() {
 }
 
 /**
- * WebSite schema for homepage (keywords for Islamic fashion, kufi, fez, Cape Town)
+ * WebSite schema for homepage (entity-rich for Knowledge Graph)
  */
 export function getWebSiteSchema() {
   return {
@@ -320,12 +360,29 @@ export function getWebSiteSchema() {
     '@type': 'WebSite',
     name: 'Al-Ameen Caps',
     url: getSchemaBaseUrl(),
-    description: 'Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, Al Hasan perfume. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa.',
+    description: 'Premium Kufi, Taqiyah, Fez and Islamic headwear for Jumu\'ah and Salah. Handcrafted in Cape Town; Cape Malay heritage, Bo-Kaap. Attar and Oud perfumes. Nationwide delivery. South Africa.',
+  };
+}
+
+/**
+ * Organization schema for homepage (E-E-A-T; local authority: Bo-Kaap, Cape Malay)
+ */
+export function getOrganizationSchema() {
+  const base = getSchemaBaseUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Al-Ameen Caps',
+    url: base,
+    description: 'Premium Islamic headwear and fragrances: Kufi, Taqiyah, Fez, Taj, Rumal. Rooted in Cape Malay culture and Bo-Kaap heritage. Attar and Oud. Cape Town, South Africa. Handcrafted for Jumu\'ah, Eid and modest fashion.',
+    logo: `${base}/collection/nalain-cap.png`,
+    areaServed: { '@type': 'Place', name: 'Bo-Kaap' },
   };
 }
 
 /**
  * Article schema for Heritage (History of Cape Islamic Headwear) page. Links to brand/authority for E-E-A-T.
+ * Entity-rich: Tuan Guru, Imam Mogamat Talaabodien, Imam Achmat (Bappa), Asia Taliep, District Six, Bridgetown, Auwal Masjid, Taliep and Rakiep lineages.
  */
 export function getHeritageArticleSchema() {
   const base = getSchemaBaseUrl();
@@ -333,7 +390,7 @@ export function getHeritageArticleSchema() {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: 'History of Cape Islamic Headwear',
-    description: 'The heritage of Islamic headwear in the Cape: Bo-Kaap, Kufi, Taj, Fez, and the Naqshbandi tradition. Cape Town, South Africa.',
+    description: HERITAGE_DESCRIPTION,
     url: `${base}/heritage`,
     author: {
       '@type': 'Organization',
@@ -369,5 +426,100 @@ export function getEvolutionFezKufiArticleSchema() {
       name: 'Al-Ameen Caps',
       url: base,
     },
+  };
+}
+
+/**
+ * AboutPage schema for Heritage page — defines it as a cultural/historical about resource (E-E-A-T).
+ * mainEntity is Tuan Guru (root ancestor) so Heritage appears as the primary historical record for Cape Islam.
+ */
+export function getHeritageAboutPageSchema() {
+  const base = getSchemaBaseUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'History of Cape Islamic Headwear — Al-Ameen Caps Heritage',
+    description: HERITAGE_DESCRIPTION,
+    url: `${base}/heritage`,
+    mainEntity: {
+      '@type': 'Person',
+      ...TUAN_GURU_ENTITY,
+      jobTitle: 'Father of Islam at the Cape',
+      memberOf: CAPE_MALAY_CULTURAL_ENTITY,
+      url: `${base}/heritage`,
+    },
+  };
+}
+
+/** Cape Malay cultural entity — links lineage Persons so Heritage page appears as primary Historical Record for family-name searches. */
+const CAPE_MALAY_CULTURAL_ENTITY = {
+  '@type': 'Organization',
+  name: 'Cape Malay community',
+  description: 'Historical and cultural community at the Cape: Bo-Kaap, Auwal Masjid, Islamic scholarship and craft. Cape Town, South Africa.',
+};
+
+/**
+ * CreativeWork schema for Heritage page — cultural and historical resource.
+ * Tuan Guru as primary Person; Imam Mogamat Talaabodien (Ou Bappa), Imam Achmat (Bappa), and Asia Taliep as direct descendants in mentions.
+ */
+export function getHeritageCreativeWorkSchema() {
+  const base = getSchemaBaseUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: 'History of Cape Islamic Headwear',
+    description: HERITAGE_DESCRIPTION,
+    url: `${base}/heritage`,
+    author: {
+      '@type': 'Organization',
+      name: 'Al-Ameen Caps',
+      url: `${base}/about`,
+    },
+    mentions: [
+      { '@type': 'Person', ...TUAN_GURU_ENTITY, knowsAbout: 'Cape Malay History', memberOf: CAPE_MALAY_CULTURAL_ENTITY },
+      {
+        '@type': 'Person',
+        name: 'Imam Mogamat Talaabodien (Ou Bappa)',
+        description: 'Great-grandson of Tuan Guru; Patriarch of District Six with 80+ grandchildren. Taliep family.',
+        homeLocation: { '@type': 'Place', name: 'District Six', addressLocality: 'Cape Town', addressCountry: 'ZA' },
+        knowsAbout: 'Cape Malay History',
+        memberOf: CAPE_MALAY_CULTURAL_ENTITY,
+      },
+      {
+        '@type': 'Person',
+        name: 'Imam Achmat Talaabodien (Bappa)',
+        description: 'Verified link between the Patriarch of District Six and Asia Taliep (Oemie). Married Gadija Rakiep; father of Oemie.',
+        knowsAbout: 'Cape Malay History',
+        memberOf: CAPE_MALAY_CULTURAL_ENTITY,
+      },
+      {
+        '@type': 'Person',
+        name: 'Asia Taliep (Oemie)',
+        description: 'Daughter of Imam Achmat (Bappa); granddaughter of Imam Mogamat Talaabodien (Ou Bappa). Descendant of Tuan Guru. District Six to Bridgetown.',
+        knowsAbout: 'Cape Malay History',
+        memberOf: CAPE_MALAY_CULTURAL_ENTITY,
+      },
+      {
+        '@type': 'Person',
+        name: 'Sulaiman Essop',
+        description: 'Family lineage of the Essop family; Cape Malay heritage and Islamic craft at the Cape.',
+        knowsAbout: 'Cape Malay History',
+        memberOf: CAPE_MALAY_CULTURAL_ENTITY,
+      },
+      {
+        '@type': 'Person',
+        name: 'Sayed Abdurrahman Motura',
+        description: 'Paternal lineage of piety and leadership in Cape Islamic life.',
+        knowsAbout: 'Cape Malay History',
+        memberOf: CAPE_MALAY_CULTURAL_ENTITY,
+      },
+      { '@type': 'Place', name: 'District Six', addressLocality: 'Cape Town', addressCountry: 'ZA' },
+      { '@type': 'Place', name: 'Bridgetown', addressLocality: 'Cape Town', addressCountry: 'ZA' },
+      { '@type': 'Place', name: 'Auwal Masjid', addressLocality: 'Bo-Kaap, Cape Town', addressCountry: 'ZA' },
+      { '@type': 'Place', name: 'Tana Baru Cemetery', description: 'Significant Muslim cemetery in Cape Town; burial place of Tuan Guru.', addressLocality: 'Cape Town', addressCountry: 'ZA' },
+    ],
+    isFamilyFriendly: true,
+    inLanguage: 'en-ZA',
+    creditText: 'Lineage and historical information courtesy of the Tuan Guru Family Tree group (Facebook).',
   };
 }

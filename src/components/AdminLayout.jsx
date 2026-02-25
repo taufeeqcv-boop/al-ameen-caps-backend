@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Package, ShoppingBag, Users, ClipboardList, Truck, Settings, LogOut, ExternalLink, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Users, ClipboardList, Truck, Settings, LogOut, ExternalLink, ChevronRight, Star, Crown } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const navItems = [
@@ -9,6 +9,8 @@ const navItems = [
   { to: "/admin/reservations", end: false, label: "Pre-Orders", icon: ClipboardList },
   { to: "/admin/products", end: false, label: "Inventory", icon: Package },
   { to: "/admin/customers", end: false, label: "Customers", icon: Users },
+  { to: "/admin/reviews", end: false, label: "Reviews", icon: Star },
+  { to: "/admin/majlis", end: false, label: "Digital Majlis", icon: Crown },
   { to: "/admin/settings", end: false, label: "Settings", icon: Settings },
 ];
 
@@ -19,6 +21,8 @@ const pathToLabel = {
   reservations: "Pre-Orders",
   products: "Inventory",
   customers: "Customers",
+  reviews: "Reviews",
+  majlis: "Digital Majlis",
   settings: "Settings",
 };
 

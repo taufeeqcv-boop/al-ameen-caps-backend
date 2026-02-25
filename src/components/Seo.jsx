@@ -11,6 +11,8 @@ import {
   getLeadCuratorSchema,
   getHeritageArticleSchema,
   getEvolutionFezKufiArticleSchema,
+  getHeritageAboutPageSchema,
+  getHeritageCreativeWorkSchema,
   getShopItemListSchema,
   getLocalBusinessSchema,
   getFAQPageSchema,
@@ -34,6 +36,8 @@ export default function Seo({
   leadCurator = false,
   heritageArticle = false,
   evolutionFezKufiArticle = false,
+  heritageAboutPage = false,
+  heritageCreativeWork = false,
   itemListProducts = null,
   localBusiness = false,
   faqs = null,
@@ -165,6 +169,15 @@ export default function Seo({
     const cleanup = injectJsonLd(schema);
     return cleanup;
   }, [evolutionFezKufiArticle]);
+
+  // JSON-LD: AboutPage + CreativeWork for Heritage page (cultural/historical resource)
+  useEffect(() => {
+    if (!heritageAboutPage && !heritageCreativeWork) return;
+    const cleanups = [];
+    if (heritageAboutPage) cleanups.push(injectJsonLd(getHeritageAboutPageSchema()));
+    if (heritageCreativeWork) cleanups.push(injectJsonLd(getHeritageCreativeWorkSchema()));
+    return () => cleanups.forEach((c) => c());
+  }, [heritageAboutPage, heritageCreativeWork]);
 
   // JSON-LD: ItemList for Shop (Inaugural Collection) + optional LocalBusiness
   useEffect(() => {

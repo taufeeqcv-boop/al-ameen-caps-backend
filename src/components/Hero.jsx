@@ -1,15 +1,17 @@
-// Hero – full-screen background image, headline, premium CTA + Framer Motion (original CSS background for reliable display)
+// Hero – full-screen background image (preloaded via index.html), headline, premium CTA + Framer Motion
 
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import heroBg from "../assets/hero-bg.png";
+
+// Use public URL so index.html preload matches; build runs optimize-images.js → public/hero-bg.webp
+const HERO_IMAGE = "/hero-bg.webp";
 
 export default function Hero() {
   return (
     <section className="relative w-full min-h-[90vh] flex flex-col items-center justify-center bg-primary text-secondary overflow-hidden pt-24 pb-12 sm:pt-28">
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})` }}
+        style={{ backgroundImage: `url(${HERO_IMAGE})` }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-black/90" aria-hidden="true" />
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
@@ -27,7 +29,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
         >
-          Premium, handcrafted Islamic headwear. Spirituality meets luxury.
+          Premium Kufi, Taqiyah &amp; Fez — handcrafted Islamic headwear. Spirituality meets luxury.
         </motion.p>
         <motion.p
           className="mt-1 text-sm text-white/75 max-w-lg mx-auto"
@@ -35,7 +37,7 @@ export default function Hero() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.45 }}
         >
-          For Jumu&apos;ah, Eid &amp; special occasions. Cape Town &amp; nationwide delivery.
+          For Jumu&apos;ah, Salah &amp; Eid. Cape Town &amp; nationwide delivery.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

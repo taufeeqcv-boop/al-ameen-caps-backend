@@ -1,0 +1,37 @@
+# Daily post-purchase engagement — send review request emails for orders shipped 3 days ago
+# Runs daily at 10:00 AM SAST (Cape Town). Requires repo secrets: EMAIL_USER, EMAIL_PASS, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+name: Order maintenance (review requests)
+
+on:
+  schedule:
+    # 8:00 UTC = 10:00 AM SAST (Cape Town, UTC+2)
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  send-review-requests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Send review requests (shipped 3 days ago)
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          VITE_SITE_URL: https://alameencaps.com
+        run: node scripts/send-review-requests.js

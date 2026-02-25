@@ -152,7 +152,7 @@ exports.handler = async (event) => {
 
   const { error: updateError } = await supabase
     .from("orders")
-    .update({ status: "SHIPPED", shipping_data: shippingData })
+    .update({ status: "SHIPPED", shipping_data: shippingData, shipped_at: new Date().toISOString() })
     .eq("id", orderId);
 
   if (updateError) {

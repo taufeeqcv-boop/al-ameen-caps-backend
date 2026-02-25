@@ -1,0 +1,33 @@
+---
+description: SEO-first and semantic markup for alameencaps.com. Use when editing pages, components, or metadata. Enforces entity-rich presence and Lighthouse 100.
+globs:
+  - "**/pages/**"
+  - "**/components/**"
+  - "**/lib/seo*"
+  - "**/index.html"
+alwaysApply: false
+---
+
+# SEO and semantic markup (Al-Ameen Caps)
+
+## Automation & maintenance (mandatory for all new work)
+
+1. **Every new page must include a JSON-LD schema.** Use `Seo` + `src/lib/seo.js` (e.g. `getProductSchema`, `getBreadcrumbSchema`, `getLocalBusinessSchema`, `getOrganizationSchema`, `getWebSiteSchema`, `getFAQPageSchema`, Article schemas). Do not ship a public page without at least one relevant schema.
+2. **Every image must have explicit dimensions and alt text.** Use `width` and `height` attributes (or CSS `aspect-ratio`) to prevent CLS. Every `<img>` must have a meaningful `alt` (empty `alt=""` only for purely decorative images).
+3. **Use semantic HTML5 landmarks.** Prefer `<main>`, `<nav>`, `<article>`, `<section>`, `<header>`, `<footer>` over generic `<div>` for page structure so crawlers can map content.
+
+## Entity-rich copy and schema
+
+- Use explicit terms (Kufi, Taqiyah, Fez, Jumu'ah, Salah, Cape Town, Bo-Kaap, Attar, Oud, Cape Malay) in meta descriptions, schema descriptions, and visible body copy where natural. Avoid keyword stuffing.
+- LocalBusiness and Organization schemas must reference Bo-Kaap heritage and Cape Malay culture where relevant.
+- Product meta and Product schema use category-based entity tails (e.g. "Perfect for Jumu'ah and Eid" for Caps).
+
+## Performance (LCP & CLS)
+
+- Preload LCP hero image from `index.html`: `<link rel="preload" as="image" href="/hero-bg.webp" fetchpriority="high" />`.
+- Use explicit aspect ratio (e.g. `aspect-[4/5]`) on product image containers to prevent layout shift.
+- Fonts must use `display=swap` (already in index).
+
+## Site URL
+
+- Use `import.meta.env.VITE_SITE_URL` (or helpers from `src/lib/seo.js`) for canonical URLs and schema; see deployment rule for production domain.

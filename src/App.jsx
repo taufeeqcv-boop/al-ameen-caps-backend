@@ -30,6 +30,7 @@ const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Success = lazy(() => import("./pages/Success"));
 const Cancel = lazy(() => import("./pages/Cancel"));
+const Review = lazy(() => import("./pages/Review"));
 const OrderTracking = lazy(() => import("./pages/OrderTracking"));
 const Account = lazy(() => import("./pages/Account"));
 const Login = lazy(() => import("./pages/Login"));
@@ -41,6 +42,8 @@ const AdminProducts = lazy(() => import("./pages/admin/Products"));
 const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
 const AdminReservations = lazy(() => import("./pages/admin/Reservations"));
 const AdminLogistics = lazy(() => import("./pages/admin/Logistics"));
+const AdminReviews = lazy(() => import("./pages/admin/Reviews"));
+const AdminMajlis = lazy(() => import("./pages/admin/Majlis"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 
 function App() {
@@ -74,6 +77,7 @@ function App() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />
+          <Route path="/review" element={<Review />} />
           <Route path="/track/:orderId" element={<OrderTracking />} />
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />
@@ -92,6 +96,8 @@ function App() {
             <Route path="reservations" element={<AdminReservations />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="customers" element={<AdminCustomers />} />
+            <Route path="reviews" element={<AdminReviews />} />
+            <Route path="majlis" element={<AdminMajlis />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
           <Route path="*" element={<NotFound />} />

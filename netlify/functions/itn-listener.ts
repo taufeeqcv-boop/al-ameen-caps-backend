@@ -106,5 +106,13 @@ export const handler: Handler = async (event) => {
     body: JSON.stringify({ order_id: order.id }),
   }).catch((err) => console.error('ITN: order confirmation request failed', err));
 
+  // Fire-and-forget: send review request email (same style as order confirmation)
+  const reviewRequestUrl = `${baseUrl}/.netlify/functions/send-review-request`;
+  fetch(reviewRequestUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(secret ? { 'X-Internal-Secret': secret } : {}) },
+    body: JSON.stringify({ order_id: order.id }),
+  }).catch((err) => console.error('ITN: review request failed', err));
+
   return { statusCode: 200, body: '' };
 };

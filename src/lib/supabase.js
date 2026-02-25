@@ -306,3 +306,156 @@ export const getProductById = async (id) => {
     return null;
   }
 };
+
+// -----------------------------------------------------------------------------
+// Digital Majlis (Heritage page): submissions, wall, comments
+// -----------------------------------------------------------------------------
+
+const MAJLIS_BUCKET = 'heritage-majlis';
+
+/** Upload a photo to heritage-majlis storage. Returns public URL or null. */
+export async function uploadMajlisImage(file) {
+  if (!supabase || !file?.size) return null;
+  const ext = (file.name || '').split('.').pop() || 'jpg';
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage.from(MAJLIS_BUCKET).upload(path, file, { upsert: false });
+  if (error) return null;
+  const { data } = supabase.storage.from(MAJLIS_BUCKET).getPublicUrl(path);
+  return data?.publicUrl ?? null;
+}
+
+/** Insert a new Majlis submission. Returns { data } or { error }. */
+export async function insertMajlisSubmission(payload) {
+  if (!supabase) return { error: 'Not configured' };
+  const email = String(payload.contributor_email ?? '').trim() || null;
+  const row = {
+    contributor_name: String(payload.contributor_name ?? payload.user_name ?? '').trim() || null,
+    contributor_email: email,
+    ancestor_name: String(payload.ancestor_name ?? '').trim() || null,
+    approximate_dates: payload.approximate_dates != null ? String(payload.approximate_dates).trim() || null : null,
+    relation: payload.relation != null ? String(payload.relation).trim() || null : null,
+    story_text: String(payload.story_text ?? '').trim() || null,
+    image_url: payload.image_url || null,
+    lineage_branch: String(payload.lineage_branch ?? payload.family_branch ?? '').trim() || null,
+    consent_photo_shared: Boolean(payload.consent_photo_shared),
+    parent_id: payload.parent_id || null,
+    birth_year: payload.birth_year != null ? (Number(payload.birth_year) || null) : null,
+    death_year: payload.death_year != null ? (Number(payload.death_year) || null) : null,
+    resting_place: payload.resting_place != null ? String(payload.resting_place).trim() || null : null,
+    maiden_name: payload.maiden_name != null ? String(payload.maiden_name).trim() || null : null,
+  };
+  if (!row.ancestor_name || !row.story_text) return { error: 'Ancestor name and story are required.' };
+  if (!row.contributor_email) return { error: 'Email address is required so we can notify you when your story is approved.' };
+  const { data, error } = await supabase.from('heritage_majlis').insert(row).select('id').single();
+  if (error) return { error: error.message };
+  return { data };
+}
+
+/** Fetch approved Majlis posts for the wall and tree. Admin post (Tana Baru Spotlight) first, then oldest first. */
+export async function getApprovedMajlis() {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('heritage_majlis')
+    .select('id, contributor_name, ancestor_name, approximate_dates, relation, story_text, image_url, lineage_branch, is_verified, is_custodian, is_admin_post, parent_id, birth_year, death_year, resting_place, maiden_name, seo_alt_text, created_at')
+    .eq('is_approved', true)
+    .order('is_admin_post', { ascending: false })
+    .order('created_at', { ascending: true });
+  if (error || !Array.isArray(data)) return [];
+  return data;
+}
+
+/** Fetch first approved majlis image URL for Heritage page og:image (prefer community submission, not admin spotlight). */
+export async function getFirstApprovedMajlisImageUrl() {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('heritage_majlis')
+    .select('image_url')
+    .eq('is_approved', true)
+    .or('is_admin_post.is.null,is_admin_post.eq.false')
+    .not('image_url', 'is', null)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data?.image_url) return null;
+  return data.image_url;
+}
+
+/** Fetch approved ancestor id + name for parent dropdown. Excludes admin posts (e.g. Tana Baru Spotlight). */
+export async function getApprovedMajlisForParentDropdown() {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('heritage_majlis')
+    .select('id, ancestor_name')
+    .eq('is_approved', true)
+    .or('is_admin_post.is.null,is_admin_post.eq.false')
+    .order('created_at', { ascending: true });
+  if (error || !Array.isArray(data)) return [];
+  return data;
+}
+
+/** Admin: fetch all heritage_majlis rows (requires admin RLS). For approval view. */
+export async function getMajlisForAdmin() {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from('heritage_majlis')
+    .select('id, contributor_name, contributor_email, ancestor_name, approximate_dates, relation, story_text, image_url, lineage_branch, is_approved, is_verified, is_custodian, is_admin_post, parent_id, birth_year, death_year, resting_place, maiden_name, created_at')
+    .order('is_admin_post', { ascending: false })
+    .order('created_at', { ascending: false });
+  if (error || !Array.isArray(data)) return [];
+  return data;
+}
+
+/** Admin: update a majlis row (is_approved, is_verified, is_custodian). Requires admin RLS. */
+export async function updateMajlis(id, updates) {
+  if (!supabase || !id) return { error: 'Not configured' };
+  const allowed = {};
+  if (typeof updates.is_approved === 'boolean') allowed.is_approved = updates.is_approved;
+  if (typeof updates.is_verified === 'boolean') allowed.is_verified = updates.is_verified;
+  if (typeof updates.is_custodian === 'boolean') allowed.is_custodian = updates.is_custodian;
+  if (Object.keys(allowed).length === 0) return { error: 'No allowed fields to update' };
+  const { error } = await supabase.from('heritage_majlis').update(allowed).eq('id', id);
+  if (error) return { error: error.message };
+  return {};
+}
+
+/** Subscribe to heritage_majlis changes (e.g. new approvals). Callback receives the new list of approved posts. */
+export function subscribeMajlis(onUpdate) {
+  if (!supabase || typeof onUpdate !== 'function') return () => {};
+  const channel = supabase
+    .channel('heritage_majlis_changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'heritage_majlis' }, async () => {
+      const list = await getApprovedMajlis();
+      onUpdate(list);
+    })
+    .subscribe();
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}
+
+/** Fetch comments for an approved majlis post. */
+export async function getMajlisComments(majlisId) {
+  if (!supabase || !majlisId) return [];
+  const { data, error } = await supabase
+    .from('heritage_majlis_comments')
+    .select('id, author_name, body, created_at')
+    .eq('majlis_id', majlisId)
+    .order('created_at', { ascending: true });
+  if (error || !Array.isArray(data)) return [];
+  return data;
+}
+
+/** Add a "Share a Memory" comment. Returns { data } or { error }. */
+export async function insertMajlisComment(majlisId, authorName, body) {
+  if (!supabase || !majlisId) return { error: 'Not configured' };
+  const name = String(authorName ?? '').trim();
+  const text = String(body ?? '').trim();
+  if (!name || !text) return { error: 'Name and message are required.' };
+  const { data, error } = await supabase
+    .from('heritage_majlis_comments')
+    .insert({ majlis_id: majlisId, author_name: name, body: text })
+    .select('id')
+    .single();
+  if (error) return { error: error.message };
+  return { data };
+}

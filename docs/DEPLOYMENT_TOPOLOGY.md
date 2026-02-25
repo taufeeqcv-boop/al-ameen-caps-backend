@@ -94,7 +94,17 @@ Use this list to confirm Al-Ameen Caps is officially live and professional after
 
 ---
 
-## 8. Monitoring & maintenance
+## 8. Post-purchase engagement (review requests & social proof)
+
+- **Success page:** After payment, customers see a “Support Local Craftsmanship” section with **Leave a Google Review** and **Share on Facebook** buttons (entity copy: Cape Malay, Bo-Kaap, Kufis, Taqiyahs). Links: Google Review `https://g.page/r/CSn0lNF6h_xyEAI/review`, Facebook Sharer with that URL.
+- **Automated review emails:** The script **`scripts/send-review-requests.js`** finds orders that were **shipped exactly 3 days ago** (using `orders.shipped_at` set when admin marks an order SHIPPED via send-shipping-notification). It sends a “Heritage & Quality” email with keywords (Jumu'ah, Salah, Eid, Bo-Kaap, Cape Malay, Handcrafted) and direct links to the Google Review and Facebook Sharer. Uses **EMAIL_USER**, **EMAIL_PASS**; requires **SUPABASE_URL** (or **VITE_SUPABASE_URL**) and **SUPABASE_SERVICE_ROLE_KEY**.
+- **Database:** `orders.shipped_at` is set by `netlify/functions/send-shipping-notification.js` when an order is marked SHIPPED. Run migration **`supabase/migrations/20250224_orders_shipped_at.sql`** so the column exists.
+- **GitHub Action:** **`.github/workflows/order-maintenance.yml`** runs **daily at 10:00 AM SAST** (08:00 UTC) and executes `node scripts/send-review-requests.js`. In the repo **Settings → Secrets and variables → Actions**, set: **EMAIL_USER**, **EMAIL_PASS**, **SUPABASE_URL** (or **VITE_SUPABASE_URL**), **SUPABASE_SERVICE_ROLE_KEY**. Optional: **EMAIL_HOST**, **EMAIL_PORT** to override SMTP.
+- **Why it matters:** Facebook shares and Google reviews that mention “Jumu'ah” or “Bo-Kaap” give third-party verification of your JSON-LD and local authority; automated emails build reputation in the background.
+
+---
+
+## 9. Monitoring & maintenance
 
 - **GSC:** Use a single **URL prefix** property for `https://alameencaps.com` as the source of truth. You can remove or ignore other properties (e.g. www, netlify.app) to keep the dashboard focused on real traffic.
 - **Key metrics to watch:** Performance → Search results (clicks, impressions, average position). For the query **"Caps"**, check periodically; moving into the **top 10** average position is a useful milestone.
@@ -109,7 +119,7 @@ Use this list to confirm Al-Ameen Caps is officially live and professional after
 
 ---
 
-## 9. Google Merchant Center (Search Shopping tab)
+## 10. Google Merchant Center (Search Shopping tab)
 
 To get products on the **Search Shopping** tab, add a product feed in [Google Merchant Center](https://merchantcenter.google.com/):
 

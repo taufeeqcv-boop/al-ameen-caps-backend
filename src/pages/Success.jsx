@@ -39,6 +39,33 @@ export default function Success() {
         <Link to="/shop" className="btn btn-primary w-full mt-8 py-4 px-10 inline-block text-center">
           Continue Shopping
         </Link>
+
+        <section className="mt-16 pt-12 border-t border-primary/20" aria-labelledby="support-local-heading">
+          <h2 id="support-local-heading" className="font-serif text-xl font-semibold text-primary mb-3">
+            Support Local Craftsmanship
+          </h2>
+          <p className="text-primary/80 text-sm max-w-lg mx-auto mb-6">
+            By sharing your experience, you help preserve the Cape Malay and Bo-Kaap heritage of handcrafted Kufis and Taqiyahs.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <a
+              href="https://g.page/r/CSn0lNF6h_xyEAI/review"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline-contrast px-8 py-3.5 min-h-[48px] inline-flex items-center justify-center"
+            >
+              Leave a Google Review
+            </a>
+            <a
+              href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fg.page%2Fr%2FCSn0lNF6h_xyEAI%2Freview"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline-contrast px-8 py-3.5 min-h-[48px] inline-flex items-center justify-center"
+            >
+              Share on Facebook
+            </a>
+          </div>
+        </section>
       </main>
       <Footer />
     </div>

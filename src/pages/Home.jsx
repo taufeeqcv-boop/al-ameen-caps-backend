@@ -1,18 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 import Seo from "../components/Seo";
-import { injectJsonLd, getLocalBusinessSchema, getWebSiteSchema, HOMEPAGE_META_DESCRIPTION } from "../lib/seo";
+import { injectJsonLd, getLocalBusinessSchema, getWebSiteSchema, getOrganizationSchema, HOMEPAGE_META_DESCRIPTION } from "../lib/seo";
+
+const FeaturedReviews = lazy(() => import("../components/FeaturedReviews"));
 
 export default function Home() {
   useEffect(() => {
     const cleanup1 = injectJsonLd(getLocalBusinessSchema());
     const cleanup2 = injectJsonLd(getWebSiteSchema());
+    const cleanup3 = injectJsonLd(getOrganizationSchema());
     return () => {
       cleanup1();
       cleanup2();
+      cleanup3();
     };
   }, []);
 
@@ -25,7 +29,7 @@ export default function Home() {
         <section className="w-full bg-secondary py-16 px-4 sm:px-6 border-t border-accent/30">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-3">Browse the collection</h2>
-            <p className="text-primary/80 mb-6">Premium handcrafted caps and Islamic headwear. Secure checkout, nationwide delivery.</p>
+            <p className="text-primary/80 mb-6">Premium Kufi, Taqiyah, Fez and Islamic headwear. Handcrafted in Cape Town. Secure checkout, nationwide delivery.</p>
             <Link to="/shop" className="btn-outline-contrast px-10 py-4 text-base">
               Shop now
             </Link>
@@ -41,6 +45,17 @@ export default function Home() {
               {" · "}
               <Link to="/near/athlone" className="text-primary hover:text-accent hover:underline">Athlone</Link>
             </p>
+          </div>
+        </section>
+
+        <section className="w-full bg-secondary py-16 px-4 sm:px-6 border-t border-accent/30" aria-labelledby="featured-reviews-heading">
+          <div className="max-w-6xl mx-auto">
+            <h2 id="featured-reviews-heading" className="font-serif text-2xl md:text-3xl font-semibold text-primary text-center mb-10">
+              What the Community is Saying
+            </h2>
+            <Suspense fallback={<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[200px]" aria-hidden />}>
+              <FeaturedReviews starVariant="emerald" />
+            </Suspense>
           </div>
         </section>
       </main>
