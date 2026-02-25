@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { Star, ImageOff } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
@@ -10,6 +10,33 @@ import MajlisWall from "../components/MajlisWall";
 import LivingTree from "../components/LivingTree";
 import { getFirstApprovedMajlisImageUrl } from "../lib/supabase";
 import { HERITAGE_SEO_KEYWORDS, HERITAGE_DESCRIPTION } from "../lib/seo";
+
+/** Shows image or a styled placeholder if the file is missing (onError). */
+function HeritageImage({ src, alt, caption, className = "" }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div
+        className={`flex flex-col items-center justify-center rounded-lg border-2 border-[#065f46]/20 bg-primary/5 ${className}`}
+        role="img"
+        aria-label={alt}
+      >
+        <ImageOff className="w-10 h-10 text-primary/30 mb-2" aria-hidden />
+        <span className="text-primary/50 text-sm font-serif text-center px-3">{alt}</span>
+        {caption && <span className="text-primary/40 text-xs italic mt-1">{caption}</span>}
+      </div>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 export default function Heritage() {
   const [ogImage, setOgImage] = useState(null);
@@ -184,7 +211,28 @@ export default function Heritage() {
               A Timeline of Cape Islamic Headwear
             </h2>
 
-            {/* Row 1: Text left, image right — 1700s / Auwal */}
+            {/* Timeline video — development from the 1600s */}
+            <div className="max-w-4xl mx-auto">
+              <p className="font-serif text-sm text-[#065f46] font-medium mb-3 text-center">Development over time · 1600s onward</p>
+              <div className="rounded-xl border-2 border-[#065f46]/20 overflow-hidden bg-primary/5 shadow-lg">
+                <video
+                  className="w-full aspect-video object-contain"
+                  src="/videos/heritage-timeline.mp4"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  aria-label="Video showing the development of Cape Islamic heritage and headwear from the 1600s to the present"
+                >
+                  <track kind="captions" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <p className="mt-2 text-sm text-primary/60 text-center italic">
+                The journey of faith, scholarship, and craft from the 1600s to today.
+              </p>
+            </div>
+
+            {/* Row 1: Text left, image right — 1700s / Auwal / journey to Robben Island */}
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div className="space-y-3 text-primary/90 leading-relaxed order-2 md:order-1">
                 <p className="font-serif text-sm text-[#065f46] font-medium">1700s · Foundations</p>
@@ -193,13 +241,15 @@ export default function Heritage() {
                 </p>
               </div>
               <div className="order-1 md:order-2">
-                <div
-                  className="aspect-[4/3] rounded-lg bg-primary/10 border-2 border-[#065f46]/20 flex items-center justify-center text-primary/40 text-sm font-serif"
-                  role="img"
-                  aria-label="Historical depiction of Bo-Kaap scholarship and early Cape Islamic community"
-                >
-                  [Historical image]
-                </div>
+                <HeritageImage
+                  src="/images/heritage/ships-cape-robben-island.png"
+                  alt="Historic ships in Table Bay harbour: the kind of vessels that brought Tuan Guru and the first exiles to the Cape and Robben Island."
+                  caption="Ships in Table Bay harbour—illustrative of the journey that brought Tuan Guru to the Cape and Robben Island."
+                  className="aspect-[4/3] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+                />
+                <p className="mt-2 text-sm text-primary/60 italic">
+                  Ships in Table Bay harbour—illustrative of the journey that brought Tuan Guru to the Cape and Robben Island.
+                </p>
               </div>
             </div>
 
@@ -208,16 +258,18 @@ export default function Heritage() {
               &ldquo;The traditional red Fez became a hallmark of the learned and the devout.&rdquo;
             </blockquote>
 
-            {/* Row 2: Image left, text right — 1800s / evolution */}
+            {/* Row 2: Image left, text right — 1800s / evolution / the fez back then */}
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <div
-                  className="aspect-[4/3] rounded-lg bg-primary/10 border-2 border-[#065f46]/20 flex items-center justify-center text-primary/40 text-sm font-serif"
-                  role="img"
-                  aria-label="Evolution of Cape Malay headwear from Fez to Kufi and Taqiyah"
-                >
-                  [Historical image]
-                </div>
+                <HeritageImage
+                  src="/images/heritage/fez-cape-malay-archival.png"
+                  alt="The fez back then: archival photo of Cape Malay Muslims in traditional dress and fezzes."
+                  caption="The fez back then — Abu Bakr Efendi (c) left a remarkable legacy among the Muslims living in Cape Town. (Archival photo)"
+                  className="aspect-[4/3] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+                />
+                <p className="mt-2 text-sm text-primary/60 italic">
+                  The fez back then — Abu Bakr Efendi (c) left a remarkable legacy among the Muslims living in Cape Town. (Archival photo)
+                </p>
               </div>
               <div className="space-y-3 text-primary/90 leading-relaxed">
                 <p className="font-serif text-sm text-[#065f46] font-medium">1800s · Evolution</p>
@@ -236,18 +288,20 @@ export default function Heritage() {
                 </p>
               </div>
               <div className="order-1 md:order-2">
-                <div
-                  className="aspect-[4/3] rounded-lg bg-primary/10 border-2 border-[#065f46]/20 flex items-center justify-center text-primary/40 text-sm font-serif"
-                  role="img"
-                  aria-label="Modern Cape Town Islamic headwear and Al-Ameen Caps craftsmanship"
-                >
-                  [Contemporary image]
-                </div>
+                <HeritageImage
+                  src="/images/heritage/present-cape-town.png"
+                  alt="Modern Cape Town Islamic headwear and Al-Ameen Caps craftsmanship: Kufi, Taj, and Fez honouring the legacy of the Cape."
+                  caption="Today: the crown of the believer in Cape Town and beyond."
+                  className="aspect-[4/3] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+                />
+                <p className="mt-2 text-sm text-primary/60 italic">
+                  Today: the crown of the believer in Cape Town and beyond.
+                </p>
               </div>
             </div>
           </motion.section>
 
-          {/* Lineage Gallery — placeholders with descriptive labels; use <img loading="lazy" alt="..."> when real photos are added */}
+          {/* Lineage Gallery — heritage imagery: Tuan Guru, Cape Malay fez, journey to the Cape */}
           <motion.section
             className="mt-14 pt-10 border-t border-primary/10"
             initial={{ opacity: 0 }}
@@ -257,30 +311,46 @@ export default function Heritage() {
           >
             <h2 id="lineage-gallery-heading" className="font-serif text-2xl font-semibold text-primary mb-4">Lineage Gallery</h2>
             <p className="text-primary/80 text-sm mb-6 max-w-xl">
-              A visual journey through Cape Malay and Islamic headwear heritage. Historical imagery and community moments will be added here.
+              A visual journey through Cape Malay and Islamic headwear heritage—from the founding scholar and the fez in Cape Town to the voyage that brought tradition to our shores.
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <div
-                className="aspect-[4/3] rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary/40 text-sm font-serif"
-                role="img"
-                aria-label="Historical depiction of Bo-Kaap scholarship"
-              >
-                [Photo 1]
-              </div>
-              <div
-                className="aspect-[4/3] rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary/40 text-sm font-serif"
-                role="img"
-                aria-label="Cape Malay community and traditional headwear"
-              >
-                [Photo 2]
-              </div>
-              <div
-                className="aspect-[4/3] rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary/40 text-sm font-serif"
-                role="img"
-                aria-label="Heritage of the Fez and Kufi in the Cape"
-              >
-                [Photo 3]
-              </div>
+              <HeritageImage
+                src="/images/heritage/tuan-guru-portrait.png"
+                alt="Portrait of Tuan Guru (Imam Abdullah Kadi Abdus Salaam), founding scholar of Islam at the Cape."
+                className="aspect-[4/3] w-full rounded-lg border border-primary/20 object-cover"
+              />
+              <HeritageImage
+                src="/images/heritage/fez-cape-malay-archival.png"
+                alt="Cape Malay Muslims in traditional dress and fezzes—archival photo of community and headwear."
+                className="aspect-[4/3] w-full rounded-lg border border-primary/20 object-cover"
+              />
+              <HeritageImage
+                src="/images/heritage/ships-cape-robben-island.png"
+                alt="Ships in Table Bay: the journey that brought Tuan Guru and the first exiles to the Cape and Robben Island."
+                className="aspect-[4/3] w-full rounded-lg border border-primary/20 object-cover"
+              />
+            </div>
+          </motion.section>
+
+          {/* Family portrait: Die Kaapenaar Imam Ebrahiem Talaboedien and Imam Abdulatiief Talaaboedien */}
+          <motion.section
+            className="mt-14 pt-10 border-t border-primary/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            aria-labelledby="family-portrait-heading"
+          >
+            <h2 id="family-portrait-heading" className="font-serif text-2xl font-semibold text-primary mb-4">Family Portrait</h2>
+            <div className="max-w-2xl mx-auto">
+              <HeritageImage
+                src="/images/heritage/ebrahim-abdul-latief-talaabodien.png"
+                alt="Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien—archival portrait."
+                caption="Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien. (Archival photo)"
+                className="aspect-[4/3] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+              />
+              <p className="mt-2 text-sm text-primary/60 italic">
+                Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien. (Archival photo)
+              </p>
             </div>
           </motion.section>
 

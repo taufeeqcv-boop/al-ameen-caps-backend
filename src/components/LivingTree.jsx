@@ -34,24 +34,38 @@ function buildTree(items) {
 }
 
 function TreeNode({ node, depth = 0 }) {
+  const [imgFailed, setImgFailed] = useState(false);
   const by = node.birth_year;
   const dy = node.death_year;
   const years =
     by != null || dy != null
       ? ` (${by != null ? by : "?"}${dy != null ? ` – ${dy}` : ""})`
       : "";
+  const imgUrl = node.image_url || null;
+  const showImg = imgUrl && !imgFailed;
 
   return (
     <li className="list-none">
       <div
-        className="py-1.5 border-l-2 border-[#065f46]/30 pl-4 hover:bg-primary/5"
+        className="py-1.5 border-l-2 border-[#065f46]/30 pl-4 hover:bg-primary/5 flex items-center gap-3"
         style={{ marginLeft: `${depth * 1.25}rem` }}
       >
-        <span className="font-serif font-medium text-primary">{node.ancestor_name}</span>
-        {years && <span className="text-primary/70 text-sm">{years}</span>}
-        {node.lineage_branch && (
-          <span className="ml-2 text-xs text-[#065f46] font-medium">{node.lineage_branch}</span>
+        {showImg && (
+          <img
+            src={imgUrl}
+            alt=""
+            className="w-10 h-10 rounded-full object-cover border-2 border-[#065f46]/20 flex-shrink-0"
+            loading="lazy"
+            onError={() => setImgFailed(true)}
+          />
         )}
+        <div>
+          <span className="font-serif font-medium text-primary">{node.ancestor_name}</span>
+          {years && <span className="text-primary/70 text-sm">{years}</span>}
+          {node.lineage_branch && (
+            <span className="ml-2 text-xs text-[#065f46] font-medium">{node.lineage_branch}</span>
+          )}
+        </div>
       </div>
       {node.children?.length > 0 && (
         <ul className="mt-0">

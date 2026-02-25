@@ -255,6 +255,8 @@ export default function MajlisWall() {
       "Tuan Guru",
       "Imam Abdurahman Matebe Shah",
       "Imam Abdullah Kadi Abdus Salaam (Tuan Guru)",
+      "Sultan Saifuddin of Tidore",
+      "Sunan Gunung Jati (Syarif Hidayatullah)",
     ];
     const filtered = posts.filter((p) => !excluded.includes((p.ancestor_name || "").trim()));
     const firstAncestorName = (p) => (p.ancestor_name || "").trim();
