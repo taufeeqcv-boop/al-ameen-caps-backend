@@ -301,6 +301,52 @@ export default function Heritage() {
             </div>
           </motion.section>
 
+          {/* Heritage Portraits — the three archive photos we have (always shown) */}
+          <motion.section
+            className="mt-14 pt-10 border-t border-primary/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.34 }}
+            aria-labelledby="heritage-portraits-heading"
+          >
+            <h2 id="heritage-portraits-heading" className="font-serif text-2xl font-semibold text-primary mb-4">Heritage Portraits</h2>
+            <p className="text-primary/80 text-sm mb-6 max-w-xl">
+              From the archive: Sultan Saifuddin of Tidore, Imam Achmat (Bappa), and Imam Ebrahiem with his grandson Imam Abdulatiief.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div>
+                <img
+                  src="/images/heritage/sultan-saifuddin-tidore.png"
+                  alt="Sultan Saifuddin (Sayfoedien), King of Tidore — oil portrait."
+                  className="aspect-[3/4] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+                  loading="lazy"
+                />
+                <p className="mt-2 text-sm text-primary/70 font-medium">Sultan Saifuddin of Tidore</p>
+                <p className="text-xs text-primary/60 italic">Sayfoedien, King of Tidore</p>
+              </div>
+              <div>
+                <img
+                  src="/images/heritage/imam-achmat-talaabodien-bappa.png"
+                  alt="Imam Achmat Talaabodien (Bappa), known as Imam Taliep — archival portrait."
+                  className="aspect-[3/4] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+                  loading="lazy"
+                />
+                <p className="mt-2 text-sm text-primary/70 font-medium">Imam Achmat (Bappa)</p>
+                <p className="text-xs text-primary/60 italic">Imam Taliep</p>
+              </div>
+              <div>
+                <img
+                  src="/images/heritage/ebrahim-abdul-latief-talaabodien.png"
+                  alt="Die Kaapenaar Imam Ebrahiem Talaboedien and his grandson Imam Abdulatiief Talaaboedien."
+                  className="aspect-[3/4] w-full rounded-lg border-2 border-[#065f46]/20 object-cover"
+                  loading="lazy"
+                />
+                <p className="mt-2 text-sm text-primary/70 font-medium">Imam Ebrahiem &amp; Imam Abdulatiief</p>
+                <p className="text-xs text-primary/60 italic">Grandfather and grandson</p>
+              </div>
+            </div>
+          </motion.section>
+
           {/* Lineage Gallery — heritage imagery: Tuan Guru, Cape Malay fez, journey to the Cape */}
           <motion.section
             className="mt-14 pt-10 border-t border-primary/10"

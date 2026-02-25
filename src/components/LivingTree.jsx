@@ -33,6 +33,12 @@ function buildTree(items) {
   return roots;
 }
 
+/** Static paths for portraits we have in the repo — show even if DB has no image_url (e.g. migrations not run). */
+const HERITAGE_PORTRAIT_FALLBACKS = {
+  "Sultan Saifuddin of Tidore": "/images/heritage/sultan-saifuddin-tidore.png",
+  "Imam Achmat Talaabodien (Bappa)": "/images/heritage/imam-achmat-talaabodien-bappa.png",
+};
+
 function TreeNode({ node, depth = 0 }) {
   const [imgFailed, setImgFailed] = useState(false);
   const by = node.birth_year;
@@ -41,7 +47,7 @@ function TreeNode({ node, depth = 0 }) {
     by != null || dy != null
       ? ` (${by != null ? by : "?"}${dy != null ? ` – ${dy}` : ""})`
       : "";
-  const imgUrl = node.image_url || null;
+  const imgUrl = node.image_url || HERITAGE_PORTRAIT_FALLBACKS[node.ancestor_name] || null;
   const showImg = imgUrl && !imgFailed;
 
   return (
