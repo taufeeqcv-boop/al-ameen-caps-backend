@@ -62,10 +62,34 @@ export const SEO_KEYWORDS =
 /** Unified Heritage narrative — single source for meta description and keywords (entity anchors). */
 export const HERITAGE_META = {
   description:
-    'Preserving 200 years of dignity. From Sultan Saifuddin and Tuan Guru to Imam Abdur-Raof, Ou Bappa, Bappa, and Asia Taliep (Oemie). Tana Baru, Chiappini Street Mosque, Malay Quarter, Cape Malay headwear.',
+    'History of Cape Islamic headwear: Tuan Guru, Tana Baru, Auwal Masjid, Cape Malay fez and Kufi. From Sultan Saifuddin to Asia Taliep (Oemie). Cape Town, South Africa.',
   keywords:
-    'Tuan Guru, Imam Abdullah Kadi Abdus Salaam, Tana Baru Cemetery, Imam Mogamat Talaabodien, Ou Bappa, Imam Achmat Bappa, Imam Taliep, Asia Taliep Oemie, Imam Abdur-Raof, Imam Abdur-Rakieb, Chiappini Street Mosque, Quawwatul Islam Mosque, Malay Quarter, District Six, Taliep Lineage, Rakiep Heritage, Cape Malay fez, Cape Malay Kufi, Al-Ameen Caps',
+    'Tuan Guru, Imam Abdullah Kadi Abdus Salaam, Tana Baru Cemetery, Imam Mogamat Talaabodien, Ou Bappa, Imam Achmat Bappa, Imam Taliep, Asia Taliep Oemie, Imam Abdur-Raof, Imam Abdur-Rakieb, Chiappini Street Mosque, Quawwatul Islam Mosque, Malay Quarter, District Six, Taliep Lineage, Rakiep Heritage, Cape Malay fez, Cape Malay Kufi, Al-Ameen Caps, Auwal Masjid, Cape Town Islamic heritage',
 };
+
+/** FAQ for Heritage page — FAQPage schema for SERP rich results. */
+export const HERITAGE_FAQS = [
+  {
+    question: 'Who was Tuan Guru?',
+    answer: 'Tuan Guru (Imam Abdullah Kadi Abdus Salaam) was the Prince of Tidore and the founding scholar of Islam at the Cape. He is buried at Tana Baru Cemetery in Cape Town and is the root of the Taliep and Rakiep lineages.',
+  },
+  {
+    question: 'What is the Cape Malay fez?',
+    answer: 'The Cape Malay fez (tarboosh) is a traditional brimless cap that became a hallmark of the learned and devout in the Cape. It traces roots to the Ottoman Empire and North Africa and evolved in the Bo-Kaap and Malay Quarter.',
+  },
+  {
+    question: 'Where is Tana Baru?',
+    answer: 'Tana Baru is the historic Muslim cemetery in Cape Town where Tuan Guru and other early scholars are buried. It lies in the Bo-Kaap area and is part of Cape Town\'s Islamic heritage.',
+  },
+  {
+    question: 'What is the difference between a Kufi and a Fez?',
+    answer: 'The Kufi (prayer cap, taqiyah) is a close-fitting cap worn for salaah and daily life. The Fez is a structured, often red cap with a tassel, worn for formal occasions and linked to Cape Malay and Ottoman tradition. Both are part of Cape Islamic headwear.',
+  },
+  {
+    question: 'Who was Asia Taliep (Oemie)?',
+    answer: 'Asia Taliep (Oemie) was the daughter of Imam Achmat Taliep (Bappa) and granddaughter of Imam Mogamat Talaabodien (Ou Bappa). She is at the heart of the Al-Ameen Caps lineage, connecting the family to Tuan Guru and the Auwal Masjid.',
+  },
+];
 
 /** @deprecated Use HERITAGE_META.description */
 export const HERITAGE_DESCRIPTION = HERITAGE_META.description;
@@ -383,16 +407,26 @@ export function getOrganizationSchema() {
 
 /**
  * Article schema for Heritage (History of Cape Islamic Headwear) page. Links to brand/authority for E-E-A-T.
- * Entity-rich: Tuan Guru, Imam Mogamat Talaabodien, Imam Achmat (Bappa), Asia Taliep, District Six, Bridgetown, Auwal Masjid, Taliep and Rakiep lineages.
+ * Includes datePublished, image, publisher logo, mainEntityOfPage for rich results eligibility.
  */
 export function getHeritageArticleSchema() {
   const base = getSchemaBaseUrl();
+  const pageUrl = `${base}/heritage`;
   return {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: 'History of Cape Islamic Headwear',
     description: HERITAGE_DESCRIPTION,
-    url: `${base}/heritage`,
+    url: pageUrl,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+    datePublished: '2024-01-01',
+    dateModified: '2026-02-01',
+    inLanguage: 'en-ZA',
+    image: [
+      `${base}/images/heritage/tuan-guru-portrait.png`,
+      `${base}/images/heritage/fez-cape-malay-archival.png`,
+      `${base}/collection/nalain-cap.png`,
+    ],
     author: {
       '@type': 'Organization',
       name: 'Al-Ameen Caps',
@@ -402,6 +436,12 @@ export function getHeritageArticleSchema() {
       '@type': 'Organization',
       name: 'Al-Ameen Caps',
       url: base,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${base}/collection/nalain-cap.png`,
+        width: 800,
+        height: 800,
+      },
     },
   };
 }

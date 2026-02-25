@@ -9,7 +9,7 @@ import MajlisForm from "../components/MajlisForm";
 import MajlisWall from "../components/MajlisWall";
 import LivingTree from "../components/LivingTree";
 import { getFirstApprovedMajlisImageUrl } from "../lib/supabase";
-import { HERITAGE_SEO_KEYWORDS, HERITAGE_DESCRIPTION } from "../lib/seo";
+import { HERITAGE_SEO_KEYWORDS, HERITAGE_DESCRIPTION, HERITAGE_FAQS } from "../lib/seo";
 
 /** Shows image or a styled placeholder if the file is missing (onError). */
 function HeritageImage({ src, alt, caption, className = "" }) {
@@ -52,13 +52,15 @@ export default function Heritage() {
         url="/heritage"
         image={ogImage || undefined}
         keywords={HERITAGE_SEO_KEYWORDS}
+        breadcrumbs={[{ name: "Home", url: "/" }, { name: "Heritage", url: "/heritage" }]}
+        faqs={HERITAGE_FAQS}
         heritageArticle
         heritageAboutPage
         heritageCreativeWork
       />
       <Navbar />
-      <main className="flex-1 pt-32 pb-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 pt-32 pb-16" role="main">
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="History of Cape Islamic Headwear">
           <motion.h1
             className="font-serif text-4xl md:text-5xl font-semibold text-primary text-center mb-4"
             initial={{ opacity: 0, y: 20 }}
@@ -623,7 +625,28 @@ export default function Heritage() {
             </div>
             <p className="font-serif text-sm text-primary/70">Rated by our community</p>
           </motion.section>
-        </div>
+
+          {/* FAQ — entity-rich for SEO and FAQPage schema (SERP rich results) */}
+          <motion.section
+            className="mt-14 pt-10 border-t border-primary/10"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.42 }}
+            aria-labelledby="heritage-faq-heading"
+          >
+            <h2 id="heritage-faq-heading" className="font-serif text-2xl font-semibold text-primary mb-6">
+              Frequently asked questions
+            </h2>
+            <dl className="space-y-6">
+              {HERITAGE_FAQS.map((faq, i) => (
+                <div key={i} className="border-b border-primary/10 pb-6 last:border-0">
+                  <dt className="font-semibold text-primary mb-1">{faq.question}</dt>
+                  <dd className="text-primary/80 text-sm leading-relaxed">{faq.answer}</dd>
+                </div>
+              ))}
+            </dl>
+          </motion.section>
+        </article>
       </main>
       <Footer />
     </div>
