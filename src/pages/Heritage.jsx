@@ -224,6 +224,7 @@ export default function Heritage() {
                 <video
                   className="w-full aspect-video object-contain"
                   src="/videos/heritage-timeline.mp4"
+                  poster="/images/heritage/present-cape-town.png"
                   controls
                   playsInline
                   preload="metadata"
