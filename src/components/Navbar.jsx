@@ -13,6 +13,7 @@ const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61587066161054";
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
+  { to: "/collection/headwear", label: "Collection" },
   { to: "/blog", label: "Blog" },
   { to: "/guides", label: "Guides" },
   { to: "/about", label: "About" },

@@ -336,6 +336,27 @@ export function getShopItemListSchema(products) {
 }
 
 /**
+ * ItemList schema for a curated headwear type collection (e.g. Na'lain, Kufi, Fez).
+ * Used on the Headwear Collection page so each headwear type exposes its own ItemList to Google.
+ */
+export function getHeadwearTypeItemListSchema({ type, description, products }) {
+  const base = getSchemaBaseUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `${type} – Al-Ameen Caps`,
+    description,
+    numberOfItems: products?.length ?? 0,
+    itemListElement: (products || []).map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${base}/product/${p.id}`,
+      name: p.name,
+    })),
+  };
+}
+
+/**
  * LocalBusiness schema for homepage (South Africa, Cape Town areas)
  * Helps local search for Cape Town, Mitchells Plain, Gatesville, Rylands, Athlone, Goodwood
  */

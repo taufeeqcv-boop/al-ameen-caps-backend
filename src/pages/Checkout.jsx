@@ -12,6 +12,7 @@ import { generateSignature } from '../utils/payfast';
 import { supabase } from '../lib/supabase';
 import { getFunctionUrl, getFunctionUrlAbsolute } from '../lib/config';
 import { validateCheckoutForm } from '../lib/validateCheckoutForm';
+import { pushEcommerceEvent } from '../lib/analytics';
 
 const DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
 const enableEcommerce = import.meta.env.VITE_ENABLE_ECOMMERCE === 'true';
@@ -82,6 +83,24 @@ const Checkout = () => {
     }
 
     setLoading(true);
+
+    // GA4 ecommerce: begin_checkout before redirecting to PayFast
+    if (cart.length > 0) {
+      const items = cart.map((item) => {
+        const unitPrice = getItemPrice(item);
+        return {
+          item_id: item.id,
+          item_name: item.name,
+          price: unitPrice,
+          quantity: item.quantity || 1,
+        };
+      });
+      pushEcommerceEvent("begin_checkout", {
+        currency: "ZAR",
+        value: total,
+        items,
+      });
+    }
     try {
       const isSandbox = import.meta.env.VITE_PAYFAST_SANDBOX === 'true';
       const merchantId = import.meta.env.VITE_PAYFAST_MERCHANT_ID;
@@ -139,7 +158,11 @@ const Checkout = () => {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id);
       const newCustomer = orderCount === 1;
-      const successParams = new URLSearchParams({ order_id: order.id, new_customer: newCustomer ? '1' : '0' });
+      const successParams = new URLSearchParams({
+        order_id: order.id,
+        new_customer: newCustomer ? '1' : '0',
+        amount: total.toFixed(2),
+      });
       const data = {
         merchant_id: merchantId,
         merchant_key: merchantKey,

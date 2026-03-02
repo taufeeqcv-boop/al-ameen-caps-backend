@@ -77,12 +77,28 @@ function ReviewCard({ review, isPlaceholder = false, starVariant = "gold", onSha
       itemScope
       itemType="https://schema.org/Review"
     >
+      {/* Reviewed entity: the Al-Ameen Caps business */}
+      <div
+        itemProp="itemReviewed"
+        itemScope
+        itemType="https://schema.org/LocalBusiness"
+        className="hidden"
+      >
+        <meta itemProp="name" content="Al-Ameen Caps" />
+      </div>
       <div itemProp="reviewRating" itemScope itemType="https://schema.org/Rating" className="hidden">
         <meta itemProp="ratingValue" content={String(rating)} />
         <meta itemProp="bestRating" content="5" />
       </div>
       <div className="flex items-center justify-between gap-2 mb-3">
-        <span className="font-serif font-semibold text-primary" itemProp="author">{firstName}</span>
+        <span
+          className="font-serif font-semibold text-primary"
+          itemProp="author"
+          itemScope
+          itemType="https://schema.org/Person"
+        >
+          <span itemProp="name">{firstName}</span>
+        </span>
         <span className={`inline-flex items-center gap-0.5 ${isEmerald ? "text-emerald-800" : "text-accent"}`} aria-label={`${rating} out of 5 stars`}>
           {[1, 2, 3, 4, 5].map((i) => (
             <Star

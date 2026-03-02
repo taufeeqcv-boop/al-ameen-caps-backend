@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCart } from "../context/CartContext";
+import { pushEcommerceEvent } from "../lib/analytics";
 
 const GOOGLE_ADS_PURCHASE_SEND_TO = "AW-17950617988/gDANCJvFo_0bEITjwu9C";
 
@@ -11,6 +12,7 @@ export default function Success() {
   const [searchParams] = useSearchParams();
   const transactionId = searchParams.get("order_id") || "";
   const newCustomerParam = searchParams.get("new_customer");
+  const amountParam = searchParams.get("amount");
 
   useEffect(() => {
     clearCart();
@@ -27,6 +29,17 @@ export default function Success() {
     else if (newCustomerParam === "0") payload.new_customer = false;
     window.gtag("event", "conversion", payload);
   }, [transactionId, newCustomerParam]);
+
+  // GA4 ecommerce: purchase (value only; items handled server-side for reporting if needed)
+  useEffect(() => {
+    const value = Number(amountParam);
+    if (!transactionId || Number.isNaN(value) || value <= 0) return;
+    pushEcommerceEvent("purchase", {
+      transaction_id: transactionId,
+      currency: "ZAR",
+      value,
+    });
+  }, [transactionId, amountParam]);
 
   return (
     <div className="min-h-screen flex flex-col">

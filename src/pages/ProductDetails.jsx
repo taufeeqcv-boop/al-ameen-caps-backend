@@ -13,6 +13,7 @@ import { getProductMetaTitle, getProductMetaDescription } from "../lib/seo";
 import { getProducts, getVariantsByProductId } from "../lib/supabase";
 import ImageMagnifier from "../components/ImageMagnifier";
 import ProductCard from "../components/ProductCard";
+import { pushEcommerceEvent } from "../lib/analytics";
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -64,6 +65,24 @@ const ProductDetails = () => {
   const bundledImg = product ? (COLLECTION_IMAGE_IMPORTS[product.id] || COLLECTION_IMAGE_IMPORTS[product.sku]) : null;
   const imageSrc = bundledImg || (product ? getCollectionImageUrl(product) : null);
 
+  // GA4 ecommerce: view_item once per product load
+  useEffect(() => {
+    if (!product) return;
+    const price = Number(product.price) || 0;
+    pushEcommerceEvent("view_item", {
+      currency: "ZAR",
+      value: price,
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          price,
+          item_category: product.category || "Caps",
+        },
+      ],
+    });
+  }, [product?.id]);
+
   // Unique sizes and colors from variants (order preserved)
   const variantSizes = [...new Set(variants.map((v) => v.size).filter(Boolean))];
   const variantColors = [...new Set(variants.map((v) => v.color).filter(Boolean))];
@@ -89,6 +108,8 @@ const ProductDetails = () => {
 
   const handleAddToCart = () => {
     if (!product || !canAdd) return;
+    const basePrice = Number(product.price) || 0;
+
     if (selectedVariant) {
       const variantPrice = selectedVariant.price != null ? Number(selectedVariant.price) : null;
       const priceAdjust = Number(selectedVariant.price_adjustment) || 0;
@@ -104,10 +125,37 @@ const ProductDetails = () => {
         price: finalPrice,
       };
       addToCart(item);
+
+      pushEcommerceEvent("add_to_cart", {
+        currency: "ZAR",
+        value: finalPrice,
+        items: [
+          {
+            item_id: item.id,
+            item_name: item.name,
+            price: finalPrice,
+            item_variant: [item.size, item.color].filter(Boolean).join(" / ") || undefined,
+            quantity: 1,
+          },
+        ],
+      });
     } else {
       const item = { ...product, quantity: 1, quantityAvailable: product.quantityAvailable };
       if (isReservationOnly) item.isPreOrder = true;
       addToCart(item);
+
+      pushEcommerceEvent("add_to_cart", {
+        currency: "ZAR",
+        value: basePrice,
+        items: [
+          {
+            item_id: item.id,
+            item_name: item.name,
+            price: basePrice,
+            quantity: 1,
+          },
+        ],
+      });
     }
   };
 

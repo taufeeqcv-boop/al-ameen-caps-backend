@@ -47,6 +47,16 @@ function productToItem(p) {
   // Shipping: South Africa only (standard delivery fee).
   const shippingZA = 'ZA::Standard:99.00 ZAR';
 
+  // For preorders, Merchant Center requires availability_date.
+  // Use a conservative default of ~21 days from now, configurable via FEED_PREORDER_LEAD_DAYS.
+  let availabilityDate = '';
+  if (availability === 'preorder') {
+    const leadDays = parseInt(process.env.FEED_PREORDER_LEAD_DAYS || '21', 10);
+    const now = new Date();
+    const future = new Date(now.getTime() + Math.max(0, leadDays) * 24 * 60 * 60 * 1000);
+    availabilityDate = future.toISOString();
+  }
+
   return [
     '  <item>',
     '    <g:id>' + escapeXml(id) + '</g:id>',
@@ -55,6 +65,7 @@ function productToItem(p) {
     '    <g:link>' + escapeXml(link) + '</g:link>',
     '    <g:image_link>' + escapeXml(imageLink) + '</g:image_link>',
     '    <g:availability>' + availability + '</g:availability>',
+    (availabilityDate ? '    <g:availability_date>' + escapeXml(availabilityDate) + '</g:availability_date>' : ''),
     '    <g:price>' + priceStr + '</g:price>',
     '    <g:condition>new</g:condition>',
     '    <g:brand>Al-Ameen Caps</g:brand>',
