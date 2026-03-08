@@ -4,6 +4,7 @@
  */
 
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   injectJsonLd,
   getProductSchema,
@@ -25,6 +26,32 @@ const SITE_NAME = 'Al-Ameen Caps';
 const DEFAULT_TITLE = 'Islamic Fashion, Kufi, Fez, Taj – Cape Town & South Africa';
 const DEFAULT_DESCRIPTION = 'Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa.';
 
+/**
+ * Normalizes a URL path for canonical tags:
+ * - Removes trailing slashes (except for root "/")
+ * - Removes query parameters and hash fragments
+ * - Ensures consistent format for SEO
+ */
+function normalizeCanonicalUrl(path) {
+  if (!path) return '/';
+  
+  // Remove query parameters and hash fragments
+  const url = new URL(path, 'https://example.com');
+  let normalized = url.pathname;
+  
+  // Remove trailing slash except for root
+  if (normalized !== '/' && normalized.endsWith('/')) {
+    normalized = normalized.slice(0, -1);
+  }
+  
+  // Ensure it starts with /
+  if (!normalized.startsWith('/')) {
+    normalized = '/' + normalized;
+  }
+  
+  return normalized;
+}
+
 export default function Seo({
   title,
   description = DEFAULT_DESCRIPTION,
@@ -43,7 +70,12 @@ export default function Seo({
   faqs = null,
   noindex = false,
 }) {
-  const fullUrl = url ? `${BASE_URL}${url}` : BASE_URL;
+  const location = useLocation();
+  
+  // Use provided url, or fallback to current location pathname
+  const path = url || location.pathname;
+  const normalizedPath = normalizeCanonicalUrl(path);
+  const fullUrl = `${BASE_URL}${normalizedPath}`;
   const ogImage = image?.startsWith('http') ? image : `${BASE_URL}${image || '/collection/nalain-cap.png'}`;
   const metaKeywords = keywords ?? SEO_KEYWORDS;
 
@@ -69,7 +101,7 @@ export default function Seo({
     }
     metaKw.content = (metaKeywords || '').slice(0, 500);
 
-    // Robots (noindex for checkout, account)
+    // Robots (noindex for checkout, account, 404)
     let metaRobots = document.querySelector('meta[name="robots"]');
     if (noindex) {
       if (!metaRobots) {
@@ -82,14 +114,22 @@ export default function Seo({
       metaRobots.remove();
     }
 
-    // Canonical
+    // Canonical (skip for noindex pages - they shouldn't have canonical tags)
     let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.rel = 'canonical';
-      document.head.appendChild(canonical);
+    if (noindex) {
+      // Remove canonical tag if it exists (e.g., from previous navigation)
+      if (canonical) {
+        canonical.remove();
+      }
+    } else {
+      // Set canonical tag for indexable pages
+      if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.rel = 'canonical';
+        document.head.appendChild(canonical);
+      }
+      canonical.href = fullUrl;
     }
-    canonical.href = fullUrl;
 
     // Open Graph
     const pageTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | ${DEFAULT_TITLE}`;

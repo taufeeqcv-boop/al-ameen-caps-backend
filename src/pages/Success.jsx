@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -6,6 +6,7 @@ import { useCart } from "../context/CartContext";
 import { pushEcommerceEvent } from "../lib/analytics";
 
 const GOOGLE_ADS_PURCHASE_SEND_TO = "AW-17950617988/gDANCJvFo_0bEITjwu9C";
+const GOOGLE_CUSTOMER_REVIEWS_MERCHANT_ID = 5731003403;
 
 export default function Success() {
   const { clearCart } = useCart();
@@ -13,6 +14,8 @@ export default function Success() {
   const transactionId = searchParams.get("order_id") || "";
   const newCustomerParam = searchParams.get("new_customer");
   const amountParam = searchParams.get("amount");
+  const customerEmail = searchParams.get("email") || "";
+  const gcrScriptLoaded = useRef(false);
 
   useEffect(() => {
     clearCart();
@@ -41,6 +44,38 @@ export default function Success() {
     });
   }, [transactionId, amountParam]);
 
+  // Google Customer Reviews opt-in (order confirmation page only)
+  useEffect(() => {
+    if (!transactionId || !customerEmail || gcrScriptLoaded.current) return;
+    const estimatedDate = new Date();
+    estimatedDate.setDate(estimatedDate.getDate() + 7);
+    const estimatedDeliveryDate = estimatedDate.toISOString().slice(0, 10);
+
+    window.renderOptIn = function () {
+      if (typeof window.gapi === "undefined") return;
+      window.gapi.load("surveyoptin", function () {
+        window.gapi.surveyoptin.render({
+          merchant_id: GOOGLE_CUSTOMER_REVIEWS_MERCHANT_ID,
+          order_id: transactionId,
+          email: customerEmail,
+          delivery_country: "ZA",
+          estimated_delivery_date: estimatedDeliveryDate,
+        });
+      });
+    };
+
+    const script = document.createElement("script");
+    script.src = "https://apis.google.com/js/platform.js?onload=renderOptIn";
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+    gcrScriptLoaded.current = true;
+
+    return () => {
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+  }, [transactionId, customerEmail]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -60,6 +95,7 @@ export default function Success() {
           <p className="text-primary/80 text-sm max-w-lg mx-auto mb-6">
             By sharing your experience, you help preserve the Cape Malay and Bo-Kaap heritage of handcrafted Kufis and Taqiyahs.
           </p>
+          <div id="google-customer-reviews-opt-in" className="min-h-[60px] flex items-center justify-center my-4" aria-label="Google Customer Reviews opt-in" />
           <div className="flex flex-wrap gap-4 justify-center">
             <a
               href="https://g.page/r/CSn0lNF6h_xyEAI/review"

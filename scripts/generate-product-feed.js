@@ -39,7 +39,8 @@ function productToItem(p) {
   const availability = p.preOrderOnly ? 'preorder' : (qty > 0 ? 'in_stock' : 'out_of_stock');
   const price = Math.max(0, Number(p.price) ?? 0);
   const priceStr = price > 0 ? price.toFixed(2) + ' ZAR' : '0.00 ZAR';
-  const googleProductCategory = '166';
+  // Google Merchant Center product category for Religious Headwear
+  const googleProductCategory = '5598';
   // Required for US (and good for SA): age_group, gender, color. Islamic headwear = adult, male (or unisex), Multi.
   const ageGroup = 'adult';
   const gender = 'male';

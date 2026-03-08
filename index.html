@@ -98,6 +98,22 @@
         <span class="text">Loading…</span>
       </div>
     </div>
+    <!-- Google Customer Reviews badge (site-wide) -->
+    <script id="merchantWidgetScript" src="https://www.gstatic.com/shopping/merchant/merchantwidget.js" defer></script>
+    <script>
+      (function () {
+        var scriptEl = document.getElementById('merchantWidgetScript');
+        if (!scriptEl) return;
+        scriptEl.addEventListener('load', function () {
+          if (!window.merchantwidget || typeof window.merchantwidget.start !== 'function') return;
+          window.merchantwidget.start({
+            merchant_id: 5731003403,
+            position: 'BOTTOM_RIGHT',
+            region: 'ZA',
+          });
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

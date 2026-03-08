@@ -20,6 +20,7 @@ const baseUrl = SITEMAP_BASE_URL.replace(/\/+$/, '');
 const staticPages = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
   { path: '/shop', changefreq: 'weekly', priority: '0.9' },
+  { path: '/collection/headwear', changefreq: 'weekly', priority: '0.85' },
   { path: '/blog', changefreq: 'weekly', priority: '0.8' },
   { path: '/guides', changefreq: 'monthly', priority: '0.7' },
   { path: '/guides/kufi-care', changefreq: 'monthly', priority: '0.6' },
@@ -33,6 +34,7 @@ const staticPages = [
   { path: '/near/athlone', changefreq: 'monthly', priority: '0.7' },
   { path: '/contact', changefreq: 'monthly', priority: '0.7' },
   { path: '/shipping', changefreq: 'monthly', priority: '0.6' },
+  { path: '/shipping-returns', changefreq: 'monthly', priority: '0.6' },
   { path: '/privacy', changefreq: 'yearly', priority: '0.4' },
   { path: '/terms', changefreq: 'yearly', priority: '0.4' },
   { path: '/review', changefreq: 'monthly', priority: '0.5' },

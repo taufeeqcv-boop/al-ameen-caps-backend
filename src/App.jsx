@@ -23,6 +23,8 @@ const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 const Community = lazy(() => import("./pages/Community"));
 const HeadwearCollection = lazy(() => import("./pages/HeadwearCollection"));
+const ShippingReturns = lazy(() => import("./pages/ShippingReturns"));
+const AfganiStarSpecial = lazy(() => import("./pages/AfganiStarSpecial"));
 const GuidesIndex = lazy(() => import("./pages/guides/GuidesIndex"));
 const KufiCare = lazy(() => import("./pages/guides/KufiCare"));
 const EidHeadwearGuide = lazy(() => import("./pages/guides/EidHeadwearGuide"));
@@ -75,6 +77,8 @@ function App() {
           <Route path="/guides/eid-headwear-south-africa" element={<EidHeadwearGuide />} />
           <Route path="/guides/islamic-headwear-cape-town" element={<IslamicHeadwearCapeTown />} />
           <Route path="/collection/headwear" element={<HeadwearCollection />} />
+          <Route path="/shipping-returns" element={<ShippingReturns />} />
+          <Route path="/afgani-star-cap" element={<AfganiStarSpecial />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/success" element={<Success />} />

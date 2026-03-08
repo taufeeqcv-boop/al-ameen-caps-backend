@@ -364,7 +364,8 @@ const FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61587066161054';
 
 export function getLocalBusinessSchema() {
   const base = getSchemaBaseUrl();
-  const telephone = import.meta.env.VITE_CONTACT_PHONE?.trim() || undefined;
+  // Prefer env phone, but fall back to primary business number so LocalBusiness always has a telephone.
+  const telephone = (import.meta.env.VITE_CONTACT_PHONE || "0810487447").trim() || undefined;
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',

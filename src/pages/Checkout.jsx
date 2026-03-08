@@ -163,6 +163,8 @@ const Checkout = () => {
         new_customer: newCustomer ? '1' : '0',
         amount: total.toFixed(2),
       });
+      const customerEmail = (formData.email_address || '').trim();
+      if (customerEmail) successParams.set('email', customerEmail);
       const data = {
         merchant_id: merchantId,
         merchant_key: merchantKey,
@@ -446,7 +448,7 @@ const Checkout = () => {
                   )}
                   <p className="font-sans flex items-center justify-center gap-2 text-xs text-primary/60 mt-4">
                     <Lock className="w-3.5 h-3.5 text-accent" aria-hidden />
-                    Cape Town based · Nationwide delivery. Secure checkout.
+                    Cape Town based · Nationwide delivery. Secure checkout via PayFast.
                   </p>
                   <button
                     type="button"
@@ -454,8 +456,38 @@ const Checkout = () => {
                     disabled={loading || cart.length === 0 || !user}
                     className="btn-primary font-sans w-full py-4 min-h-[48px] text-base mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 touch-manipulation"
                   >
-                    Pay with PayFast
+                    Secure Checkout via PayFast
                   </button>
+                  <div className="mt-3 flex flex-col items-center gap-2">
+                    <p className="font-sans text-[11px] text-primary/60 text-center max-w-xs">
+                      Your bank may show your phone number as the reference, but we always match your payment to your{" "}
+                      <span className="font-semibold">Al-Ameen order number</span> for reconciliation.
+                    </p>
+                    <p className="font-sans text-[11px] uppercase tracking-wide text-primary/60">
+                      Accepted via PayFast
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+                        Visa
+                      </span>
+                      <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+                        Mastercard
+                      </span>
+                      <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+                        Apple&nbsp;Pay
+                      </span>
+                      <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+                        Samsung&nbsp;Pay
+                      </span>
+                      <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+                        SnapScan / QR
+                      </span>
+                    </div>
+                    <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-accent/60 bg-primary/5 px-3 py-1 text-[11px] font-semibold text-accent">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
+                      Authorized Heritage Retailer
+                    </span>
+                  </div>
                 </>
               )}
               <p className="font-sans mt-3 text-center text-xs text-primary/60">

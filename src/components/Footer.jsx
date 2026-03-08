@@ -102,11 +102,48 @@ export default function Footer() {
           <Link to="/about" className="hover:text-accent transition-colors">About</Link>
           <Link to="/heritage" className="hover:text-accent transition-colors">Heritage</Link>
           <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
-          <Link to="/shipping" className="hover:text-accent transition-colors">Shipping</Link>
+          <Link to="/shipping-returns" className="hover:text-accent transition-colors">Shipping &amp; Returns</Link>
           <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
           <Link to="/terms" className="hover:text-accent transition-colors">Terms</Link>
         </div>
-        <p className="mt-4 text-xs text-white/50" role="doc-credit">
+        <div className="mt-4 text-xs text-white/60 space-y-1">
+          <p>
+            <strong className="font-semibold text-white">Al-Ameen Caps</strong> &mdash; 205 Wallace Street, Glenwood, Cape Town, 7460
+          </p>
+          <p>
+            Phone:{" "}
+            <a href="tel:0810487447" className="hover:text-accent transition-colors">
+              0810487447
+            </a>
+          </p>
+          <p>
+            Email:{" "}
+            <a href="mailto:sales@alameencaps.com" className="hover:text-accent transition-colors">
+              sales@alameencaps.com
+            </a>
+          </p>
+        </div>
+        <div className="mt-3 flex flex-col items-center gap-2 text-[11px] text-white/70">
+          <p className="uppercase tracking-wide">Secure payments via PayFast</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+              Visa
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+              Mastercard
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+              Apple&nbsp;Pay
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+              Samsung&nbsp;Pay
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
+              SnapScan / QR
+            </span>
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-white/50" role="doc-credit">
           Lineage and historical information courtesy of the Tuan Guru Family Tree group (Facebook).
         </p>
         <p className="mt-2 text-xs text-white/50">
