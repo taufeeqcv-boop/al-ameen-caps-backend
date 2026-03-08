@@ -1,4 +1,4 @@
-// Footer – minimal, on-brand with logo + newsletter signup
+// Footer – clean, professional, SEO-optimized
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -41,114 +41,112 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#0d0d0d] text-secondary py-12 mt-auto border-t border-accent/40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <Link to="/" className="inline-flex flex-col items-center gap-2" aria-label="Al-Ameen Caps home">
-          <img
-            src={logoImg}
-            alt=""
-            width={96}
-            height={96}
-            className="h-20 w-20 sm:h-24 sm:w-24 object-contain flex-shrink-0"
-            loading="lazy"
-            decoding="async"
-          />
-          <span className="font-serif text-lg font-semibold text-accent">Al-Ameen Caps</span>
-        </Link>
-        <p className="mt-2 text-sm text-white/80 font-serif">Restoring the Crown of the Believer</p>
-
-        <div className="mt-6 max-w-sm mx-auto">
-          <p className="text-sm text-white/70 mb-2">Get updates on new arrivals and offers</p>
-          <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 justify-center items-center">
-            <label htmlFor="footer-email" className="sr-only">Email</label>
-            <input
-              id="footer-email"
-              type="email"
-              value={email}
-              onChange={(e) => { setEmail(e.target.value); if (status === "error") setStatus(""); }}
-              placeholder="Your email"
-              className="w-full sm:w-56 px-3 py-2 rounded-lg border border-white/30 bg-white/10 text-white placeholder-white/50 transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50"
-              disabled={status === "sending"}
-              required
+    <footer className="bg-[#0d0d0d] text-secondary py-10 mt-auto border-t border-accent/40">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Logo and Branding */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex flex-col items-center gap-2" aria-label="Al-Ameen Caps home">
+            <img
+              src={logoImg}
+              alt="Al-Ameen Caps"
+              width={80}
+              height={80}
+              className="h-16 w-16 sm:h-20 sm:w-20 object-contain"
+              loading="lazy"
+              decoding="async"
             />
-            <button
-              type="submit"
-              disabled={status === "sending"}
-              className="w-full sm:w-auto px-4 py-2 rounded-lg bg-accent text-primary font-medium hover:bg-accent-light transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {status === "sending" ? "…" : <Mail className="w-4 h-4" />}
-              {status === "sending" ? "Submitting" : "Subscribe"}
-            </button>
-          </form>
-          {status === "success" && <p className="mt-2 text-sm text-green-300" role="status" aria-live="polite">Thanks for subscribing.</p>}
-          {status === "error" && <p className="mt-2 text-sm text-amber-200" role="alert" aria-live="assertive">Something went wrong. Try again or contact us.</p>}
+            <span className="font-serif text-lg font-semibold text-accent">Al-Ameen Caps</span>
+          </Link>
+          <p className="mt-2 text-sm text-white/80 font-serif">Restoring the Crown of the Believer</p>
         </div>
 
-        <div className="mt-6 flex flex-wrap justify-center items-center gap-x-6 gap-y-1 text-sm text-white/70">
-          <a
-            href={FACEBOOK_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 hover:text-accent transition-colors"
-            aria-label="Al-Ameen Caps on Facebook"
-          >
-            <Facebook className="w-4 h-4" />
-            <span>Facebook</span>
-          </a>
-          <Link to="/shop" className="hover:text-accent transition-colors">Shop</Link>
-          <Link to="/blog" className="hover:text-accent transition-colors">Blog</Link>
-          <Link to="/guides" className="hover:text-accent transition-colors">Guides</Link>
-          <Link to="/community" className="hover:text-accent transition-colors">Community</Link>
-          <Link to="/about" className="hover:text-accent transition-colors">About</Link>
-          <Link to="/heritage" className="hover:text-accent transition-colors">Heritage</Link>
-          <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
-          <Link to="/shipping-returns" className="hover:text-accent transition-colors">Shipping &amp; Returns</Link>
-          <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
-          <Link to="/terms" className="hover:text-accent transition-colors">Terms</Link>
-        </div>
-        <div className="mt-4 text-xs text-white/60 space-y-1">
-          <p>
-            <strong className="font-semibold text-white">Al-Ameen Caps</strong> &mdash; 205 Wallace Street, Glenwood, Cape Town, 7460
-          </p>
-          <p>
-            Phone:{" "}
-            <a href="tel:0810487447" className="hover:text-accent transition-colors">
-              0810487447
-            </a>
-          </p>
-          <p>
-            Email:{" "}
-            <a href="mailto:sales@alameencaps.com" className="hover:text-accent transition-colors">
-              sales@alameencaps.com
-            </a>
-          </p>
-        </div>
-        <div className="mt-3 flex flex-col items-center gap-2 text-[11px] text-white/70">
-          <p className="uppercase tracking-wide">Secure payments via PayFast</p>
-          <div className="flex flex-wrap justify-center gap-2">
-            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
-              Visa
-            </span>
-            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
-              Mastercard
-            </span>
-            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
-              Apple&nbsp;Pay
-            </span>
-            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
-              Samsung&nbsp;Pay
-            </span>
-            <span className="px-2.5 py-1 rounded bg-white text-[10px] font-semibold text-black shadow-sm">
-              SnapScan / QR
-            </span>
+        {/* Main Footer Content - Grid Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          {/* Navigation Links - SEO Essential */}
+          <div>
+            <h3 className="text-sm font-semibold text-white mb-3">Navigation</h3>
+            <nav className="flex flex-col gap-2 text-sm text-white/70" aria-label="Footer navigation">
+              <Link to="/shop" className="hover:text-accent transition-colors">Shop</Link>
+              <Link to="/about" className="hover:text-accent transition-colors">About</Link>
+              <Link to="/heritage" className="hover:text-accent transition-colors">Heritage</Link>
+              <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
+            </nav>
+          </div>
+
+          {/* Contact Information - Local SEO Essential */}
+          <div>
+            <h3 className="text-sm font-semibold text-white mb-3">Contact</h3>
+            <address className="not-italic text-sm text-white/70 space-y-1">
+              <p>205 Wallace Street, Glenwood</p>
+              <p>Cape Town, 7460, South Africa</p>
+              <p>
+                <a href="tel:0810487447" className="hover:text-accent transition-colors">
+                  081 048 7447
+                </a>
+              </p>
+              <p>
+                <a href="mailto:sales@alameencaps.com" className="hover:text-accent transition-colors">
+                  sales@alameencaps.com
+                </a>
+              </p>
+            </address>
+          </div>
+
+          {/* Newsletter Signup */}
+          <div>
+            <h3 className="text-sm font-semibold text-white mb-3">Newsletter</h3>
+            <p className="text-xs text-white/60 mb-3">Get updates on new arrivals and offers</p>
+            <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+              <label htmlFor="footer-email" className="sr-only">Email address</label>
+              <input
+                id="footer-email"
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); if (status === "error") setStatus(""); }}
+                placeholder="Your email"
+                className="w-full px-3 py-2 rounded-lg border border-white/30 bg-white/10 text-white placeholder-white/50 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50"
+                disabled={status === "sending"}
+                required
+              />
+              <button
+                type="submit"
+                disabled={status === "sending"}
+                className="w-full px-4 py-2 rounded-lg bg-accent text-primary font-medium hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+              >
+                {status === "sending" ? "…" : <Mail className="w-4 h-4" />}
+                {status === "sending" ? "Submitting" : "Subscribe"}
+              </button>
+            </form>
+            {status === "success" && <p className="mt-2 text-xs text-green-300" role="status" aria-live="polite">Thanks for subscribing.</p>}
+            {status === "error" && <p className="mt-2 text-xs text-amber-200" role="alert" aria-live="assertive">Something went wrong. Try again.</p>}
           </div>
         </div>
-        <p className="mt-3 text-xs text-white/50" role="doc-credit">
-          Lineage and historical information courtesy of the Tuan Guru Family Tree group (Facebook).
-        </p>
-        <p className="mt-2 text-xs text-white/50">
-          Cape Town based · Nationwide delivery. &nbsp;·&nbsp; Secure payment via PayFast. &nbsp;·&nbsp; © {new Date().getFullYear()} Al-Ameen Caps. All rights reserved.
-        </p>
+
+        {/* Bottom Bar - Legal & Social */}
+        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-white/60">
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-accent transition-colors">Terms</Link>
+            <Link to="/shipping-returns" className="hover:text-accent transition-colors">Shipping &amp; Returns</Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <a
+              href={FACEBOOK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 hover:text-accent transition-colors"
+              aria-label="Al-Ameen Caps on Facebook"
+            >
+              <Facebook className="w-4 h-4" />
+              <span>Facebook</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-4 text-center text-xs text-white/50">
+          <p>© {new Date().getFullYear()} Al-Ameen Caps. All rights reserved. Cape Town, South Africa.</p>
+        </div>
       </div>
     </footer>
   );
