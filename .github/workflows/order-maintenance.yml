@@ -11,7 +11,7 @@ on:
 jobs:
   send-review-requests:
     # Only run when all required secrets are configured; otherwise skip instead of failing.
-    if: ${{ secrets.SUPABASE_URL != '' && secrets.SUPABASE_SERVICE_ROLE_KEY != '' && secrets.EMAIL_USER != '' && secrets.EMAIL_PASS != '' }}
+    if: ${{ secrets.SUPABASE_URL && secrets.SUPABASE_SERVICE_ROLE_KEY && secrets.EMAIL_USER && secrets.EMAIL_PASS }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

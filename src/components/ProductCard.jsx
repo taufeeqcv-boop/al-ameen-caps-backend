@@ -11,12 +11,14 @@ import OptimizedImage from "./OptimizedImage";
 import defaultProductImg from "../assets/caps-collection.png";
 
 export default function ProductCard({ product, index = 0 }) {
-  const { id, name, price, imageURL, quantityAvailable = 0, preOrderOnly } = product || {};
+  const { id, name, price, originalPrice, imageURL, quantityAvailable = 0, stockQuantity, preOrderOnly } = product || {};
   const { addToCart, cart } = useCart();
   const inCart = cart.filter((item) => item.id === id).reduce((sum, item) => sum + (item.quantity || 1), 0);
   const available = Math.max(0, (quantityAvailable ?? 0) - inCart);
   const isReservationOnly = preOrderOnly && (quantityAvailable ?? 0) <= 0;
   const canAdd = available > 0 || isReservationOnly;
+  const isOnSale = originalPrice && originalPrice > price;
+  const displayStockQuantity = stockQuantity ?? quantityAvailable ?? 0;
 
   const bundledImg = product ? (COLLECTION_IMAGE_IMPORTS[id] || COLLECTION_IMAGE_IMPORTS[product.sku]) : null;
   const displaySrc = bundledImg || getCollectionImageUrl(product) || sameOriginImageSrc(imageURL) || defaultProductImg;
@@ -48,8 +50,18 @@ export default function ProductCard({ product, index = 0 }) {
             className="w-full h-full"
             imgClassName="object-cover object-center"
           />
-          {available <= 0 && (
+          {isOnSale && (
+            <span className="absolute top-2 right-2 px-2.5 py-1 rounded bg-red-600 text-white text-xs font-bold uppercase tracking-wide shadow-lg z-10">
+              SALE
+            </span>
+          )}
+          {available <= 0 && !isOnSale && (
             <span className="absolute top-2 right-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">
+              {isReservationOnly ? "Pre-order" : "Out of stock"}
+            </span>
+          )}
+          {available <= 0 && isOnSale && (
+            <span className="absolute top-2 left-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">
               {isReservationOnly ? "Pre-order" : "Out of stock"}
             </span>
           )}
@@ -66,7 +78,21 @@ export default function ProductCard({ product, index = 0 }) {
             )}
           </p>
           {Number(price) > 0 && (
-            <p className="mt-2 text-2xl font-semibold text-accent">{formatPrice(price)}</p>
+            <div className="mt-2">
+              {isOnSale && originalPrice ? (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-lg text-gray-400 line-through">{formatPrice(originalPrice)}</span>
+                  <span className="text-2xl font-bold text-amber-600">{formatPrice(price)}</span>
+                </div>
+              ) : (
+                <p className="text-2xl font-semibold text-accent">{formatPrice(price)}</p>
+              )}
+              {displayStockQuantity > 0 && displayStockQuantity < 20 && (
+                <p className="mt-1.5 text-sm text-orange-500 font-medium animate-pulse">
+                  Only {displayStockQuantity} left in stock!
+                </p>
+              )}
+            </div>
           )}
         </div>
       </Link>

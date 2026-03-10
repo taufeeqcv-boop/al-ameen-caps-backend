@@ -24,7 +24,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col page-home overflow-x-hidden">
       <Seo url="/" description={HOMEPAGE_META_DESCRIPTION} />
       <Navbar />
-      <main className="flex-1 pt-32 bg-primary home-main-full">
+      <main className="flex-1 pt-[8.5rem] sm:pt-[9rem] bg-primary home-main-full">
         <Hero />
         <section className="w-full bg-secondary py-16 px-4 sm:px-6 border-t border-accent/30">
           <div className="max-w-4xl mx-auto text-center">

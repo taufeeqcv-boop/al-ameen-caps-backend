@@ -21,23 +21,15 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          Restoring the Crown of the Believer
+          The Grand Opening Eid Sale
         </motion.h1>
         <motion.p
-          className="mt-3 sm:mt-4 text-base md:text-lg text-white/90 max-w-xl mx-auto"
+          className="mt-3 sm:mt-4 text-base md:text-lg text-white/90 max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
         >
-          Premium Kufi, Taqiyah &amp; Fez — handcrafted Islamic headwear. Spirituality meets luxury.
-        </motion.p>
-        <motion.p
-          className="mt-1 text-sm text-white/75 max-w-lg mx-auto"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.45 }}
-        >
-          For Jumu&apos;ah, Salah &amp; Eid. Cape Town &amp; nationwide delivery.
+          Celebrate our launch and the approaching month of Ramadan with exclusive discounts on our premium heritage headwear. Pre-order now to secure your size before the shipment lands in Cape Town.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -46,7 +38,7 @@ export default function Hero() {
           className="mt-5 sm:mt-6"
         >
           <Link to="/shop" className="btn-primary px-8 py-3.5 text-base min-h-[48px] inline-flex items-center justify-center">
-            Shop the Collection
+            Shop the Sale
           </Link>
         </motion.div>
       </div>

@@ -56,7 +56,13 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-accent/40 bg-[#0d0d0d] shadow-md">
+      {/* Grand Opening Eid Sale Announcement Bar */}
+      <div className="fixed top-0 left-0 right-0 z-[60] bg-amber-600 text-white text-center py-2.5 px-4 shadow-md">
+        <p className="text-sm sm:text-base font-semibold">
+          🌙 Grand Opening &amp; Eid Pre-Sale: Up to 30% Off Premium Kufis. Stock arriving soon!
+        </p>
+      </div>
+      <header className="fixed top-[2.5rem] sm:top-[2.75rem] left-0 right-0 z-50 border-b border-accent/40 bg-[#0d0d0d] shadow-md">
         <nav className="bg-[#0d0d0d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between min-h-[5.5rem] py-2 gap-6 lg:gap-10">
