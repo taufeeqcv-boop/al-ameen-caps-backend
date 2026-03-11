@@ -35,8 +35,8 @@ export const COLLECTION_PRODUCTS = [
   {
     id: "collection-1",
     name: "Na'lain Cap – Premium Nalain Kufi",
-    quantityAvailable: 12,
-    stockQuantity: 12,
+    quantityAvailable: 50,
+    stockQuantity: 50,
     originalPrice: 145,
     price: 102, // ~30% off
     description:
@@ -47,8 +47,8 @@ export const COLLECTION_PRODUCTS = [
   {
     id: "collection-2",
     name: "Afgani Star Cap – Traditional Kufi",
-    quantityAvailable: 8,
-    stockQuantity: 8,
+    quantityAvailable: 24,
+    stockQuantity: 24,
     originalPrice: 135,
     price: 95, // ~30% off
     description:
@@ -59,8 +59,8 @@ export const COLLECTION_PRODUCTS = [
   {
     id: "collection-3",
     name: "Saqib Shami Cap – Heritage Crown",
-    quantityAvailable: 5,
-    stockQuantity: 5,
+    quantityAvailable: 7,
+    stockQuantity: 7,
     originalPrice: 660,
     price: 462, // ~30% off
     description:
@@ -84,8 +84,8 @@ export const COLLECTION_PRODUCTS = [
   {
     id: "collection-5",
     name: "Naqshbandi Taj – Cape Heritage",
-    quantityAvailable: 6,
-    stockQuantity: 6,
+    quantityAvailable: 7,
+    stockQuantity: 7,
     originalPrice: 990,
     price: 693, // ~30% off
     description:
@@ -96,8 +96,8 @@ export const COLLECTION_PRODUCTS = [
   {
     id: "collection-6",
     name: "Luxury Arabic Rumal – Cape Malay",
-    quantityAvailable: 10,
-    stockQuantity: 10,
+    quantityAvailable: 12,
+    stockQuantity: 12,
     originalPrice: 250,
     price: 175, // ~30% off
     description:
@@ -108,8 +108,8 @@ export const COLLECTION_PRODUCTS = [
   {
     id: "collection-7",
     name: "Special Ashrafi Taj – Heritage",
-    quantityAvailable: 1,
-    stockQuantity: 1,
+    quantityAvailable: 2,
+    stockQuantity: 2,
     originalPrice: 1600,
     price: 1120, // ~30% off
     description:
@@ -144,8 +144,8 @@ export const COLLECTION_PRODUCTS = [
   {
     id: "collection-10",
     name: "Mufti Cap – Jumu'ah Ready Kufi",
-    quantityAvailable: 9,
-    stockQuantity: 9,
+    quantityAvailable: 12,
+    stockQuantity: 12,
     originalPrice: 200,
     price: 140, // ~30% off
     description:
@@ -168,8 +168,8 @@ export const COLLECTION_PRODUCTS = [
   {
     id: "collection-12",
     name: "Royal Ottoman Fez – Cape Malay",
-    quantityAvailable: 8,
-    stockQuantity: 8,
+    quantityAvailable: 2,
+    stockQuantity: 2,
     originalPrice: 550,
     price: 385, // ~30% off
     description:
