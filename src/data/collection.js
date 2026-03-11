@@ -50,7 +50,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 24,
     stockQuantity: 24,
     originalPrice: 135,
-    price: 95, // ~30% off
+    price: 100, // ~30% off
     description:
       "Afgani Star Cap — Premium Collection\n\nDesigned for men who value heritage and refined simplicity, the Afgani Star Cap brings together classic Afghan-inspired style with modern craftsmanship.\n\nIts structured form, soft premium fabric, and clean finish make it ideal for Jumu'ah, gatherings, or daily wear. Available in a range of elegant tones, each cap complements both traditional and modern attire.\n\nBuilt for comfort and durability, the Afgani Star Cap maintains its shape while remaining breathable for all-day use.\n\nWhy customers choose it\n• Premium fabric with soft, durable finish\n• Classic structured Afghan design\n• Comfortable and breathable for daily wear\n• Maintains shape over time\n• Suitable for masjid, events, and everyday style\n\nMore than headwear, the Afgani Star Cap reflects dignity, heritage, and confident style.\n\nHeritage Note: This traditional kufi style cap is Jumu'ah ready and speaks to Cape Malay Heritage, offering a handcrafted-in-Cape-Town alternative to generic headwear.\n\n🛒 Limited stock available — add yours to cart today.",
     imageURL: "/collection/afgani-star-cap.png",
@@ -62,7 +62,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 7,
     stockQuantity: 7,
     originalPrice: 660,
-    price: 462, // ~30% off
+    price: 460, // ~30% off
     description:
       "Saqib Shami Cap — Royal Premium Collection\n\nThe Saqib Shami Cap is crafted for those who appreciate regal tradition and commanding elegance. Inspired by classical Shami ceremonial headwear, this cap carries a presence that instantly elevates formal attire.\n\nIts layered construction, intricate weaving, and rich crown detailing reflect royal heritage, making it a perfect choice for weddings, special gatherings, Eid occasions, and distinguished events.\n\nDesigned with premium materials, it delivers both comfort and structure, ensuring the cap maintains its dignified shape while remaining comfortable for long wear.\n\nWhy customers choose it\n• Royal ceremonial design with bold visual presence\n• Rich crown detailing that stands out in formal settings\n• Structured layered build for a distinguished profile\n• Ideal for weddings, Eid, and special occasions\n• A statement piece for those who value tradition and prestige\n\nMore than headwear, the Saqib Shami Cap is a symbol of heritage, honor, and royal style.\n\nHeritage Note: This heritage crown pairs perfectly with Cape Malay Heritage occasions, offering a Jumu'ah ready statement piece handcrafted in Cape Town for men who value dignified presence.\n\n🛒 Limited stock available — secure yours today.",
     imageURL: "/collection/saqib-shami-cap.png",
@@ -87,7 +87,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 7,
     stockQuantity: 7,
     originalPrice: 990,
-    price: 693, // ~30% off
+    price: 690, // ~30% off
     description:
       "Naqshbandi Taj — Spiritual Heritage Collection\n\nThe Naqshbandi Taj represents spiritual refinement and timeless Sufi tradition. Designed with elegance and simplicity, this Taj reflects humility, discipline, and inner dignity — values long associated with the Naqshbandi spiritual path.\n\nIts rounded, layered structure and subtle detailing create a calm yet distinguished presence, making it ideal for spiritual gatherings, dhikr assemblies, and special religious occasions.\n\nCrafted for comfort and graceful appearance, the Taj maintains its form while offering light, breathable wear for extended use.\n\nWhy customers choose it\n• Traditional Taj design inspired by Sufi heritage\n• Elegant layered form symbolizing spiritual discipline\n• Ideal for gatherings, dhikr, and sacred occasions\n• Lightweight and comfortable for extended wear\n• A symbol of humility and spiritual identity\n\nMore than headwear, the Naqshbandi Taj represents tradition, devotion, and inner refinement.\n\nHeritage Note: This Naqshbandi Taj connects Cape Malay Heritage with classical Sufi lineage and is Jumu'ah ready for dhikr and gatherings, carefully handcrafted in Cape Town.\n\n🛒 Limited pieces available — secure yours today.",
     imageURL: "/collection/naqshbandi-taj.png",
@@ -99,7 +99,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 12,
     stockQuantity: 12,
     originalPrice: 250,
-    price: 175, // ~30% off
+    price: 180, // ~30% off
     description:
       "Luxury Arabic Rumal — Classic Desert Collection\n\nThe Luxury Arabic Rumal blends timeless Middle Eastern tradition with modern versatility. Known for its distinctive woven patterns and flowing tassel finish, the rumal has long been worn as both a practical and stylish garment across the Arab world.\n\nCrafted from soft, breathable fabric, it provides comfort in warm and cool conditions while adding character to both traditional and contemporary outfits. Whether worn around the neck, over the shoulders, or styled as headwear, it offers effortless elegance.\n\nWhy customers choose it\n• Authentic Arabic woven pattern with premium finish\n• Soft, breathable fabric suitable for all seasons\n• Versatile styling for daily wear or travel\n• Adds character to both traditional and modern attire\n• Durable weave with elegant tassel detailing\n\nA timeless accessory that combines function, culture, and refined style.\n\nHeritage Note: Paired with a Traditional Kufi or Premium Nalain Cap, this rumal supports a full Jumu'ah ready look that honours Cape Malay Heritage while remaining handcrafted in Cape Town.\n\n🛒 Limited stock available — add yours to cart today.",
     imageURL: "/collection/luxury-arabic-rumal.png",
@@ -123,7 +123,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 7,
     stockQuantity: 7,
     originalPrice: 250,
-    price: 175, // ~30% off
+    price: 180, // ~30% off
     description:
       "Guevara Military Cap — Cuban-Afghan Hybrid Collection\n\nInspired by the iconic revolutionary style associated with Che Guevara and blended with traditional Afghan Pakol craftsmanship, the Guevara Military Cap delivers a bold Cuban-Afghan hybrid look. Designed for men who appreciate heritage with a strong, modern edge, this cap makes a confident statement wherever it's worn.\n\nCrafted from soft yet durable fabric, the structured military profile meets the comfort of the classic rolled Pakol form, while the metal star insignia reinforces its rugged, commanding appeal. Perfect for casual wear, travel, and outdoor styling.\n\nWhy customers choose it\n• Unique Cuban-Afghan hybrid military design\n• Signature star insignia for a bold visual statement\n• Soft, warm fabric suited for cooler conditions\n• Comfortable rolled construction for daily wear\n• Ideal for casual, travel, and street styling\n\nA cap that merges tradition, resilience, and unmistakable character.\n\nHeritage Note: For brothers who want a street-ready cap with a nod to Cape Malay Heritage, this piece can sit alongside your Traditional Kufi collection as a casual, handcrafted-in-Cape-Town option.\n\n🛒 Limited stock available — add yours to cart today.",
     imageURL: "/collection/geuvara-military-cap.png",
@@ -135,7 +135,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 15,
     stockQuantity: 15,
     originalPrice: 135,
-    price: 95, // ~30% off
+    price: 100, // ~30% off
     description:
       "Al Hassan Perfumes — Alcohol-Free Collection\n\nDiscover the richness of Arabian fragrance with Al Hassan Alcohol-Free Perfumes, crafted for long-lasting scent and everyday elegance. Perfect for daily wear, prayer, and special occasions.\n\nAvailable Scents\n\nWhite Oudh – Smooth, refined oud with a soft woody warmth, ideal for daily elegance.\n\nAmeer Al Oudh – Deep, rich, and powerful oud with warm amber tones, perfect for evening and special occasions.\n\nBaccarat Rouge Style – Modern, sweet, and musky notes for a bold, contemporary signature scent.\n\nWhy customers choose it\n• Alcohol-free and skin-friendly\n• Long-lasting fragrance\n• Perfect for daily and occasion wear\n• Elegant, gift-ready presentation\n\nHeritage Note: Paired with a Premium Nalain Cap or Traditional Kufi, these scents complete a Jumu'ah ready look that reflects Cape Malay Heritage and the dignity of being properly Biedaied.\n\n🛒 Choose your signature scent today.",
     imageURL: "/collection/al-hassan-perfume.png",
@@ -159,7 +159,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 0,
     stockQuantity: 0,
     originalPrice: 650,
-    price: 455, // ~30% off
+    price: 460, // ~30% off
     description:
       "Ertugral Winter Cap — Qadiriyah Collection\n\nInspired by the legendary Ertugral style and linked to Qadiriyah heritage aesthetics, this Ertugral Winter Cap combines rugged tradition with winter-ready craftsmanship. Its conical leather structure and warm faux-fur brim create a bold, commanding look while offering excellent cold-weather protection.\n\nDesigned for outdoor wear and winter gatherings, the cap blends historical warrior style with modern comfort, making it both practical and distinctive.\n\nWhy customers choose it\n• Ertugral-inspired winter warrior design\n• Durable leather finish with warm fur-lined brim\n• Provides warmth and comfort in cold conditions\n• Distinctive emblem detailing for added character\n• Ideal for winter wear and outdoor styling\n\nA winter cap that carries strength, heritage, and unmistakable presence.\n\nHeritage Note: This winter crown complements your Religious Headwear collection for colder days, giving Cape Town brothers a Jumu'ah ready, handcrafted nod to classical warrior heritage.\n\n🛒 Limited stock available — add yours to cart today.",
     imageURL: "/collection/ertugral-winter-cap.png",
@@ -171,7 +171,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 2,
     stockQuantity: 2,
     originalPrice: 550,
-    price: 385, // ~30% off
+    price: 390, // ~30% off
     description:
       "Royal Ottoman Fez — Heritage Collection\n\nThe Royal Ottoman Fez is a timeless symbol of dignity and classical Ottoman elegance. Crafted from premium velvet with its signature black tassel, this fez delivers a refined presence suited for ceremonial wear, formal gatherings, and cultural occasions.\n\nMade with exceptional craftsmanship and durable construction, this is among the finest quality fez caps available — designed to maintain its shape and beauty for years, often lasting a lifetime with proper care.\n\nWhy customers choose it\n• Premium velvet finish with classic Ottoman design\n• Durable, structured build for long-term use\n• Elegant tassel detail completing the traditional look\n• Ideal for ceremonies, events, and cultural attire\n• A timeless piece that never goes out of style\n\nA fez that carries history, elegance, and lasting quality.\n\nHeritage Note: This Royal Ottoman Fez sits naturally within Religious Headwear for Cape Malay Heritage, offering a Jumu'ah ready and ceremonial option that is finished and checked by hand in Cape Town.\n\n🛒 Limited stock available — add yours to cart today.",
     imageURL: "/collection/royal-ottoman-fez.png",
@@ -195,7 +195,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 6,
     stockQuantity: 6,
     originalPrice: 950,
-    price: 665, // ~30% off
+    price: 670, // ~30% off
     description:
       "A powerful expression of spiritual lineage and refined tradition. The Turkish Naqshbandi Taj is meticulously wrapped with precision-folded layers, forming a structured and commanding silhouette rooted in classical Turkish and Naqshbandi heritage.\n\nAvailable in timeless shades of deep black, pure white, and rich emerald green, each Taj reflects balance, discipline, and inner strength. The clean, symmetrical wrapping represents order and spiritual focus, while the firm construction ensures lasting shape and dignified comfort throughout the day.\n\nIdeal for scholars, seekers, and men of presence, this Taj is suited for Jumu'ah, Eid, nikah ceremonies, dhikr gatherings, and formal spiritual occasions. It is not merely worn—it is carried with intention.\n\nA mark of humility and authority. A symbol of the Naqshbandi path.\n\nHeritage Note: This Turkish Naqshbandi Taj ties Cape Town brothers into a global Sufi and Cape Malay Heritage line, providing a Jumu'ah ready, handcrafted Religious Headwear piece that honours the Naqshbandi path.\n",
     imageURL: "/collection/turkish-naqshbandi-taj.png",

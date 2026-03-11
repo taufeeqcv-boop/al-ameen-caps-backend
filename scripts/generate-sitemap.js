@@ -19,13 +19,15 @@ const baseUrl = SITEMAP_BASE_URL.replace(/\/+$/, '');
 
 const staticPages = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
-  { path: '/shop', changefreq: 'weekly', priority: '0.9' },
+  // Shop: primary commercial page – highest priority, crawled frequently during launch
+  { path: '/shop', changefreq: 'daily', priority: '1.0' },
   { path: '/collection/headwear', changefreq: 'weekly', priority: '0.85' },
   { path: '/blog', changefreq: 'weekly', priority: '0.8' },
-  { path: '/guides', changefreq: 'monthly', priority: '0.7' },
-  { path: '/guides/kufi-care', changefreq: 'monthly', priority: '0.6' },
-  { path: '/guides/eid-headwear-south-africa', changefreq: 'monthly', priority: '0.6' },
-  { path: '/guides/islamic-headwear-cape-town', changefreq: 'monthly', priority: '0.6' },
+  // Guides: educational content – high but slightly lower than shop/home
+  { path: '/guides', changefreq: 'monthly', priority: '0.8' },
+  { path: '/guides/kufi-care', changefreq: 'monthly', priority: '0.8' },
+  { path: '/guides/eid-headwear-south-africa', changefreq: 'monthly', priority: '0.8' },
+  { path: '/guides/islamic-headwear-cape-town', changefreq: 'monthly', priority: '0.8' },
   { path: '/community', changefreq: 'weekly', priority: '0.6' },
   { path: '/about', changefreq: 'monthly', priority: '0.7' },
   { path: '/heritage', changefreq: 'monthly', priority: '0.7', video: true },
@@ -46,10 +48,14 @@ const blogPages = (BLOG_POSTS || []).map((p) => ({
   priority: '0.7',
 }));
 
+// Products: all collection items, with explicit lastmod for sale update
+const PRODUCTS_LASTMOD = '2026-03-11'; // Grand Opening Eid Sale update
+
 const productPages = (COLLECTION_PRODUCTS || []).map((p) => ({
   path: `/product/${p.id}`,
-  changefreq: 'weekly',
+  changefreq: 'daily',
   priority: '0.8',
+  lastmod: PRODUCTS_LASTMOD,
 }));
 
 const urls = [...staticPages, ...blogPages, ...productPages];
@@ -60,8 +66,8 @@ function toAbsoluteUrl(path) {
   return `${baseUrl}${p}`;
 }
 
-// lastmod in ISO date format (build date) — helps search engines prioritize crawling
-const lastmod = new Date().toISOString().split('T')[0];
+// lastmod in ISO date format (build date) — default for pages without explicit lastmod
+const buildLastmod = new Date().toISOString().split('T')[0];
 
 // Video sitemap extension: one video on /heritage so "Discovered videos" > 0
 const VIDEO_HERITAGE = {
@@ -73,6 +79,7 @@ const VIDEO_HERITAGE = {
 
 function urlBlock(u) {
   const loc = toAbsoluteUrl(u.path);
+  const lastmod = u.lastmod || buildLastmod;
   let videoBlock = '';
   if (u.video && u.path === '/heritage') {
     videoBlock = `
