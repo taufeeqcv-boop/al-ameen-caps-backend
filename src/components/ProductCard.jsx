@@ -48,21 +48,26 @@ export default function ProductCard({ product, index = 0 }) {
             height={400}
             loading={index < 3 ? "eager" : "lazy"}
             className="w-full h-full"
-            imgClassName="object-cover object-center"
+            imgClassName={`object-cover object-center ${available <= 0 && !isReservationOnly ? 'opacity-50' : ''}`}
           />
-          {isOnSale && (
+          {/* Sold Out Overlay - covers entire image when quantity is 0 */}
+          {available <= 0 && !isReservationOnly && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
+              <span className="text-white text-xl sm:text-2xl font-bold uppercase tracking-wider px-4 py-2 bg-red-600 rounded-lg shadow-lg border-2 border-white/20">
+                SOLD OUT
+              </span>
+            </div>
+          )}
+          {/* Sale Badge */}
+          {isOnSale && available > 0 && (
             <span className="absolute top-2 right-2 px-2.5 py-1 rounded bg-red-600 text-white text-xs font-bold uppercase tracking-wide shadow-lg z-10">
               SALE
             </span>
           )}
-          {available <= 0 && !isOnSale && (
-            <span className="absolute top-2 right-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">
-              {isReservationOnly ? "Pre-order" : "Out of stock"}
-            </span>
-          )}
-          {available <= 0 && isOnSale && (
-            <span className="absolute top-2 left-2 px-2 py-1 rounded bg-primary/90 text-secondary text-xs font-medium uppercase tracking-wide">
-              {isReservationOnly ? "Pre-order" : "Out of stock"}
+          {/* Pre-order Badge */}
+          {isReservationOnly && (
+            <span className="absolute top-2 right-2 px-2.5 py-1 rounded bg-amber-600 text-white text-xs font-bold uppercase tracking-wide shadow-lg z-10">
+              PRE-ORDER
             </span>
           )}
         </div>
