@@ -76,7 +76,6 @@ export default function Review() {
         title="Leave a review"
         description="Review your Al-Ameen Caps order. Your feedback helps other customers."
         url="/review"
-        noindex
       />
       <Navbar />
       <main className="flex-1 pt-32 pb-16">
