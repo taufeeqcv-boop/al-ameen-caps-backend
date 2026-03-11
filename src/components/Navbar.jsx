@@ -57,20 +57,21 @@ export default function Navbar() {
   return (
     <>
       {/* Grand Opening Eid Sale Announcement Bar */}
-      <div className="fixed top-0 left-0 right-0 z-[60] bg-amber-600 text-white text-center py-2.5 px-4 shadow-md">
-        <p className="text-sm sm:text-base font-semibold">
-          🌙 Grand Opening &amp; Eid Pre-Sale: Up to 30% Off Premium Kufis. Stock arriving soon!
+      <div className="fixed top-0 left-0 right-0 z-[60] bg-amber-600 text-white text-center py-2 px-2 sm:py-2.5 sm:px-4 shadow-md">
+        <p className="text-[11px] sm:text-xs md:text-sm font-semibold leading-tight">
+          <span className="hidden sm:inline">🌙 Grand Opening &amp; Eid Pre-Sale: </span>
+          <span>Up to 30% Off Premium Kufis. Stock arriving soon!</span>
         </p>
       </div>
       <header className="fixed top-[2.5rem] sm:top-[2.75rem] left-0 right-0 z-50 border-b border-accent/40 bg-[#0d0d0d] shadow-md">
         <nav className="bg-[#0d0d0d]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between min-h-[5.5rem] py-2 gap-6 lg:gap-10">
-            <Link to="/" className="flex items-center gap-3 flex-shrink-0 mr-4">
-              <img src={logoImg} alt="Al-Ameen Caps" width={80} height={80} className="h-20 w-auto object-contain" />
-              <span className="font-serif text-xl font-semibold text-accent hidden sm:inline">Al-Ameen Caps</span>
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center justify-between min-h-[5rem] sm:min-h-[5.5rem] py-2 gap-2 sm:gap-4 lg:gap-6">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <img src={logoImg} alt="Al-Ameen Caps" width={80} height={80} className="h-12 sm:h-16 lg:h-20 w-auto object-contain" />
+              <span className="font-serif text-lg sm:text-xl font-semibold text-accent hidden sm:inline">Al-Ameen Caps</span>
             </Link>
-            <div className="hidden md:flex items-center gap-6 lg:gap-8 mx-4" role="navigation" aria-label="Main">
+            <div className="hidden lg:flex items-center gap-4 xl:gap-6 mx-2 xl:mx-4" role="navigation" aria-label="Main">
               {navLinks.map(({ to, label }) => {
                 const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
                 return (
@@ -86,25 +87,25 @@ export default function Navbar() {
                 );
               })}
             </div>
-            <div className="flex items-center gap-4 lg:gap-6 flex-shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 flex-shrink-0">
               <a
                 href={FACEBOOK_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 text-secondary hover:text-accent transition-colors rounded ml-2"
+                className="p-1.5 sm:p-2 text-secondary hover:text-accent transition-colors rounded"
                 aria-label="Al-Ameen Caps on Facebook"
               >
-                <Facebook className="w-5 h-5" />
+                <Facebook className="w-4 h-4 sm:w-5 sm:h-5" />
               </a>
               <button
                 type="button"
                 onClick={() => setCartOpen(true)}
-                className="px-4 py-2.5 rounded border-2 border-accent text-accent hover:bg-accent hover:text-primary transition-colors font-medium"
+                className="px-2.5 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded border-2 border-accent text-accent hover:bg-accent hover:text-primary transition-colors font-medium text-xs sm:text-sm whitespace-nowrap"
                 aria-label={`Cart, ${cartCount} items`}
               >
-                Cart ({cartCount})
+                <span className="hidden sm:inline">Cart </span>({cartCount})
               </button>
-              <Link to="/checkout" className="hidden sm:inline-flex px-5 py-2.5 text-sm font-semibold rounded bg-accent text-primary hover:bg-accent-light transition-colors">
+              <Link to="/checkout" className="hidden xl:inline-flex px-3 lg:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold rounded bg-accent text-primary hover:bg-accent-light transition-colors whitespace-nowrap">
                 Checkout
               </Link>
               {authConfigured && (
@@ -113,10 +114,10 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); setUserMenuOpen((o) => !o); }}
-                      className="hidden sm:flex items-center gap-1 px-3 py-2 rounded text-accent hover:bg-accent/10 transition-colors font-medium"
+                      className="hidden lg:flex items-center gap-1 px-2 xl:px-3 py-1.5 sm:py-2 rounded text-accent hover:bg-accent/10 transition-colors font-medium text-xs sm:text-sm"
                     >
-                      <span>Assalamu alaikum, {firstName}</span>
-                      <ChevronDown className={`w-4 h-4 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+                      <span className="hidden xl:inline">Assalamu alaikum, </span><span>{firstName}</span>
+                      <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
                     </button>
                     {userMenuOpen && (
                       <div className="absolute right-0 top-full mt-1 py-1 w-44 bg-secondary border border-accent/30 rounded shadow-lg z-50">
@@ -140,7 +141,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to="/account"
-                    className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-accent hover:underline"
+                    className="hidden lg:inline-flex px-2 xl:px-3 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-accent hover:underline whitespace-nowrap"
                   >
                     Sign In
                   </Link>
@@ -149,16 +150,16 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setMenuOpen((o) => !o)}
-                className="md:hidden p-2 text-secondary hover:text-accent rounded"
+                className="lg:hidden p-1.5 sm:p-2 text-secondary hover:text-accent rounded flex-shrink-0"
                 aria-label={menuOpen ? "Close menu" : "Open menu"}
               >
-                {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {menuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
               </button>
             </div>
           </div>
         </div>
         {menuOpen && (
-          <div className="md:hidden border-t border-accent/50 bg-primary">
+          <div className="lg:hidden border-t border-accent/50 bg-primary">
             <div className="px-4 py-4 flex flex-col gap-2">
               {navLinks.map(({ to, label }) => {
                 const isActive = to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
