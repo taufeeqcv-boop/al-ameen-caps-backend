@@ -134,6 +134,66 @@ export default function OrderTracking() {
                 Track your parcel
               </a>
             )}
+
+            {/* Order Timeline */}
+            <div className="mt-12 max-w-md mx-auto">
+              <h2 className="text-lg font-semibold text-primary mb-6 text-center">Order Timeline</h2>
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent flex items-center justify-center text-primary font-bold text-sm">1</div>
+                  <div className="flex-1 pt-1">
+                    <p className="font-medium text-primary">Order Processed at Heritage Workshop</p>
+                    <p className="text-sm text-primary/60 mt-1">Your order has been confirmed and is being prepared.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent flex items-center justify-center text-primary font-bold text-sm">2</div>
+                  <div className="flex-1 pt-1">
+                    <p className="font-medium text-primary">International Transit to South Africa</p>
+                    <p className="text-sm text-primary/60 mt-1">Your order is in transit to our Cape Town facility.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/30 flex items-center justify-center text-primary font-bold text-sm">3</div>
+                  <div className="flex-1 pt-1">
+                    <p className="font-medium text-primary/70">Quality Control & Local Dispatch (Cape Town)</p>
+                    <p className="text-sm text-primary/60 mt-1">Final inspection and dispatch via Fastway Couriers.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* International Consignment Details - shown if international tracking data exists */}
+            {data.international_tracking && (
+              <div className="mt-10 p-6 bg-secondary/10 rounded-xl text-left max-w-sm mx-auto">
+                <h3 className="text-sm font-semibold text-primary mb-3 uppercase tracking-wide">International Consignment Details</h3>
+                <div className="space-y-3">
+                  {Array.isArray(data.international_tracking) ? (
+                    data.international_tracking.map((tracking, idx) => (
+                      <div key={idx}>
+                        <span className="text-xs font-medium text-primary/60 uppercase tracking-wide">Tracking #{idx + 1}</span>
+                        <p className="text-primary font-mono text-sm mt-1">{tracking.number || tracking}</p>
+                        {tracking.url && (
+                          <a
+                            href={tracking.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-accent text-sm hover:underline block mt-1"
+                          >
+                            Track consignment →
+                          </a>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div>
+                      <span className="text-xs font-medium text-primary/60 uppercase tracking-wide">Tracking Number</span>
+                      <p className="text-primary font-mono text-sm mt-1">{data.international_tracking}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <>

@@ -48,7 +48,8 @@ function getOrderConfirmationHtml(data) {
     <div class="divider"></div>
     <p class="heading accent">Thank you for your order</p>
     <p class="body"><strong>Hello ${escapeHtml(displayName)},</strong></p>
-    <p class="body">We have received your payment. Your order is being prepared and we will notify you when it is on its way.</p>
+    <p class="body">We have received your payment. Your order is in transit from our international heritage workshop and we will notify you when it arrives in Cape Town.</p>
+    <p class="body" style="margin-top: 12px; font-weight: 500; color: #b8860b;">Estimated arrival: March 16th – 18th</p>
     <div class="order-details">
       <p style="margin:0 0 8px 0; font-weight: bold;">Order #${escapeHtml(String(orderId))}</p>
       <p style="margin:0 0 12px 0; color:#666;">${orderDateFormatted}</p>
@@ -155,7 +156,7 @@ exports.handler = async (event) => {
         items,
         siteUrl,
       }),
-      text: `Hello ${customerName},\n\nThank you for your order (${orderId}). We have received your payment and will notify you when it ships.\n\nTotal: R ${Number(order.total_amount).toFixed(2)}\n\nJazakallah khair — Al-Ameen Caps`,
+      text: `Hello ${customerName},\n\nThank you for your order (${orderId}). We have received your payment. Your order is in transit from our international heritage workshop and we will notify you when it arrives in Cape Town.\n\nEstimated arrival: March 16th – 18th\n\nTotal: R ${Number(order.total_amount).toFixed(2)}\n\nJazakallah khair — Al-Ameen Caps`,
     });
     return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ok: true, message: "Order confirmation sent." }) };
   } catch (err) {

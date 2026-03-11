@@ -43,8 +43,15 @@ export default function Shop() {
         localBusiness
       />
       <Navbar />
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24" role="main">
-        <h1 className="font-serif text-3xl font-semibold text-primary mb-6">Inaugural Collection — Kufi, Fez, Taj, Turban</h1>
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[8.5rem] sm:pt-[9rem] pb-24" role="main">
+        <div className="mb-8">
+          <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-primary mb-2 leading-tight">
+            Inaugural Collection
+          </h1>
+          <p className="text-lg text-primary/70 font-serif">
+            Kufi, Fez, Taj, Turban
+          </p>
+        </div>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-10">
           <label htmlFor="shop-search" className="sr-only">Search products</label>
@@ -72,7 +79,7 @@ export default function Shop() {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" role="list">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8" role="list">
           {filtered.map((p, i) => (
             <ProductCard key={p.sku ?? p.id ?? i} product={p} index={i} />
           ))}
