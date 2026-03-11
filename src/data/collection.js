@@ -38,7 +38,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 50,
     stockQuantity: 50,
     originalPrice: 145,
-    price: 102, // ~30% off
+    price: 100,
     description:
       "Na'lain Premium Cap — Signature Collection\n\nCrafted for those who carry tradition with quiet confidence, the Na'lain Premium Cap blends timeless Islamic heritage with refined modern craftsmanship.\n\nInspired by sacred geometry and classical artistry, the elegant embroidered motif crowns a cap designed for comfort, dignity, and everyday wear — whether for Jumu'ah, special gatherings, or daily devotion.\n\nEach piece reflects meticulous attention to detail: clean stitching, breathable fabric, and a structured form that maintains its shape while offering all-day comfort.\n\nWhy customers love it\n• Premium woven construction for durability and comfort\n• Elegant embroidered design inspired by sacred tradition\n• Lightweight and breathable for daily wear\n• Maintains shape and structure over time\n• Suitable for masjid, events, and everyday use\n\nMore than just headwear, the Na'lain Premium Cap is a statement of identity — honoring heritage while embracing modern style.\n\nWear it with dignity. Carry tradition with pride.\n\nHeritage Note: This Premium Nalain Cap is a traditional kufi rooted in Cape Malay Heritage — a Jumu'ah ready, Biedaied-inspired piece handcrafted in Cape Town for those who want their crown to reflect local dignity.\n\n🛒 Limited stock available — add yours to cart today.",
     imageURL: "/collection/nalain-cap.png",
