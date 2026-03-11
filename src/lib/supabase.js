@@ -174,13 +174,15 @@ export const getProducts = async () => {
       const sb = findSupabaseMatch(c, supabaseList);
       const imageURL = normalizeImageUrl(c.imageURL) || (c.imageURL ? (c.imageURL.startsWith('/') ? c.imageURL : `/${c.imageURL}`) : undefined) || undefined;
       const quantityAvailable = sb != null ? Math.max(0, getQuantityAvailable(sb, [c])) : Math.max(0, Number(c.quantityAvailable) || 0);
-      const price = sb != null ? Number(sb.price) || 0 : Number(c.price) || 0;
+      // Always use collection (frontend) price as source of truth so sales/discounts stay consistent
+      const price = Number(c.price) || (sb != null ? Number(sb.price) || 0 : 0);
       return {
         id: c.id,
         name: c.name,
         description: c.description,
         sku: sb?.sku ?? c.id,
         price,
+        originalPrice: c.originalPrice != null ? Number(c.originalPrice) : undefined,
         quantityAvailable,
         imageURL,
         category: c.category,
@@ -195,6 +197,7 @@ export const getProducts = async () => {
       description: c.description,
       sku: c.id,
       price: Number(c.price) || 0,
+      originalPrice: c.originalPrice != null ? Number(c.originalPrice) : undefined,
       quantityAvailable: Math.max(0, Number(c.quantityAvailable) || 0),
       imageURL: normalizeImageUrl(c.imageURL) || (c.imageURL ? (c.imageURL.startsWith('/') ? c.imageURL : `/${c.imageURL}`) : undefined) || undefined,
       category: c.category,
@@ -296,9 +299,12 @@ export const getProductById = async (id) => {
       if (quantityAvailable <= 0) quantityAvailable = Math.max(0, Number(match.quantityAvailable) || 0);
       if (imageURL == null || imageURL === '') imageURL = normalizeImageUrl(match.imageURL) || undefined;
     }
+    const price = match ? (Number(match.price) || (Number(data.price) || 0)) : (Number(data.price) || 0);
+    const originalPrice = match?.originalPrice != null ? Number(match.originalPrice) : undefined;
     return {
       ...data,
-      price: Number(data.price) || 0,
+      price,
+      originalPrice,
       quantityAvailable,
       imageURL,
     };

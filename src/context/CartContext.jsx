@@ -17,7 +17,9 @@ function getCurrentPrice(productId) {
 function getItemPrice(item) {
   const lookedUp = getCurrentPrice(item?.id);
   const stored = Number(item?.price) || 0;
-  return Math.max(lookedUp, stored);
+  // Prefer the latest collection (sale) price when available; fall back to stored price
+  if (lookedUp > 0) return lookedUp;
+  return stored;
 }
 
 function normalizeItem(item) {

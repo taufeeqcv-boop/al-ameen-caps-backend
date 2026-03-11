@@ -63,7 +63,8 @@ export default function Navbar() {
           <span>Up to 30% Off Premium Kufis. Stock arriving soon!</span>
         </p>
       </div>
-      <header className="fixed top-[2.5rem] sm:top-[2.75rem] left-0 right-0 z-50 border-b border-accent/40 bg-[#0d0d0d] shadow-md">
+      {/* Position navbar directly under announcement bar (no visible gap) */}
+      <header className="fixed top-[2.25rem] sm:top-[2.6rem] left-0 right-0 z-50 border-b border-accent/40 bg-[#0d0d0d] shadow-md">
         <nav className="bg-[#0d0d0d]">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between min-h-[5rem] sm:min-h-[5.5rem] py-2 gap-2 sm:gap-4 lg:gap-6">

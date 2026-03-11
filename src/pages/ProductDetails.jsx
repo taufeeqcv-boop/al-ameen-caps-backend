@@ -316,15 +316,37 @@ const ProductDetails = () => {
                     ? "Out of stock"
                     : `${available} available`}
             </p>
-            <p className="text-2xl font-bold text-amber-700 mb-6">
-              {selectedVariant
-                ? formatPrice(
+            <div className="mb-6">
+              {selectedVariant ? (
+                <p className="text-2xl font-bold text-amber-700">
+                  {formatPrice(
                     selectedVariant.price != null
                       ? Number(selectedVariant.price)
                       : Number(product.price) + (Number(selectedVariant.price_adjustment) || 0)
-                  )
-                : formatPrice(product.price)}
-            </p>
+                  )}
+                </p>
+              ) : (
+                <>
+                  {product.originalPrice && Number(product.originalPrice) > Number(product.price) ? (
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-lg text-gray-400 line-through">
+                        {formatPrice(product.originalPrice)}
+                      </span>
+                      <span className="text-2xl font-bold text-amber-600">
+                        {formatPrice(product.price)}
+                      </span>
+                      <span className="px-2 py-1 bg-red-600 text-white text-xs font-bold uppercase rounded">
+                        Sale
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-2xl font-bold text-amber-700">
+                      {formatPrice(product.price)}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
 
             {variants.length > 0 && (
               <div className="space-y-4 mb-6">
