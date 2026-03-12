@@ -49,12 +49,12 @@ const blogPages = (BLOG_POSTS || []).map((p) => ({
 }));
 
 // Products: all collection items, with explicit lastmod for sale update
-const PRODUCTS_LASTMOD = '2026-03-11'; // Grand Opening Eid Sale update
+const PRODUCTS_LASTMOD = '2026-03-12'; // Grand Opening Eid Sale update
 
 const productPages = (COLLECTION_PRODUCTS || []).map((p) => ({
   path: `/product/${p.id}`,
   changefreq: 'daily',
-  priority: '0.8',
+  priority: '1.0',
   lastmod: PRODUCTS_LASTMOD,
 }));
 
@@ -67,7 +67,7 @@ function toAbsoluteUrl(path) {
 }
 
 // lastmod in ISO date format (build date) — default for pages without explicit lastmod
-const buildLastmod = new Date().toISOString().split('T')[0];
+const buildLastmod = '2026-03-12';
 
 // Video sitemap extension: one video on /heritage so "Discovered videos" > 0
 const VIDEO_HERITAGE = {

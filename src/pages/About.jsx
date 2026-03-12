@@ -40,18 +40,19 @@ export default function About() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <p className="text-lg">
-              I founded Al-Ameen Caps to offer <strong className="text-primary">premium, handcrafted Islamic headwear</strong> to those
-              who value both tradition and excellence. The crown of the believer deserves the same care and dignity in
-              craft as the most respected luxury goods—and that is the standard I hold myself to.
+              Welcome to <strong className="text-primary">Al-Ameen Caps</strong>, your premier destination for high-quality traditional
+              headwear. Founded with a commitment to <span className="text-accent font-medium">preserving Islamic heritage and style</span>,
+              we specialise in a diverse range of exquisite caps, including the elegant Masnadi, the spiritual Naqshbandi, and
+              the classic Turkish designs.
             </p>
             <p>
-              Every piece is made with attention to detail, quality materials, and the intention that it be worn in worship and
-              in daily life. <span className="text-accent font-medium">Spirituality meets luxury</span> in every cap we offer:
-              timeless design, enduring quality, and a shopping experience that reflects the respect we have for our customers.
+              Our mission is to provide products that reflect both <strong className="text-primary">faith and fashion</strong>, selected for
+              superior craftsmanship and comfort. Every crown is curated to sit at the intersection of premium quality and
+              spiritual dignity—pieces you can wear with confidence from Jumu&apos;ah to Eid and beyond.
             </p>
             <p>
-              We are a small brand focused on trust, authenticity, and a “Rolex-style” standard—minimalist, high-trust, and
-              built to last. Thank you for being part of the Al-Ameen story.
+              From Cape Town to Johannesburg and beyond, Al-Ameen Caps serves those who want their headwear to carry the same
+              heritage-rich presence as the families and masajid they come from. Thank you for being part of the Al-Ameen story.
             </p>
             <p className="mt-4">
               <Link to="/shop" className="text-accent font-medium hover:underline">Browse the collection</Link>
