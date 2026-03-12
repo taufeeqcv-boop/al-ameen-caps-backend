@@ -148,8 +148,8 @@ export const COLLECTION_PRODUCTS = [
   {
     id: "collection-9",
     name: "Al Hassan Perfumes – Jumu'ah Ready",
-    quantityAvailable: 15,
-    stockQuantity: 15,
+    quantityAvailable: 0,
+    stockQuantity: 0,
     originalPrice: 140,
     price: 100, // ~30% off
     description:
@@ -226,20 +226,6 @@ export const COLLECTION_PRODUCTS = [
       "A powerful expression of spiritual lineage and refined tradition. The Turkish Naqshbandi Taj is meticulously wrapped with precision-folded layers, forming a structured and commanding silhouette rooted in classical Turkish and Naqshbandi heritage.\n\nAvailable in timeless shades of deep black, pure white, and rich emerald green, each Taj reflects balance, discipline, and inner strength. The clean, symmetrical wrapping represents order and spiritual focus, while the firm construction ensures lasting shape and dignified comfort throughout the day.\n\nIdeal for scholars, seekers, and men of presence, this Taj is suited for Jumu'ah, Eid, nikah ceremonies, dhikr gatherings, and formal spiritual occasions. It is not merely worn—it is carried with intention.\n\nA mark of humility and authority. A symbol of the Naqshbandi path.\n\nHeritage Note: This Turkish Naqshbandi Taj ties Cape Town brothers into a global Sufi and Cape Malay Heritage line, providing a Jumu'ah ready, handcrafted Religious Headwear piece that honours the Naqshbandi path.\n",
     imageURL: "/images/WhatsApp Image 2026-03-12 at 2.15.41 AM.jpeg",
     category: "Taj",
-    lastmod: "2026-03-12",
-    changefreq: "daily",
-  },
-  {
-    id: "turkish-red-cap",
-    name: "Turkish Red Cap – Everyday Fez Style",
-    quantityAvailable: 6,
-    stockQuantity: 6,
-    originalPrice: 250,
-    price: 250,
-    description:
-      "Turkish Red Cap — Everyday Fez Style\n\nA lightweight Turkish-inspired red cap that brings the feel of a traditional fez into a comfortable, daily-wear profile. Perfect for Jumu'ah, madrasa events, or gifting.",
-    imageURL: "/collection/turkish-red-cap.png",
-    category: "Caps",
     lastmod: "2026-03-12",
     changefreq: "daily",
   },
