@@ -29,15 +29,15 @@ export function generateSignature(
     }
   }
 
-  // Sort keys alphabetically (PayFast standard requirement)
+  // Sort keys alphabetically (PayFast standard requirement for form POST)
   const keys = Object.keys(filtered).sort();
   const parts = keys.map((key) => `${key}=${encodeValue(filtered[key])}`);
   let str = parts.join('&');
 
-  // Append passphrase (required for PayFast signature validation)
-  if (passphrase != null && passphrase !== '') {
-    str += `&passphrase=${encodeValue(passphrase)}`;
-  }
+  // CRITICAL: PayFast requires passphrase to be appended even if empty
+  // Always append passphrase parameter (PayFast will validate it)
+  const passphraseValue = passphrase != null ? String(passphrase).trim() : '';
+  str += `&passphrase=${encodeValue(passphraseValue)}`;
 
   return crypto.createHash('md5').update(str).digest('hex');
 }

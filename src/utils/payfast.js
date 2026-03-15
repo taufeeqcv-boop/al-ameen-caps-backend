@@ -15,12 +15,15 @@ import md5 from "crypto-js/md5";
  * @returns {string} MD5 hash
  */
 export const generateSignature = (data, passPhrase = null) => {
-  // PayFast signature generation:
+  // PayFast signature generation for form POST:
   // 1. Exclude merchant_key, signature, and testing from signature calculation
   // 2. Include all other non-empty fields
-  // 3. Sort keys alphabetically (PayFast standard requirement)
-  // 4. Build key=value pairs with URL encoding
-  // 5. Append passphrase at the end
+  // 3. Sort keys alphabetically (PayFast standard for form POST)
+  // 4. Build key=value pairs with URL encoding (%20 -> +)
+  // 5. Append passphrase at the end (always, even if empty string)
+  
+  // CRITICAL: PayFast requires passphrase to be appended even if empty
+  // This is different from some other payment gateways
 
   // Filter out empty/null values and exclude fields not in signature
   const filtered = {};
@@ -34,21 +37,28 @@ export const generateSignature = (data, passPhrase = null) => {
     }
   }
 
-  // Sort keys alphabetically (PayFast standard requirement)
+  // Sort keys alphabetically (PayFast standard requirement for form POST)
   const sortedKeys = Object.keys(filtered).sort();
   
-  // Build signature string
+  // Build signature string with proper URL encoding
   const parts = sortedKeys.map((key) => {
-    const encoded = encodeURIComponent(filtered[key]).replace(/%20/g, '+');
+    const value = filtered[key];
+    // URL encode and replace %20 with + (PayFast requirement)
+    const encoded = encodeURIComponent(value).replace(/%20/g, '+');
     return `${key}=${encoded}`;
   });
 
   let signatureString = parts.join('&');
 
-  // Append passphrase (required for PayFast signature validation)
-  if (passPhrase != null && passPhrase !== "") {
-    const encodedPassphrase = encodeURIComponent(String(passPhrase).trim()).replace(/%20/g, '+');
-    signatureString += `&passphrase=${encodedPassphrase}`;
+  // CRITICAL: PayFast requires passphrase to be appended even if empty or null
+  // Always append passphrase parameter (PayFast will validate it)
+  const passphraseValue = passPhrase != null ? String(passPhrase).trim() : '';
+  const encodedPassphrase = encodeURIComponent(passphraseValue).replace(/%20/g, '+');
+  signatureString += `&passphrase=${encodedPassphrase}`;
+
+  // Log signature string for debugging (remove in production if needed)
+  if (typeof console !== 'undefined' && console.log) {
+    console.log('PayFast Signature String (before MD5):', signatureString.replace(/passphrase=[^&]+/, 'passphrase=***'));
   }
 
   return md5(signatureString).toString();
