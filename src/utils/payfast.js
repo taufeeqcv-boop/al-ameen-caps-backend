@@ -15,41 +15,33 @@ import md5 from "crypto-js/md5";
  * @returns {string} MD5 hash
  */
 export const generateSignature = (data, passPhrase = null) => {
-  // PayFast required field order (exact order, not alphabetical)
-  const requiredOrder = [
-    'merchant_id',
-    'merchant_key',
-    'return_url',
-    'cancel_url',
-    'notify_url',
-    'name_first',
-    'name_last',
-    'email_address',
-    'm_payment_id',
-    'amount',
-    'item_name'
-  ];
+  // PayFast signature generation:
+  // 1. Exclude merchant_key, signature, and testing from signature calculation
+  // 2. Include all other non-empty fields
+  // 3. Sort keys alphabetically (PayFast standard requirement)
+  // 4. Build key=value pairs with URL encoding
+  // 5. Append passphrase at the end
 
-  // Filter out empty/null values and convert to string
+  // Filter out empty/null values and exclude fields not in signature
   const filtered = {};
   for (const key in data) {
     if (Object.prototype.hasOwnProperty.call(data, key)) {
       const val = data[key];
-      // Skip empty values and testing parameter (not included in signature)
-      if (val != null && val !== "" && key !== 'testing' && key !== 'signature') {
+      // Exclude: merchant_key (not in signature), signature (circular), testing (not in signature)
+      if (val != null && val !== "" && key !== 'merchant_key' && key !== 'signature' && key !== 'testing') {
         filtered[key] = String(val).trim();
       }
     }
   }
 
-  // Build signature string in PayFast's required order
-  const parts = [];
-  for (const key of requiredOrder) {
-    if (filtered[key] != null && filtered[key] !== '') {
-      const encoded = encodeURIComponent(filtered[key]).replace(/%20/g, '+');
-      parts.push(`${key}=${encoded}`);
-    }
-  }
+  // Sort keys alphabetically (PayFast standard requirement)
+  const sortedKeys = Object.keys(filtered).sort();
+  
+  // Build signature string
+  const parts = sortedKeys.map((key) => {
+    const encoded = encodeURIComponent(filtered[key]).replace(/%20/g, '+');
+    return `${key}=${encoded}`;
+  });
 
   let signatureString = parts.join('&');
 

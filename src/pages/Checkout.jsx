@@ -268,11 +268,19 @@ const Checkout = () => {
         : 'https://www.payfast.co.za/eng/process';
 
       // Debug logging - ALWAYS log in production to diagnose 500 errors
+      // Log the signature string being generated (before MD5) for debugging
+      const signatureData = { ...data };
+      delete signatureData.merchant_key; // Excluded from signature
+      delete signatureData.signature; // Excluded from signature
+      delete signatureData.testing; // Excluded from signature
+      const sortedKeys = Object.keys(signatureData).filter(k => signatureData[k]).sort();
+      const signatureStringPreview = sortedKeys.map(k => `${k}=${String(signatureData[k]).substring(0, 20)}...`).join('&') + (passPhrase ? '&passphrase=***' : '');
+      
       console.log('PayFast Configuration:', {
         isSandbox,
         payfastUrl,
         merchant_id: data.merchant_id ? `${data.merchant_id.substring(0, 4)}...` : 'MISSING',
-        merchant_key: data.merchant_key ? 'SET' : 'MISSING',
+        merchant_key: data.merchant_key ? 'SET (excluded from signature)' : 'MISSING',
         passphrase: passPhrase ? 'SET (from VITE_PAYFAST_PASSPHRASE)' : 'MISSING - CHECK NETLIFY ENV VARS',
         passphrase_length: passPhrase ? passPhrase.length : 0,
         amount: data.amount,
@@ -280,6 +288,7 @@ const Checkout = () => {
         item_name: data.item_name,
         signature_length: data.signature?.length || 0,
         signature_preview: data.signature ? `${data.signature.substring(0, 8)}...` : 'MISSING',
+        signature_string_preview: signatureStringPreview,
         return_url: data.return_url,
         cancel_url: data.cancel_url,
         notify_url: data.notify_url,
@@ -520,10 +529,10 @@ const Checkout = () => {
                       onChange={() => setDeliveryType('collection')}
                       className="text-accent focus:ring-accent"
                     />
-                    <span className="text-primary">Collect in Cape Town (Bo-Kaap) — Free</span>
+                    <span className="text-primary">Collect at Glengrove Lodge — Free</span>
                   </label>
                   {deliveryType === 'collection' && (
-                    <p className="text-xs text-primary/60">We will contact you to arrange collection.</p>
+                    <p className="text-xs text-primary/60">We will contact you to arrange collection at Glengrove Lodge.</p>
                   )}
                 </div>
               )}
