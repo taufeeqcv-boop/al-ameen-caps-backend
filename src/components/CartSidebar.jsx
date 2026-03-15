@@ -1,6 +1,6 @@
 // CartSidebar – slide-out cart connected to CartContext
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { useCart } from "../context/CartContext";
@@ -10,6 +10,28 @@ const enableEcommerce = import.meta.env.VITE_ENABLE_ECOMMERCE === 'true';
 
 export default function CartSidebar({ isOpen, onClose }) {
   const { cart, removeFromCart, updateQuantity, cartTotal, getItemPrice } = useCart();
+  
+  // Check if payment should be shown (same logic as Checkout page)
+  const merchantId = import.meta.env.VITE_PAYFAST_MERCHANT_ID;
+  const showPayment = useMemo(() => {
+    if (!cart.length) return false;
+    
+    // If PayFast merchant ID is present, show payment option when items are in stock
+    if (merchantId) {
+      // Check if at least one item is in stock (not pre-order and has quantity > 0)
+      const hasInStockItems = cart.some((item) => {
+        // Skip pre-order items
+        if (item?.isPreOrder) return false;
+        // Check if quantity is available (default to 50 if not set for manual override)
+        const quantityAvailable = item?.quantityAvailable ?? 50;
+        return quantityAvailable > 0;
+      });
+      return hasInStockItems;
+    }
+    // If PayFast is not configured, only show if ecommerce is enabled and no out of stock items
+    const hasOutOfStockItems = cart.some((item) => item?.isPreOrder || (item?.quantityAvailable ?? 0) <= 0);
+    return enableEcommerce && !hasOutOfStockItems;
+  }, [cart, merchantId]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -87,7 +109,7 @@ export default function CartSidebar({ isOpen, onClose }) {
               onClick={onClose}
               className="btn-primary mt-4 w-full py-3.5 text-center block"
             >
-              {enableEcommerce ? 'Checkout' : 'Proceed to Pre-Order'}
+              {showPayment ? 'Secure Checkout' : 'Proceed to Pre-Order'}
             </Link>
           </div>
         )}
