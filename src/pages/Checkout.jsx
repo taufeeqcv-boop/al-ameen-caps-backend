@@ -124,13 +124,23 @@ const Checkout = () => {
       });
     }
     try {
+      // PayFast configuration - all must use VITE_ prefix for frontend access
       const isSandbox = import.meta.env.VITE_PAYFAST_SANDBOX === 'true';
       const merchantId = import.meta.env.VITE_PAYFAST_MERCHANT_ID;
       const merchantKey = import.meta.env.VITE_PAYFAST_MERCHANT_KEY;
-      const passPhrase = import.meta.env.VITE_PAYFAST_PASSPHRASE;
+      const passPhrase = import.meta.env.VITE_PAYFAST_PASSPHRASE; // Explicitly use VITE_ prefix
 
       if (!merchantId || !merchantKey) {
         setError('PayFast is not configured. Please use Place Order.');
+        setLoading(false);
+        return;
+      }
+
+      // Validate passphrase is set (critical for signature generation)
+      if (!passPhrase) {
+        console.error('PayFast passphrase (VITE_PAYFAST_PASSPHRASE) is missing. Signature generation will fail.');
+        setError('PayFast configuration incomplete. Please contact support.');
+        setLoading(false);
         return;
       }
 
@@ -216,7 +226,9 @@ const Checkout = () => {
         data.testing = '1';
       }
 
-      const signature = generateSignature(data, passPhrase || null);
+      // Generate signature using VITE_PAYFAST_PASSPHRASE
+      // Passphrase is required for PayFast signature validation
+      const signature = generateSignature(data, passPhrase);
       data.signature = signature;
 
       // Validate signature was generated (MD5 hash is 32 characters)
@@ -258,7 +270,8 @@ const Checkout = () => {
         payfastUrl,
         merchant_id: data.merchant_id ? `${data.merchant_id.substring(0, 4)}...` : 'MISSING',
         merchant_key: data.merchant_key ? 'SET' : 'MISSING',
-        passphrase: passPhrase ? 'SET' : 'MISSING',
+        passphrase: passPhrase ? 'SET (from VITE_PAYFAST_PASSPHRASE)' : 'MISSING - CHECK NETLIFY ENV VARS',
+        passphrase_length: passPhrase ? passPhrase.length : 0,
         amount: data.amount,
         email_address: data.email_address,
         item_name: data.item_name,
