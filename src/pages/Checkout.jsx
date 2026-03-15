@@ -245,9 +245,35 @@ const Checkout = () => {
       }
 
       // Create and submit PayFast form
+      // PayFast URLs:
+      // Sandbox: https://sandbox.payfast.co.za/eng/process
+      // Live: https://www.payfast.co.za/eng/process
       const payfastUrl = isSandbox
         ? 'https://sandbox.payfast.co.za/eng/process'
         : 'https://www.payfast.co.za/eng/process';
+
+      // Debug logging - ALWAYS log in production to diagnose 500 errors
+      console.log('PayFast Configuration:', {
+        isSandbox,
+        payfastUrl,
+        merchant_id: data.merchant_id ? `${data.merchant_id.substring(0, 4)}...` : 'MISSING',
+        merchant_key: data.merchant_key ? 'SET' : 'MISSING',
+        passphrase: passPhrase ? 'SET' : 'MISSING',
+        amount: data.amount,
+        email_address: data.email_address,
+        item_name: data.item_name,
+        signature_length: data.signature?.length || 0,
+        signature_preview: data.signature ? `${data.signature.substring(0, 8)}...` : 'MISSING',
+        return_url: data.return_url,
+        cancel_url: data.cancel_url,
+        notify_url: data.notify_url,
+      });
+
+      // Log the actual payload being sent (for debugging 500 errors)
+      const payloadForLogging = { ...data };
+      if (payloadForLogging.merchant_key) payloadForLogging.merchant_key = '***HIDDEN***';
+      if (payloadForLogging.signature) payloadForLogging.signature = `${payloadForLogging.signature.substring(0, 8)}...`;
+      console.log('PayFast Payload (sensitive data hidden):', payloadForLogging);
 
       const form = document.createElement('form');
       form.method = 'POST';
@@ -255,33 +281,17 @@ const Checkout = () => {
       form.style.display = 'none';
       form.target = '_self'; // Submit in same window
 
-      // Add all form fields (exclude empty values as PayFast may reject them)
+      // Add all form fields
+      // PayFast requires: merchant_id, merchant_key, amount, item_name, return_url, cancel_url, notify_url, name_first, name_last, email_address, m_payment_id, signature
+      // Do NOT skip empty values - PayFast may require them even if empty
       Object.keys(data).forEach((key) => {
         const value = String(data[key]).trim();
-        // Skip empty values (except for optional fields that PayFast accepts as empty)
-        if (value === '' && key !== 'name_last' && key !== 'name_first') {
-          console.warn(`Skipping empty PayFast field: ${key}`);
-          return;
-        }
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = key;
         input.value = value;
         form.appendChild(input);
       });
-      
-      // Debug logging (remove in production if needed)
-      if (import.meta.env.DEV) {
-        console.log('PayFast payload:', {
-          merchant_id: data.merchant_id ? '***' : 'MISSING',
-          merchant_key: data.merchant_key ? '***' : 'MISSING',
-          amount: data.amount,
-          email_address: data.email_address,
-          item_name: data.item_name,
-          signature: data.signature ? `${data.signature.substring(0, 8)}...` : 'MISSING',
-          has_passphrase: !!passPhrase,
-        });
-      }
 
       // Append to body
       document.body.appendChild(form);
