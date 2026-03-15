@@ -188,13 +188,34 @@ const Checkout = () => {
       const signature = generateSignature(data, passPhrase || null);
       data.signature = signature;
 
-      const form = document.createElement('form');
-      form.method = 'POST';
-      // Use live PayFast URL when not in sandbox mode
-      form.action = isSandbox
+      // Validate signature was generated (MD5 hash is 32 characters)
+      if (!signature || signature.length !== 32) {
+        console.error('PayFast signature generation failed:', { signature, dataKeys: Object.keys(data) });
+        setError('Payment signature generation failed. Please try again or contact support.');
+        setLoading(false);
+        return;
+      }
+
+      // Validate required PayFast fields
+      if (!data.merchant_id || !data.merchant_key || !data.amount || !data.item_name) {
+        console.error('Missing required PayFast fields:', data);
+        setError('Payment configuration error. Please contact support.');
+        setLoading(false);
+        return;
+      }
+
+      // Create and submit PayFast form
+      const payfastUrl = isSandbox
         ? 'https://sandbox.payfast.co.za/eng/process'
         : 'https://www.payfast.co.za/eng/process';
 
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = payfastUrl;
+      form.style.display = 'none';
+      form.target = '_self'; // Submit in same window
+
+      // Add all form fields
       Object.keys(data).forEach((key) => {
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -203,9 +224,29 @@ const Checkout = () => {
         form.appendChild(input);
       });
 
+      // Append to body
       document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
+      
+      // Log for debugging (remove in production if needed)
+      if (import.meta.env.DEV) {
+        console.log('Submitting to PayFast:', { url: payfastUrl, orderId: order.id, isSandbox });
+      }
+      
+      // Submit form - use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        try {
+          form.submit();
+          // Don't remove form immediately - let browser handle redirect
+          // Form will be removed when page unloads or redirects
+        } catch (submitError) {
+          console.error('PayFast form submission error:', submitError);
+          setError('Failed to redirect to PayFast. Please check your connection and try again, or contact us at 081 048 7447.');
+          if (document.body.contains(form)) {
+            document.body.removeChild(form);
+          }
+          setLoading(false);
+        }
+      });
     } catch (err) {
       setError(err?.message || 'Payment submission failed. Please try again or use Place Order.');
     } finally {
@@ -438,7 +479,7 @@ const Checkout = () => {
               {!enableEcommerce || hasOutOfStockItems ? (
                 <>
                   {enableEcommerce && (
-                    <p className="font-sans text-primary/70 text-sm mt-4">Contains pre-order items. Pay when stock arrives.</p>
+                    <p className="font-sans text-primary/70 text-sm mt-4">Some items are currently out of stock. We will contact you when stock arrives to arrange payment and delivery.</p>
                   )}
                   <button
                     type="submit"
@@ -499,9 +540,9 @@ const Checkout = () => {
               )}
               <p className="font-sans mt-3 text-center text-xs text-primary/60">
                 {!enableEcommerce
-                  ? 'No payment now. We will contact you when your pre-order items arrive.'
+                  ? 'Payment processing available. We will contact you to confirm your order.'
                   : hasOutOfStockItems
-                    ? 'Pre-order now. We will contact you when stock arrives to arrange payment and delivery.'
+                    ? 'Some items are out of stock. We will contact you when stock arrives to arrange payment and delivery.'
                     : 'Secure payment via PayFast. We will ship your order after payment confirmation.'}
               </p>
             </form>

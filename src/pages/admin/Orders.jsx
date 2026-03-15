@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
 import { getFunctionUrl } from "../../lib/config";
-import { Loader2, MoreHorizontal, RotateCcw, Truck, Download, Printer, FileText, Search } from "lucide-react";
+import { Loader2, MoreHorizontal, RotateCcw, Truck, Download, Printer, FileText, Search, Receipt } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 
 const STATUS_OPTIONS = ["PENDING", "PAID", "SHIPPED", "CANCELLED"];
@@ -52,6 +52,8 @@ export default function AdminOrders() {
   const [shipForm, setShipForm] = useState({ tracking_number: "", number_of_boxes: 1, tracking_url: "" });
   const [packingSlipOrder, setPackingSlipOrder] = useState(null);
   const [packingSlipItems, setPackingSlipItems] = useState([]);
+  const [invoiceOrder, setInvoiceOrder] = useState(null);
+  const [invoiceItems, setInvoiceItems] = useState([]);
   const [notesEditId, setNotesEditId] = useState(null);
   const [notesValue, setNotesValue] = useState("");
   const [savingNotesId, setSavingNotesId] = useState(null);
@@ -166,6 +168,28 @@ export default function AdminOrders() {
     setPackingSlipOrder(null);
     setPackingSlipItems([]);
   };
+
+  const openInvoice = async (order) => {
+    setInvoiceOrder(order);
+    setInvoiceItems([]);
+    if (!supabase) return;
+    const { data } = await supabase
+      .from("order_items")
+      .select("product_name, quantity, unit_price, product_id")
+      .eq("order_id", order.id);
+    setInvoiceItems(data ?? []);
+  };
+
+  const closeInvoice = () => {
+    setInvoiceOrder(null);
+    setInvoiceItems([]);
+  };
+
+  useEffect(() => {
+    if (invoiceOrder) document.body.classList.add("invoice-open");
+    else document.body.classList.remove("invoice-open");
+    return () => document.body.classList.remove("invoice-open");
+  }, [invoiceOrder]);
 
   useEffect(() => {
     if (packingSlipOrder) document.body.classList.add("packing-slip-open");
@@ -580,6 +604,14 @@ export default function AdminOrders() {
                                 <Printer className="w-4 h-4" />
                                 Packing slip
                               </button>
+                              <button
+                                type="button"
+                                onClick={() => { setDropdownOpenId(null); openInvoice(o); }}
+                                className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-primary hover:bg-secondary/20"
+                              >
+                                <Receipt className="w-4 h-4" />
+                                Print Invoice
+                              </button>
                               {STATUS_OPTIONS.filter((s) => s !== o.status).map((s) => (
                                 <button
                                   key={s}
@@ -744,6 +776,162 @@ export default function AdminOrders() {
                   <Truck className="w-4 h-4" />
                 )}
                 Ship & send email
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {invoiceOrder && (
+        <div
+          className="invoice-modal fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          aria-modal="true"
+          role="dialog"
+          onClick={(e) => e.target === e.currentTarget && closeInvoice()}
+        >
+          <div className="bg-white rounded-xl shadow-premium border border-secondary/30 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b border-secondary/20 flex items-center justify-between print:hidden">
+              <h2 className="font-serif text-lg font-semibold text-primary flex items-center gap-2">
+                <Receipt className="w-5 h-5 text-accent" />
+                Invoice — Order {invoiceOrder.id.slice(0, 8)}
+              </h2>
+              <button type="button" onClick={closeInvoice} className="text-primary/60 hover:text-primary">×</button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 text-sm text-left print:p-8 print:overflow-visible relative" id="invoice-content">
+              {/* PAID Watermark - Only for PAID orders */}
+              {invoiceOrder.status === "PAID" && (
+                <div 
+                  className="absolute inset-0 pointer-events-none overflow-hidden"
+                  style={{ zIndex: 1 }}
+                >
+                  <div 
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -rotate-45 whitespace-nowrap"
+                    style={{
+                      fontSize: "clamp(4rem, 12vw, 10rem)",
+                      fontWeight: "bold",
+                      color: "rgba(34, 197, 94, 0.08)",
+                      letterSpacing: "0.1em",
+                      userSelect: "none",
+                      lineHeight: "1",
+                    }}
+                  >
+                    PAID
+                  </div>
+                </div>
+              )}
+              <div className="relative" style={{ zIndex: 2 }}>
+              {/* Invoice Header */}
+              <div className="flex justify-between items-start mb-8 print:mb-6">
+                <div>
+                  <h1 className="font-serif text-2xl font-bold text-primary mb-2">Al-Ameen Caps</h1>
+                  <address className="not-italic text-primary/70 text-sm leading-relaxed">
+                    <p>205 Wallace Street, Glenwood</p>
+                    <p>Cape Town, 7460, South Africa</p>
+                    <p className="mt-1">
+                      <a href="tel:0810487447" className="text-primary/70 hover:text-accent">081 048 7447</a>
+                    </p>
+                    <p>
+                      <a href="https://alameencaps.com" className="text-primary/70 hover:text-accent">alameencaps.com</a>
+                    </p>
+                  </address>
+                </div>
+                <div className="text-right">
+                  <h2 className="font-serif text-xl font-semibold text-primary mb-4">INVOICE</h2>
+                  <div className="text-primary/70 text-sm space-y-1">
+                    <p><strong className="text-primary">Invoice #:</strong> {invoiceOrder.id.slice(0, 8)}</p>
+                    <p><strong className="text-primary">Date:</strong> {invoiceOrder.created_at ? new Date(invoiceOrder.created_at).toLocaleDateString("en-ZA", { day: "2-digit", month: "long", year: "numeric" }) : "—"}</p>
+                    <p><strong className="text-primary">Status:</strong> <span className={`font-medium ${invoiceOrder.status === "PAID" ? "text-green-700" : invoiceOrder.status === "SHIPPED" ? "text-blue-700" : "text-amber-700"}`}>{invoiceOrder.status}</span></p>
+                    {invoiceOrder.status === "PAID" && (
+                      <p className="text-green-700 font-medium">Paid via PayFast</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bill To Section */}
+              <div className="mb-8 print:mb-6">
+                <h3 className="font-semibold text-primary mb-2 uppercase text-xs tracking-wide">Bill To:</h3>
+                <div className="text-primary/80">
+                  <p className="font-medium text-primary">{customerName(invoiceOrder)}</p>
+                  {invoiceOrder.customer_email && <p>{invoiceOrder.customer_email}</p>}
+                  {invoiceOrder.shipping_data?.phone && <p>{invoiceOrder.shipping_data.phone}</p>}
+                  {invoiceOrder.shipping_data && (
+                    <div className="mt-1">
+                      {[
+                        invoiceOrder.shipping_data.address_line1,
+                        invoiceOrder.shipping_data.address_line2,
+                        invoiceOrder.shipping_data.city,
+                        invoiceOrder.shipping_data.postal_code,
+                      ].filter(Boolean).join(", ")}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Line Items Table */}
+              <table className="w-full border-collapse mb-6 print:mb-4">
+                <thead>
+                  <tr className="border-b-2 border-primary/30">
+                    <th className="text-left py-3 px-2 font-semibold text-primary">Item</th>
+                    <th className="text-center py-3 px-2 font-semibold text-primary">Qty</th>
+                    <th className="text-right py-3 px-2 font-semibold text-primary">Unit Price</th>
+                    <th className="text-right py-3 px-2 font-semibold text-primary">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoiceItems.map((item, i) => (
+                    <tr key={i} className="border-b border-secondary/20">
+                      <td className="py-3 px-2 text-primary">{item.product_name || "Item"}</td>
+                      <td className="text-center py-3 px-2 text-primary">{item.quantity || 1}</td>
+                      <td className="text-right py-3 px-2 text-primary">{formatPrice(item.unit_price || 0)}</td>
+                      <td className="text-right py-3 px-2 text-primary font-medium">{formatPrice((item.unit_price || 0) * (item.quantity || 1))}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-primary/30">
+                    <td colSpan="3" className="text-right py-3 px-2 font-semibold text-primary">Total:</td>
+                    <td className="text-right py-3 px-2 font-bold text-lg text-primary">{formatPrice(invoiceOrder.total_amount)}</td>
+                  </tr>
+                </tfoot>
+              </table>
+
+              {/* Footer */}
+              <div className="mt-8 pt-6 border-t border-secondary/20 text-xs text-primary/60 print:mt-6">
+                <p className="mb-2">
+                  <strong className="text-primary/80">Thank you for your order!</strong> We appreciate your business and hope you enjoy your Al-Ameen Caps products.
+                </p>
+                <p className="mb-2">
+                  For returns and exchanges, please visit{" "}
+                  <a href="https://alameencaps.com/shipping-returns" className="text-accent hover:underline">alameencaps.com/shipping-returns</a>
+                  {" "}or contact us at{" "}
+                  <a href="tel:0810487447" className="text-accent hover:underline">081 048 7447</a>.
+                </p>
+                <p className="text-primary/50 italic mb-4">
+                  This is an official invoice from Al-Ameen Caps. Please retain for your records.
+                </p>
+                
+                {/* Heritage Note */}
+                <div className="mt-6 pt-4 border-t border-secondary/30 print:mt-4">
+                  <p className="text-primary/70 italic text-center leading-relaxed">
+                    <strong className="text-primary/90 not-italic">Al-Ameen Caps</strong> represents a legacy of craftsmanship and heritage. Thank you for being part of our story.{" "}
+                    <span className="not-italic">Handcrafted in Mumbai, Shipped from Cape Town.</span>
+                  </p>
+                </div>
+              </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-secondary/20 flex justify-end gap-2 print:hidden">
+              <button type="button" onClick={closeInvoice} className="px-4 py-2 rounded-lg border border-secondary/40 text-primary hover:bg-secondary/20">
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => { window.print(); }}
+                className="px-4 py-2 rounded-lg btn-accent flex items-center gap-2"
+              >
+                <Printer className="w-4 h-4" />
+                Print / Save as PDF
               </button>
             </div>
           </div>

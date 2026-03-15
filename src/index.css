@@ -115,4 +115,30 @@
     box-shadow: none !important;
     border: none !important;
   }
+  /* Invoice: when printing with invoice open, show only the invoice */
+  body.invoice-open * {
+    visibility: hidden;
+  }
+  body.invoice-open .invoice-modal,
+  body.invoice-open .invoice-modal * {
+    visibility: visible;
+  }
+  body.invoice-open .invoice-modal {
+    position: fixed !important;
+    inset: 0 !important;
+    background: white !important;
+    max-height: none !important;
+    align-items: flex-start !important;
+    padding: 0 !important;
+  }
+  body.invoice-open .invoice-modal > div {
+    max-width: 100% !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  /* Hide print buttons and close buttons when printing */
+  .print\\:hidden {
+    display: none !important;
+  }
 }

@@ -67,8 +67,11 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-white mb-3">Navigation</h3>
             <nav className="flex flex-col gap-2 text-sm text-white/70" aria-label="Footer navigation">
               <Link to="/shop" className="hover:text-accent transition-colors">Shop</Link>
+              <Link to="/collection/headwear" className="hover:text-accent transition-colors">Headwear Collection</Link>
+              <Link to="/blog" className="hover:text-accent transition-colors">Blog</Link>
               <Link to="/about" className="hover:text-accent transition-colors">About</Link>
               <Link to="/heritage" className="hover:text-accent transition-colors">Heritage</Link>
+              <Link to="/community" className="hover:text-accent transition-colors">Community</Link>
               <Link to="/contact" className="hover:text-accent transition-colors">Contact</Link>
             </nav>
           </div>

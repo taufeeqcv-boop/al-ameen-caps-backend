@@ -21,14 +21,14 @@ const staticPages = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
   // Shop: primary commercial page – highest priority, crawled frequently during launch
   { path: '/shop', changefreq: 'daily', priority: '1.0' },
-  { path: '/collection/headwear', changefreq: 'weekly', priority: '0.85' },
+  { path: '/collection/headwear', changefreq: 'weekly', priority: '0.9' },
   { path: '/blog', changefreq: 'weekly', priority: '0.8' },
   // Guides: educational content – high but slightly lower than shop/home
   { path: '/guides', changefreq: 'monthly', priority: '0.8' },
   { path: '/guides/kufi-care', changefreq: 'monthly', priority: '0.8' },
   { path: '/guides/eid-headwear-south-africa', changefreq: 'monthly', priority: '0.8' },
   { path: '/guides/islamic-headwear-cape-town', changefreq: 'monthly', priority: '0.8' },
-  { path: '/community', changefreq: 'weekly', priority: '0.6' },
+  { path: '/community', changefreq: 'weekly', priority: '0.7' },
   { path: '/about', changefreq: 'monthly', priority: '0.7' },
   { path: '/heritage', changefreq: 'monthly', priority: '0.7', video: true },
   { path: '/culture/evolution-fez-kufi-cape', changefreq: 'monthly', priority: '0.6' },
@@ -39,13 +39,13 @@ const staticPages = [
   { path: '/shipping-returns', changefreq: 'monthly', priority: '0.6' },
   { path: '/privacy', changefreq: 'yearly', priority: '0.4' },
   { path: '/terms', changefreq: 'yearly', priority: '0.4' },
-  { path: '/review', changefreq: 'monthly', priority: '0.5' },
+  { path: '/review', changefreq: 'monthly', priority: '0.7' },
 ];
 
 const blogPages = (BLOG_POSTS || []).map((p) => ({
   path: `/blog/${p.slug}`,
   changefreq: 'monthly',
-  priority: '0.7',
+  priority: '0.8', // Increased from 0.7 to improve indexing
 }));
 
 // Products: all collection items, with explicit lastmod for sale update

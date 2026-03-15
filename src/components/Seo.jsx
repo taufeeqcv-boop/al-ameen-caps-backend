@@ -22,6 +22,8 @@ import {
 } from '../lib/seo';
 
 const BASE_URL = getBaseUrl();
+// Canonical domain - always use alameencaps.com (not www) for SEO consistency
+const CANONICAL_DOMAIN = 'https://alameencaps.com';
 const SITE_NAME = 'Al-Ameen Caps';
 const DEFAULT_TITLE = 'Islamic Fashion, Kufi, Fez, Taj – Cape Town & South Africa';
 const DEFAULT_DESCRIPTION = 'Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa.';
@@ -29,27 +31,45 @@ const DEFAULT_DESCRIPTION = 'Islamic fashion and Sufi clothing: kufi, fez, taj, 
 /**
  * Normalizes a URL path for canonical tags:
  * - Removes trailing slashes (except for root "/")
- * - Removes query parameters and hash fragments
+ * - Removes query parameters and hash fragments (if present)
  * - Ensures consistent format for SEO
  */
 function normalizeCanonicalUrl(path) {
   if (!path) return '/';
   
-  // Remove query parameters and hash fragments
-  const url = new URL(path, 'https://example.com');
-  let normalized = url.pathname;
+  // Handle both pathname strings and full URLs
+  let pathname = path;
+  try {
+    // If it's a full URL or has query/hash, parse it
+    if (path.includes('?') || path.includes('#') || path.startsWith('http')) {
+      const url = new URL(path, 'https://example.com');
+      pathname = url.pathname;
+    }
+  } catch {
+    // If URL parsing fails, use path as-is (it's likely already a pathname)
+    pathname = path;
+  }
   
   // Remove trailing slash except for root
-  if (normalized !== '/' && normalized.endsWith('/')) {
-    normalized = normalized.slice(0, -1);
+  if (pathname !== '/' && pathname.endsWith('/')) {
+    pathname = pathname.slice(0, -1);
   }
   
   // Ensure it starts with /
-  if (!normalized.startsWith('/')) {
-    normalized = '/' + normalized;
+  if (!pathname.startsWith('/')) {
+    pathname = '/' + pathname;
   }
   
-  return normalized;
+  return pathname;
+}
+
+/**
+ * Gets the absolute canonical URL for a path.
+ * Always uses the canonical domain (alameencaps.com) for SEO consistency.
+ */
+function getCanonicalUrl(path) {
+  const normalizedPath = normalizeCanonicalUrl(path);
+  return `${CANONICAL_DOMAIN}${normalizedPath}`;
 }
 
 export default function Seo({
@@ -72,10 +92,16 @@ export default function Seo({
 }) {
   const location = useLocation();
   
-  // Use provided url, or fallback to current location pathname
-  const path = url || location.pathname;
-  const normalizedPath = normalizeCanonicalUrl(path);
-  const fullUrl = `${BASE_URL}${normalizedPath}`;
+  // For canonical URL: ALWAYS use the actual page URL (location.pathname) to ensure it matches the accessed URL
+  // This prevents "Alternative page with proper canonical tag" issues where canonical points to a different URL
+  const actualPath = location.pathname;
+  const normalizedActualPath = normalizeCanonicalUrl(actualPath);
+  const canonicalUrl = getCanonicalUrl(actualPath);
+  
+  // For Open Graph and other metadata: use provided url prop if available, otherwise use actual path
+  const metadataPath = url || actualPath;
+  const normalizedMetadataPath = normalizeCanonicalUrl(metadataPath);
+  const fullUrl = `${BASE_URL}${normalizedMetadataPath}`;
   const ogImage = image?.startsWith('http') ? image : `${BASE_URL}${image || '/collection/nalain-cap.png'}`;
   const metaKeywords = keywords ?? SEO_KEYWORDS;
 
@@ -115,6 +141,7 @@ export default function Seo({
     }
 
     // Canonical (skip for noindex pages - they shouldn't have canonical tags)
+    // Always use the canonical domain (alameencaps.com) for SEO consistency
     let canonical = document.querySelector('link[rel="canonical"]');
     if (noindex) {
       // Remove canonical tag if it exists (e.g., from previous navigation)
@@ -122,13 +149,14 @@ export default function Seo({
         canonical.remove();
       }
     } else {
-      // Set canonical tag for indexable pages
+      // Set canonical tag for indexable pages - always use canonical domain
       if (!canonical) {
         canonical = document.createElement('link');
         canonical.rel = 'canonical';
         document.head.appendChild(canonical);
       }
-      canonical.href = fullUrl;
+      // Use canonicalUrl which always uses https://alameencaps.com
+      canonical.href = canonicalUrl;
     }
 
     // Open Graph
