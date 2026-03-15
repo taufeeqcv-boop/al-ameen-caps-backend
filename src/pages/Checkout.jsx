@@ -35,6 +35,27 @@ const Checkout = () => {
     [cart]
   );
 
+  // Force show payment if PayFast is configured (VITE_PAYFAST_MERCHANT_ID present) AND items are in stock
+  // This ensures PayFast checkout is always shown when merchant ID is present and stock is available
+  // Removed logic that defaults to Reservation for items at Glengrove Lodge
+  const merchantId = import.meta.env.VITE_PAYFAST_MERCHANT_ID;
+  const showPayment = useMemo(() => {
+    // If PayFast merchant ID is present, show payment option when items are in stock
+    if (merchantId) {
+      // Check if at least one item is in stock (not pre-order and has quantity > 0)
+      const hasInStockItems = cart.length > 0 && cart.some((item) => {
+        // Skip pre-order items
+        if (item?.isPreOrder) return false;
+        // Check if quantity is available (default to true if not set, to allow manual override)
+        const quantityAvailable = item?.quantityAvailable ?? 50; // Default to 50 if not set (manual override)
+        return quantityAvailable > 0;
+      });
+      return hasInStockItems;
+    }
+    // If PayFast is not configured, only show if ecommerce is enabled and no out of stock items
+    return enableEcommerce && !hasOutOfStockItems;
+  }, [cart, merchantId, enableEcommerce]);
+
   const [formData, setFormData] = useState({
     name_first: '',
     name_last: '',
@@ -66,6 +87,7 @@ const Checkout = () => {
 
   const handlePayment = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setError('');
     const validation = validateCheckoutForm(formData, true);
     if (!validation.valid) {
@@ -256,6 +278,7 @@ const Checkout = () => {
 
   const handlePreOrder = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     setError('');
     const validation = validateCheckoutForm(formData, true);
     if (!validation.valid) {
@@ -365,7 +388,19 @@ const Checkout = () => {
             <h2 className="font-serif text-xl font-semibold text-primary mb-4 text-center">
               Customer Details
             </h2>
-            <form onSubmit={handlePreOrder} className="space-y-4">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                // If payment is available and user is signed in, use PayFast
+                // Otherwise, use reservation/pre-order
+                if (showPayment && user?.id) {
+                  handlePayment(e);
+                } else {
+                  handlePreOrder(e);
+                }
+              }} 
+              className="space-y-4"
+            >
               <div className="grid grid-cols-2 gap-4">
                 <input
                   name="name_first"
@@ -401,7 +436,7 @@ const Checkout = () => {
                 required
                 className="font-sans w-full p-3 border border-black/20 rounded focus:border-accent focus:ring-1 focus:ring-accent outline-none"
               />
-              {enableEcommerce && !hasOutOfStockItems && (
+              {showPayment && (
                 <div className="font-sans space-y-2">
                   <p className="text-sm font-medium text-primary">Delivery method</p>
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -476,7 +511,7 @@ const Checkout = () => {
                 </div>
               )}
 
-              {!enableEcommerce || hasOutOfStockItems ? (
+              {!showPayment ? (
                 <>
                   {enableEcommerce && (
                     <p className="font-sans text-primary/70 text-sm mt-4">Some items are currently out of stock. We will contact you when stock arrives to arrange payment and delivery.</p>
@@ -499,12 +534,11 @@ const Checkout = () => {
                     Cape Town based · Nationwide delivery. Secure checkout via PayFast.
                   </p>
                   <button
-                    type="button"
-                    onClick={handlePayment}
+                    type="submit"
                     disabled={loading || cart.length === 0 || !user}
                     className="btn-primary font-sans w-full py-4 min-h-[48px] text-base mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 touch-manipulation"
                   >
-                    Secure Checkout via PayFast
+                    {loading ? 'Processing...' : 'Secure Checkout via PayFast'}
                   </button>
                   <div className="mt-3 flex flex-col items-center gap-2">
                     <p className="font-sans text-[11px] text-primary/60 text-center max-w-xs">
@@ -539,11 +573,11 @@ const Checkout = () => {
                 </>
               )}
               <p className="font-sans mt-3 text-center text-xs text-primary/60">
-                {!enableEcommerce
-                  ? 'Payment processing available. We will contact you to confirm your order.'
-                  : hasOutOfStockItems
-                    ? 'Some items are out of stock. We will contact you when stock arrives to arrange payment and delivery.'
-                    : 'Secure payment via PayFast. We will ship your order after payment confirmation.'}
+                {showPayment
+                  ? 'Secure payment via PayFast. We will ship your order after payment confirmation.'
+                  : !enableEcommerce
+                    ? 'Payment processing available. We will contact you to confirm your order.'
+                    : 'Some items are out of stock. We will contact you when stock arrives to arrange payment and delivery.'}
               </p>
             </form>
           </div>

@@ -76,3 +76,9 @@
 # Note: For prerendering crawlers and social previews, enable the Netlify Prerender
 # extension in the Netlify dashboard (Extensions → Prerender). Legacy prerendering
 # is deprecated and should NOT be used. See docs/PRERENDERING_AND_PERFORMANCE.md.
+
+# Scheduled Functions
+# Daily review request automation: runs at 07:00 UTC (09:00 SAST)
+# Note: Scheduled functions are configured in the Netlify Dashboard under:
+# Site settings → Functions → Scheduled functions
+# Or add the schedule property to the function export (see function file)

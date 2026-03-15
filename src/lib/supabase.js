@@ -318,6 +318,7 @@ export const getProductById = async (id) => {
 // -----------------------------------------------------------------------------
 
 const MAJLIS_BUCKET = 'heritage-majlis';
+const REVIEW_PHOTOS_BUCKET = 'review-photos';
 
 /** Upload a photo to heritage-majlis storage. Returns public URL or null. */
 export async function uploadMajlisImage(file) {
@@ -327,6 +328,20 @@ export async function uploadMajlisImage(file) {
   const { error } = await supabase.storage.from(MAJLIS_BUCKET).upload(path, file, { upsert: false });
   if (error) return null;
   const { data } = supabase.storage.from(MAJLIS_BUCKET).getPublicUrl(path);
+  return data?.publicUrl ?? null;
+}
+
+/** Upload a photo to review-photos storage. Returns public URL or null. */
+export async function uploadReviewPhoto(file) {
+  if (!supabase || !file?.size) return null;
+  const ext = (file.name || '').split('.').pop() || 'jpg';
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage.from(REVIEW_PHOTOS_BUCKET).upload(path, file, { upsert: false });
+  if (error) {
+    console.error('Review photo upload error:', error);
+    return null;
+  }
+  const { data } = supabase.storage.from(REVIEW_PHOTOS_BUCKET).getPublicUrl(path);
   return data?.publicUrl ?? null;
 }
 

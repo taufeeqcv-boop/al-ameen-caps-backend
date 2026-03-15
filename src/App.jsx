@@ -34,6 +34,7 @@ const Checkout = lazy(() => import("./pages/Checkout"));
 const Success = lazy(() => import("./pages/Success"));
 const Cancel = lazy(() => import("./pages/Cancel"));
 const Review = lazy(() => import("./pages/Review"));
+const ReviewSubmission = lazy(() => import("./pages/ReviewSubmission"));
 const OrderTracking = lazy(() => import("./pages/OrderTracking"));
 const Account = lazy(() => import("./pages/Account"));
 const Login = lazy(() => import("./pages/Login"));
@@ -84,6 +85,7 @@ function App() {
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />
           <Route path="/review" element={<Review />} />
+          <Route path="/review-submission" element={<ReviewSubmission />} />
           <Route path="/track/:orderId" element={<OrderTracking />} />
           <Route path="/account" element={<Account />} />
           <Route path="/login" element={<Login />} />

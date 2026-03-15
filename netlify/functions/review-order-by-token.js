@@ -20,15 +20,21 @@ exports.handler = async (event) => {
   }
 
   const token = (event.queryStringParameters?.token || "").trim();
-  if (!token || !supabase) {
+  const orderId = (event.queryStringParameters?.orderId || "").trim();
+  
+  if ((!token && !orderId) || !supabase) {
     return { statusCode: 400, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ valid: false }) };
   }
 
-  const { data: order, error } = await supabase
-    .from("orders")
-    .select("id")
-    .eq("review_token", token)
-    .single();
+  let query = supabase.from("orders").select("id, user_id, customer_email");
+  
+  if (token) {
+    query = query.eq("review_token", token);
+  } else if (orderId) {
+    query = query.eq("id", orderId);
+  }
+  
+  const { data: order, error } = await query.single();
 
   if (error || !order) {
     return {
@@ -39,12 +45,34 @@ exports.handler = async (event) => {
   }
 
   const { data: existing } = await supabase.from("reviews").select("id").eq("order_id", order.id).single();
+
+  // Get customer name
+  let customerName = "Valued Customer";
+  if (order.user_id) {
+    const { data: profile } = await supabase.from("profiles").select("first_name, last_name").eq("id", order.user_id).single();
+    customerName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || customerName;
+  }
+
+  // Get first product name from order items
+  let productName = null;
+  const { data: orderItems } = await supabase
+    .from("order_items")
+    .select("product_name")
+    .eq("order_id", order.id)
+    .limit(1)
+    .single();
+  if (orderItems?.product_name) {
+    productName = orderItems.product_name;
+  }
+
   return {
     statusCode: 200,
     headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     body: JSON.stringify({
       valid: true,
       orderId: order.id,
+      customerName,
+      productName,
       already_submitted: !!existing,
     }),
   };

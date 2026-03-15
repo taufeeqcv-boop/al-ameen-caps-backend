@@ -30,21 +30,27 @@ exports.handler = async (event) => {
   }
 
   const token = (body.token || "").trim();
+  const orderId = (body.orderId || "").trim();
   const rating = body.rating != null ? parseInt(body.rating, 10) : NaN;
   const reviewText = (body.review_text || "").trim();
+  const photoUrl = (body.photo_url || "").trim() || null;
 
-  if (!token || !supabase) {
-    return { statusCode: 400, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ error: "Missing token or server not configured" }) };
+  if ((!token && !orderId) || !supabase) {
+    return { statusCode: 400, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ error: "Missing token/orderId or server not configured" }) };
   }
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
     return { statusCode: 400, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ error: "Rating must be 1–5" }) };
   }
 
-  const { data: order, error: orderError } = await supabase
-    .from("orders")
-    .select("id, user_id, customer_email")
-    .eq("review_token", token)
-    .single();
+  let query = supabase.from("orders").select("id, user_id, customer_email");
+  
+  if (token) {
+    query = query.eq("review_token", token);
+  } else if (orderId) {
+    query = query.eq("id", orderId);
+  }
+  
+  const { data: order, error: orderError } = await query.single();
 
   if (orderError || !order) {
     return { statusCode: 400, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ error: "Invalid or expired link" }) };
@@ -72,6 +78,7 @@ exports.handler = async (event) => {
     review_text: reviewText || null,
     customer_name: customerName,
     customer_email: customerEmail,
+    photo_url: photoUrl,
   });
 
   if (insertError) {
