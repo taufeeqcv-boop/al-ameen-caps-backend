@@ -206,12 +206,15 @@ const Checkout = () => {
         return;
       }
       
+      // Build PayFast payload in required field order:
+      // merchant_id, merchant_key, return_url, cancel_url, notify_url, name_first, name_last, email_address, m_payment_id, amount, item_name
+      const notifyUrl = 'https://alameencaps.com/.netlify/functions/itn-listener';
       const data = {
         merchant_id: merchantId,
         merchant_key: merchantKey,
         return_url: `${origin}/success?${successParams.toString()}`,
         cancel_url: `${origin}/checkout`,
-        notify_url: getFunctionUrlAbsolute('itn-listener'),
+        notify_url: notifyUrl, // Exact URL as set in PayFast dashboard
         name_first: formData.name_first?.trim() || 'Guest',
         name_last: formData.name_last?.trim() || 'User',
         email_address: payfastEmail,
