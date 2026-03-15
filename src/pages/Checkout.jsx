@@ -185,8 +185,17 @@ const Checkout = () => {
         new_customer: newCustomer ? '1' : '0',
         amount: total.toFixed(2),
       });
-      const customerEmail = (formData.email_address || '').trim();
+      const customerEmail = (formData.email_address || user.email || '').trim();
       if (customerEmail) successParams.set('email', customerEmail);
+      
+      // PayFast requires a valid email address - use user email if form email is empty
+      const payfastEmail = customerEmail || user.email || '';
+      if (!payfastEmail) {
+        setError('Email address is required for PayFast checkout. Please fill in your email address.');
+        setLoading(false);
+        return;
+      }
+      
       const data = {
         merchant_id: merchantId,
         merchant_key: merchantKey,
@@ -195,7 +204,7 @@ const Checkout = () => {
         notify_url: getFunctionUrlAbsolute('itn-listener'),
         name_first: formData.name_first?.trim() || 'Guest',
         name_last: formData.name_last?.trim() || 'User',
-        email_address: formData.email_address?.trim() || '',
+        email_address: payfastEmail,
         m_payment_id: order.id,
         amount: total.toFixed(2),
         item_name: `Al-Ameen Caps Order #${order.id.slice(0, 8)}`,
@@ -219,9 +228,18 @@ const Checkout = () => {
       }
 
       // Validate required PayFast fields
-      if (!data.merchant_id || !data.merchant_key || !data.amount || !data.item_name) {
+      if (!data.merchant_id || !data.merchant_key || !data.amount || !data.item_name || !data.email_address) {
         console.error('Missing required PayFast fields:', data);
-        setError('Payment configuration error. Please contact support.');
+        setError('Payment configuration error. Please ensure all required fields are filled.');
+        setLoading(false);
+        return;
+      }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(data.email_address)) {
+        console.error('Invalid email address:', data.email_address);
+        setError('Please enter a valid email address.');
         setLoading(false);
         return;
       }
@@ -237,14 +255,33 @@ const Checkout = () => {
       form.style.display = 'none';
       form.target = '_self'; // Submit in same window
 
-      // Add all form fields
+      // Add all form fields (exclude empty values as PayFast may reject them)
       Object.keys(data).forEach((key) => {
+        const value = String(data[key]).trim();
+        // Skip empty values (except for optional fields that PayFast accepts as empty)
+        if (value === '' && key !== 'name_last' && key !== 'name_first') {
+          console.warn(`Skipping empty PayFast field: ${key}`);
+          return;
+        }
         const input = document.createElement('input');
         input.type = 'hidden';
         input.name = key;
-        input.value = String(data[key]);
+        input.value = value;
         form.appendChild(input);
       });
+      
+      // Debug logging (remove in production if needed)
+      if (import.meta.env.DEV) {
+        console.log('PayFast payload:', {
+          merchant_id: data.merchant_id ? '***' : 'MISSING',
+          merchant_key: data.merchant_key ? '***' : 'MISSING',
+          amount: data.amount,
+          email_address: data.email_address,
+          item_name: data.item_name,
+          signature: data.signature ? `${data.signature.substring(0, 8)}...` : 'MISSING',
+          has_passphrase: !!passPhrase,
+        });
+      }
 
       // Append to body
       document.body.appendChild(form);
