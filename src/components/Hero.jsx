@@ -21,7 +21,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          The Grand Opening Eid Sale
+          The Eid Collection is Live
         </motion.h1>
         <motion.p
           className="mt-3 sm:mt-4 text-base md:text-lg text-white/90 max-w-2xl mx-auto"
@@ -29,7 +29,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
         >
-          Celebrate our launch and the approaching month of Ramadan with exclusive discounts on our premium heritage headwear. Pre-order now to secure your size before the shipment lands in Cape Town.
+          Celebrate our launch and the approaching month of Ramadan with exclusive discounts on our premium heritage headwear. Now in stock and shipping from Cape Town.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

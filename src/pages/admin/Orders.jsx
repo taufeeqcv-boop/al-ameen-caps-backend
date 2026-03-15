@@ -58,6 +58,8 @@ export default function AdminOrders() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFrom, setDateFrom] = useState(urlDateFrom);
   const [dateTo, setDateTo] = useState(urlDateTo);
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [bulkUpdateMessage, setBulkUpdateMessage] = useState(null);
 
   const fetchOrders = async () => {
     if (!supabase) return;
@@ -282,6 +284,51 @@ export default function AdminOrders() {
   };
 
   /** CSV for Google Ads Customer Match: Email + Phone, one row per unique email (from current filter). */
+  const bulkUpdateToStage3 = async () => {
+    if (!supabase) return;
+    const paidOrders = filteredOrders.filter((o) => o.status === "PAID");
+    if (paidOrders.length === 0) {
+      setError("No PAID orders found to update.");
+      return;
+    }
+
+    if (!confirm(`Move ${paidOrders.length} PAID order(s) to Stage 3 (Ready for Dispatch) and send email notifications?`)) {
+      return;
+    }
+
+    setBulkUpdating(true);
+    setError(null);
+    setBulkUpdateMessage(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const url = getFunctionUrl("send-ready-for-dispatch");
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) },
+        body: JSON.stringify({
+          order_ids: paidOrders.map((o) => o.id),
+        }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(json.error || `Request failed (${res.status})`);
+        return;
+      }
+
+      setBulkUpdateMessage(
+        `Successfully processed ${json.processed || 0} order(s). ${json.failed || 0} failed. ${json.message || ""}`
+      );
+      await fetchOrders();
+    } catch (err) {
+      setError(err?.message || "Bulk update failed");
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
   const exportCustomerListCsv = () => {
     const seen = new Set();
     const rows = [];
@@ -325,6 +372,9 @@ export default function AdminOrders() {
       </div>
       {error && (
         <div className="rounded-lg bg-red-50 text-red-800 p-4 text-sm">{error}</div>
+      )}
+      {bulkUpdateMessage && (
+        <div className="rounded-lg bg-emerald-50 text-emerald-800 p-4 text-sm">{bulkUpdateMessage}</div>
       )}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -401,6 +451,27 @@ export default function AdminOrders() {
             ))}
           </div>
           <div className="flex items-center gap-2">
+            {statusFilter === "PAID" && (
+              <button
+                type="button"
+                onClick={bulkUpdateToStage3}
+                disabled={bulkUpdating || filteredOrders.filter((o) => o.status === "PAID").length === 0}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Move all PAID orders to Stage 3 (Ready for Dispatch) and send email notifications"
+              >
+                {bulkUpdating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Truck className="w-4 h-4" />
+                    Bulk: Ready for Dispatch (Stage 3)
+                  </>
+                )}
+              </button>
+            )}
             <button
               type="button"
               onClick={exportCsv}

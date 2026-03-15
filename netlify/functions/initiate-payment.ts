@@ -40,6 +40,7 @@ export const handler: Handler = async (event) => {
   const merchant_id = process.env.PAYFAST_MERCHANT_ID || '';
   const merchant_key = process.env.PAYFAST_MERCHANT_KEY || '';
   const passphrase = process.env.PAYFAST_PASSPHRASE || undefined;
+  const isSandbox = process.env.VITE_PAYFAST_SANDBOX === 'true';
 
   const payload: Record<string, string> = {
     merchant_id,
@@ -52,6 +53,12 @@ export const handler: Handler = async (event) => {
     amount: String(Number(order.total_amount).toFixed(2)),
     item_name: `Order #${order.id}`,
   };
+
+  // In live mode, do NOT include 'testing' parameter (PayFast requirement)
+  // Only add 'testing' parameter in sandbox mode
+  if (isSandbox) {
+    payload.testing = '1';
+  }
 
   const signature = generateSignature(payload, passphrase);
 

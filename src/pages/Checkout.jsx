@@ -73,12 +73,12 @@ const Checkout = () => {
       return;
     }
     if (!user?.id) {
-      setError('Please sign in to pay with PayFast. You can use Pre-Order Now without signing in.');
+      setError('Please sign in to pay with PayFast. You can use Place Order without signing in.');
       return;
     }
 
     if (!supabase) {
-      setError('Checkout is not fully configured. Please use Pre-Order Now.');
+      setError('Checkout is not fully configured. Please use Place Order.');
       return;
     }
 
@@ -105,10 +105,10 @@ const Checkout = () => {
       const isSandbox = import.meta.env.VITE_PAYFAST_SANDBOX === 'true';
       const merchantId = import.meta.env.VITE_PAYFAST_MERCHANT_ID;
       const merchantKey = import.meta.env.VITE_PAYFAST_MERCHANT_KEY;
-      const passPhrase = import.meta.env.VITE_PAYFAST_PASSPHRASE || (isSandbox ? 'jt7NOE43FZPn' : '');
+      const passPhrase = import.meta.env.VITE_PAYFAST_PASSPHRASE;
 
       if (!merchantId || !merchantKey) {
-        setError('PayFast is not configured. Please use Pre-Order Now.');
+        setError('PayFast is not configured. Please use Place Order.');
         return;
       }
 
@@ -134,7 +134,7 @@ const Checkout = () => {
         .single();
 
       if (orderError || !order?.id) {
-        setError(orderError?.message || 'Could not create order. Try Pre-Order Now or sign in and try again.');
+        setError(orderError?.message || 'Could not create order. Try Place Order or sign in and try again.');
         return;
       }
 
@@ -179,11 +179,18 @@ const Checkout = () => {
         item_name: `Al-Ameen Caps Order #${order.id.slice(0, 8)}`,
       };
 
+      // In live mode, do NOT include 'testing' parameter (PayFast requirement)
+      // Only add 'testing' parameter in sandbox mode
+      if (isSandbox) {
+        data.testing = '1';
+      }
+
       const signature = generateSignature(data, passPhrase || null);
       data.signature = signature;
 
       const form = document.createElement('form');
       form.method = 'POST';
+      // Use live PayFast URL when not in sandbox mode
       form.action = isSandbox
         ? 'https://sandbox.payfast.co.za/eng/process'
         : 'https://www.payfast.co.za/eng/process';
@@ -200,7 +207,7 @@ const Checkout = () => {
       form.submit();
       document.body.removeChild(form);
     } catch (err) {
-      setError(err?.message || 'Payment submission failed. Please try again or use Pre-Order Now.');
+      setError(err?.message || 'Payment submission failed. Please try again or use Place Order.');
     } finally {
       setLoading(false);
     }
@@ -245,7 +252,7 @@ const Checkout = () => {
       const msg = err?.message || '';
       const isNetwork = /failed to fetch|network error|load failed/i.test(msg) || err?.name === 'TypeError';
       setError(isNetwork
-        ? 'Could not reach the server. Check your connection and try again, or contact us to place your pre-order.'
+        ? 'Could not reach the server. Check your connection and try again, or contact us to place your order.'
         : (msg || 'Something went wrong. Please try again or contact us.'));
     } finally {
       setLoading(false);
@@ -438,7 +445,7 @@ const Checkout = () => {
                     disabled={loading || cart.length === 0}
                     className="btn-primary font-sans w-full py-4 min-h-[48px] text-base mt-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 touch-manipulation"
                   >
-                    {loading ? 'Placing Pre-Order...' : 'Pre-Order Now'}
+                    {loading ? 'Placing Order...' : 'Place Order'}
                   </button>
                 </>
               ) : (

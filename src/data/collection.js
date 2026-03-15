@@ -79,7 +79,6 @@ export const COLLECTION_PRODUCTS = [
     name: "Azhari Hard Cap – Scholar's Kufi",
     quantityAvailable: 0,
     stockQuantity: 0,
-    preOrderOnly: true,
     originalPrice: 600,
     price: 420, // ~30% off
     lastmod: "2026-03-12",

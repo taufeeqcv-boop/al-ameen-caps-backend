@@ -59,8 +59,8 @@ export default function Navbar() {
       {/* Grand Opening Eid Sale Announcement Bar */}
       <div className="fixed top-0 left-0 right-0 z-[60] bg-amber-600 text-white text-center py-2 px-2 sm:py-2.5 sm:px-4 shadow-md">
         <p className="text-[11px] sm:text-xs md:text-sm font-semibold leading-tight">
-          <span className="hidden sm:inline">🌙 Grand Opening &amp; Eid Pre-Sale: </span>
-          <span>Up to 30% Off Premium Kufis. Stock arriving soon!</span>
+          <span className="hidden sm:inline">🌙 The Eid Collection is HERE. </span>
+          <span>Now In Stock &amp; Shipping from Cape Town!</span>
         </p>
       </div>
       {/* Position navbar directly under announcement bar (no visible gap) */}
