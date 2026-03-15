@@ -259,6 +259,15 @@ export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE
       availability: (product.quantityAvailable ?? 0) > 0
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'ZA',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 30,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/FreeReturn',
+        returnPolicyUrl: `${base}/shipping-returns`,
+      },
       ...(price > 0 && {
         shippingDetails: {
           '@type': 'OfferShippingDetails',
@@ -270,6 +279,25 @@ export function getProductSchema(product, shippingCostZar = DEFAULT_DELIVERY_FEE
           shippingDestination: {
             '@type': 'DefinedRegion',
             addressCountry: 'ZA',
+          },
+          deliveryTime: {
+            '@type': 'ShippingDeliveryTime',
+            handlingTime: {
+              '@type': 'QuantitativeValue',
+              minValue: 1,
+              maxValue: 2,
+              unitCode: 'DAY',
+            },
+            transitTime: {
+              '@type': 'QuantitativeValue',
+              minValue: 2,
+              maxValue: 5,
+              unitCode: 'DAY',
+            },
+            businessDays: {
+              '@type': 'OpeningHoursSpecification',
+              dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+            },
           },
         },
       }),

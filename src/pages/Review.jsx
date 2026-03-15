@@ -5,8 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
 import { Star } from "lucide-react";
-
-const FUNCTIONS_BASE = import.meta.env.VITE_FUNCTIONS_BASE || "";
+import { getFunctionUrl } from "../lib/config";
 
 export default function Review() {
   const [searchParams] = useSearchParams();
@@ -29,8 +28,7 @@ export default function Review() {
       setLoading(false);
       return;
     }
-    const base = FUNCTIONS_BASE || "";
-    fetch(`${base}/.netlify/functions/review-order-by-token?token=${encodeURIComponent(token)}`)
+    fetch(`${getFunctionUrl('review-order-by-token')}?token=${encodeURIComponent(token)}`)
       .then((res) => res.json())
       .then((data) => {
         setValid(!!data.valid);
@@ -49,9 +47,8 @@ export default function Review() {
     }
     setError("");
     setSubmitting(true);
-    const base = FUNCTIONS_BASE || "";
     try {
-      const res = await fetch(`${base}/.netlify/functions/submit-review`, {
+      const res = await fetch(getFunctionUrl('submit-review'), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, rating, review_text: reviewText.trim() }),

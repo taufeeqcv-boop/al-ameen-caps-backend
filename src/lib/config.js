@@ -1,8 +1,14 @@
 /**
  * Centralized config for Netlify Functions URL.
- * When frontend (alameencaps.com) and backend (al-ameen-caps-backend) are different Netlify sites,
- * set VITE_FUNCTIONS_BASE to the backend URL so all function calls go there.
- * When unset, uses relative paths (current origin) for same-site or localhost.
+ * 
+ * IMPORTANT: All functions are on the same Netlify site (alameencaps.com).
+ * Do NOT set VITE_FUNCTIONS_BASE - it should be empty/unset to use relative paths.
+ * 
+ * When VITE_FUNCTIONS_BASE is unset (default), uses relative paths (/.netlify/functions/...)
+ * which work on the same domain where the site is hosted.
+ * 
+ * Only set VITE_FUNCTIONS_BASE if you need to call functions from a different domain
+ * (not recommended for single-site architecture).
  */
 export const getFunctionUrl = (path) => {
   const base = (import.meta.env.VITE_FUNCTIONS_BASE || "").replace(/\/$/, "");
