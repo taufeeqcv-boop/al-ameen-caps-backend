@@ -54,7 +54,7 @@ insert into public.products (sku, name, description, price, stock_quantity, cate
   ('SAQIB', 'Saqib Shami Cap', 'Premium Saqib Shami style cap.', 660.00, 0, 'Caps', '/collection/saqib-shami-cap.png'),
   ('ASHRAFI', 'Special Ashrafi Taj', 'Exclusive Ashrafi Taj.', 1600.00, 0, 'Caps', '/collection/special-ashrafi-taj.png'),
   ('RUMAL', 'Luxury Arabic Rumal', 'High-quality Arabic Rumal.', 250.00, 0, 'Accessories', '/collection/luxury-arabic-rumal.png'),
-  ('EMERALD-SULTAN', 'Emerald Sultan Crown', 'A symbol of dignity and refined tradition. Deep emerald-green velvet top with elegant white radial stitching and classic central button. Crisp white structured base. Perfect for Jumu''ah, Eid, and formal occasions.', 1200.00, 1, 'Caps', '/collection/emerald-sultan-crown.png'),
+  ('EMERALD-SULTAN', 'Emerald Sultan Crown', 'A symbol of dignity and refined tradition. Deep emerald-green velvet top with elegant white radial stitching and classic central button. Crisp white structured base. Perfect for Jumu''ah, Eid, and formal occasions.', 695.00, 1, 'Caps', '/collection/emerald-sultan-crown.png'),
   ('TURKISH-NAQSHBANDI', 'Turkish Naqshbandi Taj', 'Meticulously wrapped with precision-folded layers. Available in deep black, pure white, and rich emerald green. Ideal for Jumu''ah, Eid, nikah, dhikr, and formal spiritual occasions.', 950.00, 6, 'Taj', '/collection/turkish-naqshbandi-taj.png')
 on conflict (sku) do update set
   name = excluded.name,
