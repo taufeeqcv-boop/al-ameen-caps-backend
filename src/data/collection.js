@@ -206,7 +206,7 @@ export const COLLECTION_PRODUCTS = [
     quantityAvailable: 1,
     stockQuantity: 1,
     originalPrice: 840,
-    price: 695, // was 840, now 695 to feel closer to Taj while staying premium
+    price: 590, // 30% off (588) rounded to nearest 10
     description:
       "A symbol of dignity and refined tradition. The Emerald Sultan Crown features a deep emerald-green velvet top, detailed with elegant white radial stitching and a classic central button finish. The crisp white structured base creates a powerful contrast, giving the piece a royal and commanding presence.\n\nDesigned for men who carry themselves with confidence and honour, this cap is perfect for Jumu'ah, Eid, special gatherings, or formal occasions. A timeless statement of faith, prestige, and craftsmanship.\n\nHeritage Note: This premium crown is Jumu'ah ready and speaks directly to Cape Malay Heritage, giving you a handcrafted-in-Cape-Town alternative to mass-produced occasion headwear.\n",
     imageURL: "/images/WhatsApp Image 2026-03-12 at 2.15.41 AM (1).jpeg",
