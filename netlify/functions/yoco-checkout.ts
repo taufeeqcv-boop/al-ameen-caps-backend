@@ -50,7 +50,7 @@ export const handler: Handler = async (event) => {
   const cancelUrl = body.cancelUrl || `${baseUrl}/checkout`;
 
   try {
-    const yocoResponse = await fetch('https://api.yoco.com/checkouts', {
+    const yocoResponse = await fetch('https://online.yoco.com/v1/checkouts', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${secretKey}`,
