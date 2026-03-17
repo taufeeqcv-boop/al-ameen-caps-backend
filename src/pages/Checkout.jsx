@@ -26,6 +26,7 @@ const Checkout = () => {
   const [preOrderPhone, setPreOrderPhone] = useState('');
   const [error, setError] = useState('');
   const [deliveryType, setDeliveryType] = useState('delivery'); // 'delivery' | 'collection'
+  const [paymentMethod, setPaymentMethod] = useState('payfast'); // 'payfast' | 'yoco'
   const subtotal = cartTotal;
   const delivery = cart.length > 0 ? (deliveryType === 'collection' ? 0 : DELIVERY_FEE) : 0;
   const total = subtotal + delivery;
@@ -85,7 +86,7 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePayment = async (e) => {
+  const handlePayfastPayment = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     setError('');
@@ -348,6 +349,55 @@ const Checkout = () => {
     }
   };
 
+  const handleYocoPayment = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setError('');
+
+    const validation = validateCheckoutForm(formData, true);
+    if (!validation.valid) {
+      setError(validation.message);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const successUrl = `${window.location.origin}/success`;
+      const cancelUrl = `${window.location.origin}/checkout`;
+
+      const res = await fetch(getFunctionUrl('yoco-checkout'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: total,
+          currency: 'ZAR',
+          successUrl,
+          cancelUrl,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data?.redirectUrl) {
+        setError(
+          data?.error ||
+            'Could not start secure card payment. Please try again, or choose PayFast / Place Order.'
+        );
+        return;
+      }
+
+      window.location.href = data.redirectUrl;
+    } catch (err) {
+      setError(
+        err?.message ||
+          'Could not reach the card payment gateway. Please check your connection or use PayFast / Place Order.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePreOrder = async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -463,10 +513,14 @@ const Checkout = () => {
             <form 
               onSubmit={(e) => {
                 e.preventDefault();
-                // If payment is available and user is signed in, use PayFast
+                // If payment is available and user is signed in, use selected payment method
                 // Otherwise, use reservation/pre-order
                 if (showPayment && user?.id) {
-                  handlePayment(e);
+                  if (paymentMethod === 'yoco') {
+                    handleYocoPayment(e);
+                  } else {
+                    handlePayfastPayment(e);
+                  }
                 } else {
                   handlePreOrder(e);
                 }
@@ -601,16 +655,51 @@ const Checkout = () => {
                   {!user && (
                     <p className="font-sans text-primary/70 text-sm mt-4">Sign in above to pay with PayFast. Your order will appear in Admin → Orders once payment is complete.</p>
                   )}
+                  <div className="mt-4 font-sans space-y-2">
+                    <p className="text-sm font-medium text-primary text-center">Choose your payment method</p>
+                    <div className="flex flex-col gap-2">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="payment_method"
+                          value="payfast"
+                          checked={paymentMethod === 'payfast'}
+                          onChange={() => setPaymentMethod('payfast')}
+                          className="text-accent focus:ring-accent"
+                        />
+                        <span className="text-primary text-sm">
+                          Secure Checkout via PayFast (card, instant EFT, SnapScan & more)
+                        </span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="payment_method"
+                          value="yoco"
+                          checked={paymentMethod === 'yoco'}
+                          onChange={() => setPaymentMethod('yoco')}
+                          className="text-accent focus:ring-accent"
+                        />
+                        <span className="text-primary text-sm">
+                          Pay with Card via Yoco (secure hosted card checkout)
+                        </span>
+                      </label>
+                    </div>
+                  </div>
                   <p className="font-sans flex items-center justify-center gap-2 text-xs text-primary/60 mt-4">
                     <Lock className="w-3.5 h-3.5 text-accent" aria-hidden />
-                    Cape Town based · Nationwide delivery. Secure checkout via PayFast.
+                    Cape Town based · Nationwide delivery. Secure checkout via PayFast or Yoco.
                   </p>
                   <button
                     type="submit"
                     disabled={loading || cart.length === 0 || !user}
                     className="btn-primary font-sans w-full py-4 min-h-[48px] text-base mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 touch-manipulation"
                   >
-                    {loading ? 'Processing...' : 'Secure Checkout via PayFast'}
+                    {loading
+                      ? 'Processing...'
+                      : paymentMethod === 'yoco'
+                        ? 'Pay Securely with Card (Yoco)'
+                        : 'Secure Checkout via PayFast'}
                   </button>
                   <div className="mt-3 flex flex-col items-center gap-2">
                     <p className="font-sans text-[11px] text-primary/60 text-center max-w-xs">
