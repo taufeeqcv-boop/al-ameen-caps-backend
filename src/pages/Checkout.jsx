@@ -27,6 +27,7 @@ const Checkout = () => {
   const [error, setError] = useState('');
   const [deliveryType, setDeliveryType] = useState('delivery'); // 'delivery' | 'collection'
   const [paymentMethod, setPaymentMethod] = useState('payfast'); // 'payfast' | 'yoco'
+  const [isProcessingYoco, setIsProcessingYoco] = useState(false);
   const subtotal = cartTotal;
   const delivery = cart.length > 0 ? (deliveryType === 'collection' ? 0 : DELIVERY_FEE) : 0;
   const total = subtotal + delivery;
@@ -360,6 +361,7 @@ const Checkout = () => {
       return;
     }
 
+    setIsProcessingYoco(true);
     setLoading(true);
 
     try {
@@ -394,6 +396,7 @@ const Checkout = () => {
           'Could not reach the card payment gateway. Please check your connection or use PayFast / Place Order.'
       );
     } finally {
+      setIsProcessingYoco(false);
       setLoading(false);
     }
   };
@@ -516,11 +519,11 @@ const Checkout = () => {
                 // If payment is available and user is signed in, use selected payment method
                 // Otherwise, use reservation/pre-order
                 if (showPayment && user?.id) {
-                  if (paymentMethod === 'yoco') {
-                    handleYocoPayment(e);
-                  } else {
-                    handlePayfastPayment(e);
-                  }
+                    if (paymentMethod === 'yoco') {
+                      handleYocoPayment(e);
+                    } else {
+                      handlePayfastPayment(e);
+                    }
                 } else {
                   handlePreOrder(e);
                 }
@@ -692,13 +695,15 @@ const Checkout = () => {
                   </p>
                   <button
                     type="submit"
-                    disabled={loading || cart.length === 0 || !user}
+                    disabled={loading || isProcessingYoco || cart.length === 0 || !user}
                     className="btn-primary font-sans w-full py-4 min-h-[48px] text-base mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 touch-manipulation"
                   >
-                    {loading
-                      ? 'Processing...'
-                      : paymentMethod === 'yoco'
-                        ? 'Pay Securely with Card (Yoco)'
+                    {paymentMethod === 'yoco'
+                      ? isProcessingYoco
+                        ? 'Processing Secure Payment...'
+                        : 'Pay Securely with Card (Yoco)'
+                      : loading
+                        ? 'Processing...'
                         : 'Secure Checkout via PayFast'}
                   </button>
                   <div className="mt-3 flex flex-col items-center gap-2">

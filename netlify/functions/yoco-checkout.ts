@@ -27,7 +27,8 @@ export const handler: Handler = async (event) => {
     console.error('YOCO_SECRET_KEY is not set');
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Payment configuration error. Please contact support.' }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Yoco integration is not configured correctly. Missing API Key.' }),
     };
   }
 
@@ -35,6 +36,7 @@ export const handler: Handler = async (event) => {
   if (!Number.isFinite(amountNumber) || amountNumber <= 0) {
     return {
       statusCode: 400,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ error: 'Invalid amount' }),
     };
   }
@@ -66,8 +68,10 @@ export const handler: Handler = async (event) => {
 
     if (!yocoResponse.ok) {
       console.error('Yoco Checkout API error', yocoResponse.status, data);
+      const status = yocoResponse.status >= 400 && yocoResponse.status < 500 ? 400 : 502;
       return {
-        statusCode: 502,
+        statusCode: status,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           error: data?.error || 'Failed to initiate card payment. Please try again or use PayFast.',
         }),
@@ -79,6 +83,7 @@ export const handler: Handler = async (event) => {
       console.error('Yoco response missing redirectUrl', data);
       return {
         statusCode: 502,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           error: 'Payment gateway error. Please try again or use PayFast.',
         }),
@@ -94,6 +99,7 @@ export const handler: Handler = async (event) => {
     console.error('Error calling Yoco Checkout API', err);
     return {
       statusCode: 502,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         error: 'Could not reach payment gateway. Please check your connection or try PayFast.',
       }),
