@@ -49,7 +49,7 @@ export const handler: Handler = async (event) => {
   const successUrl = body.successUrl || `${baseUrl}/success`;
   const cancelUrl = body.cancelUrl || `${baseUrl}/checkout`;
 
-  const defaultCheckoutUrl = 'https://online.yoco.com/api/checkouts';
+  const defaultCheckoutUrl = 'https://api.yoco.com/v1/checkouts';
   const checkoutUrl = process.env.YOCO_CHECKOUT_URL || defaultCheckoutUrl;
 
   try {
@@ -62,8 +62,9 @@ export const handler: Handler = async (event) => {
       body: JSON.stringify({
         amount: amountInCents,
         currency,
-        successUrl,
-        cancelUrl,
+        successRedirectUrl: successUrl,
+        cancelRedirectUrl: cancelUrl,
+        failureRedirectUrl: cancelUrl,
       }),
     });
 
@@ -81,7 +82,9 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const redirectUrl: string | undefined = (data && (data.redirectUrl || data.redirectUrl)) as string | undefined;
+    const redirectUrl: string | undefined = (data && (data.redirectUrl || data.redirect_url)) as
+      | string
+      | undefined;
     if (!redirectUrl) {
       console.error('Yoco response missing redirectUrl', data);
       return {
