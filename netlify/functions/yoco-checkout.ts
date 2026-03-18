@@ -49,7 +49,7 @@ export const handler: Handler = async (event) => {
   const successUrl = body.successUrl || `${baseUrl}/success`;
   const cancelUrl = body.cancelUrl || `${baseUrl}/checkout`;
 
-  const defaultCheckoutUrl = 'https://online.yoco.com/v1/checkouts';
+  const defaultCheckoutUrl = 'https://online.yoco.com/api/checkouts';
   const checkoutUrl = process.env.YOCO_CHECKOUT_URL || defaultCheckoutUrl;
 
   try {
