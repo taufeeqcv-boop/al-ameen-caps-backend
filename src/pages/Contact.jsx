@@ -26,7 +26,7 @@ export default function Contact() {
         url="/contact"
       />
       <Navbar />
-      <main className="flex-1 pt-32 pb-16">
+      <main className="flex-1 pt-[var(--site-header-offset)] pb-16">
         <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h1
             className="font-serif text-4xl font-semibold text-primary text-center mb-2"

@@ -18,7 +18,7 @@ export default function Account() {
       <div className="min-h-screen flex flex-col">
         <Seo noindex title="Account" url="/account" />
         <Navbar />
-        <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24 flex flex-col items-center justify-center gap-4">
+        <main className="flex-1 max-w-md mx-auto px-6 pt-[var(--site-header-offset)] pb-24 flex flex-col items-center justify-center gap-4">
           <Loader2 className="w-12 h-12 text-accent animate-spin" aria-hidden />
           <p className="font-sans text-primary/80">Loading…</p>
         </main>
@@ -32,7 +32,7 @@ export default function Account() {
       <div className="min-h-screen flex flex-col">
         <Seo noindex title="Account" url="/account" />
         <Navbar />
-        <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24 text-center">
+        <main className="flex-1 max-w-md mx-auto px-6 pt-[var(--site-header-offset)] pb-24 text-center">
           <p className="font-sans text-primary/80">Please sign in to view your account.</p>
           <button
             type="button"
@@ -53,7 +53,7 @@ export default function Account() {
     <div className="min-h-screen flex flex-col">
       <Seo noindex title="Account" url="/account" />
       <Navbar />
-      <main className="flex-1 max-w-md mx-auto px-6 pt-32 pb-24">
+      <main className="flex-1 max-w-md mx-auto px-6 pt-[var(--site-header-offset)] pb-24">
         <h1 className="font-serif text-2xl font-bold text-accent mb-6 text-center">
           Assalamu alaikum, {firstName}
         </h1>

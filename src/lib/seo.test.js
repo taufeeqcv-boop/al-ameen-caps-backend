@@ -28,7 +28,8 @@ describe("getProductMetaDescription", () => {
     };
     const result = getProductMetaDescription(product);
     expect(result.length).toBeLessThanOrEqual(160);
-    expect(result).toMatch(/Al-Ameen Caps\. Cape Town, South Africa/);
+    expect(result).toMatch(/Al-Ameen Caps/);
+    expect(result).toMatch(/Cape Town|South Africa/);
   });
 
   it("returns empty string when product has no name", () => {

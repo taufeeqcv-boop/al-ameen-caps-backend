@@ -8,7 +8,7 @@ export default function Shipping() {
     <div className="min-h-screen flex flex-col">
       <Seo title="Shipping & Delivery" description="Shipping for Al-Ameen Caps. Delivery to Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Tableview, Bellville, Durbanville and nationwide South Africa." url="/shipping" />
       <Navbar />
-      <main className="flex-1 pt-32 pb-16">
+      <main className="flex-1 pt-[var(--site-header-offset)] pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="font-serif text-3xl md:text-4xl font-semibold text-primary mb-2">Shipping & Delivery</h1>
           <p className="text-primary/60 text-sm mb-10">How we get your order to you</p>

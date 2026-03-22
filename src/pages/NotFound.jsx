@@ -13,7 +13,7 @@ export default function NotFound() {
         noindex
       />
       <Navbar />
-      <main className="flex-1 max-w-2xl mx-auto px-4 pt-32 pb-24 text-center">
+      <main className="flex-1 max-w-2xl mx-auto px-4 pt-[var(--site-header-offset)] pb-24 text-center">
         <h1 className="font-serif text-3xl font-semibold text-primary">Page not found</h1>
         <p className="mt-4 text-primary/80">The page you’re looking for doesn’t exist or has been moved.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">

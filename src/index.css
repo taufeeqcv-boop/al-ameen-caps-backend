@@ -1,4 +1,9 @@
 /* Fonts loaded from index.html for faster LCP; Tailwind font-sans / font-serif reference them */
+/* Main content offset below fixed Navbar — single place to tweak if a promo bar returns */
+:root {
+  --site-header-offset: 8rem;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -69,6 +69,7 @@ export default function Footer() {
               <Link to="/shop" className="hover:text-accent transition-colors">Shop</Link>
               <Link to="/collection/headwear" className="hover:text-accent transition-colors">Headwear Collection</Link>
               <Link to="/blog" className="hover:text-accent transition-colors">Blog</Link>
+              <Link to="/guides" className="hover:text-accent transition-colors">Guides</Link>
               <Link to="/about" className="hover:text-accent transition-colors">About</Link>
               <Link to="/heritage" className="hover:text-accent transition-colors">Heritage</Link>
               <Link to="/community" className="hover:text-accent transition-colors">Community</Link>

@@ -29,6 +29,7 @@ const GuidesIndex = lazy(() => import("./pages/guides/GuidesIndex"));
 const KufiCare = lazy(() => import("./pages/guides/KufiCare"));
 const EidHeadwearGuide = lazy(() => import("./pages/guides/EidHeadwearGuide"));
 const IslamicHeadwearCapeTown = lazy(() => import("./pages/guides/IslamicHeadwearCapeTown"));
+const SufiHeadwearSouthAfrica = lazy(() => import("./pages/guides/SufiHeadwearSouthAfrica"));
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const Success = lazy(() => import("./pages/Success"));
@@ -77,6 +78,7 @@ function App() {
           <Route path="/guides/kufi-care" element={<KufiCare />} />
           <Route path="/guides/eid-headwear-south-africa" element={<EidHeadwearGuide />} />
           <Route path="/guides/islamic-headwear-cape-town" element={<IslamicHeadwearCapeTown />} />
+          <Route path="/guides/sufi-headwear-tariqah-south-africa" element={<SufiHeadwearSouthAfrica />} />
           <Route path="/collection/headwear" element={<HeadwearCollection />} />
           <Route path="/shipping-returns" element={<ShippingReturns />} />
           <Route path="/afgani-star-cap" element={<AfganiStarSpecial />} />

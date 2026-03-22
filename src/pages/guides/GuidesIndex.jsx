@@ -8,18 +8,19 @@ const GUIDES = [
   { path: "/guides/kufi-care", title: "Kufi care guide", description: "How to clean, store, and care for your kufi and Islamic cap." },
   { path: "/guides/eid-headwear-south-africa", title: "Eid headwear guide – South Africa", description: "Choose the right kufi, Taj, or fez for Eid salah and celebrations." },
   { path: "/guides/islamic-headwear-cape-town", title: "Islamic headwear in Cape Town", description: "Where to buy kufi, fez, and Taj in Cape Town. Bo-Kaap, Athlone, nationwide." },
+  { path: "/guides/sufi-headwear-tariqah-south-africa", title: "Sufi headwear & tariqah traditions – South Africa", description: "Tasawwuf, tariqah paths, dhikr & Islamic headwear. Cape Town & nationwide." },
 ];
 
 export default function GuidesIndex() {
   return (
     <div className="min-h-screen flex flex-col">
       <Seo
-        title="Guides – Kufi, Eid Headwear & Cape Town"
-        description="Guides to kufi care, Eid headwear, and Islamic headwear in Cape Town and South Africa. Al-Ameen Caps."
+        title="Guides – Kufi, Eid, Sufi & Cape Town Headwear"
+        description="Guides to kufi care, Eid headwear, Islamic headwear in Cape Town, and Sufi/tariqah traditions in South Africa. Al-Ameen Caps."
         url="/guides"
       />
       <Navbar />
-      <main className="flex-1 pt-32 pb-16">
+      <main className="flex-1 pt-[var(--site-header-offset)] pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h1
             className="font-serif text-4xl md:text-5xl font-semibold text-primary text-center mb-4"

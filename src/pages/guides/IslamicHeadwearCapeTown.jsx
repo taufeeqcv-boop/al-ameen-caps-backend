@@ -13,7 +13,7 @@ export default function IslamicHeadwearCapeTown() {
         url="/guides/islamic-headwear-cape-town"
       />
       <Navbar />
-      <main className="flex-1 pt-32 pb-16">
+      <main className="flex-1 pt-[var(--site-header-offset)] pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h1
             className="font-serif text-4xl md:text-5xl font-semibold text-primary mb-4"

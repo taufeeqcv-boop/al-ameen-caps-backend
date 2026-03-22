@@ -24,7 +24,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col page-home overflow-x-hidden">
       <Seo url="/" description={HOMEPAGE_META_DESCRIPTION} />
       <Navbar />
-      <main className="flex-1 pt-[8.5rem] sm:pt-[9rem] bg-primary home-main-full">
+      <main className="flex-1 pt-[var(--site-header-offset)] bg-primary home-main-full">
         <Hero />
         <section className="w-full bg-secondary py-16 px-4 sm:px-6 border-t border-accent/30">
           <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-center">
@@ -33,9 +33,9 @@ export default function Home() {
                 Crafted in Mumbai. Approved in New York. Landing in Cape Town.
               </h2>
               <p className="text-primary/80 mb-4">
-                Our 30% Eid Sale collection is curated directly from master artisans at Azhari Cap Global Marketing in
-                Mumbai, verified by discerning customers abroad, and now prepared for brothers and families across Cape
-                Town and South Africa.
+                Our collection is curated directly from master artisans at Azhari Cap Global Marketing in Mumbai,
+                verified by discerning customers abroad, and prepared for brothers and families across Cape Town and
+                South Africa.
               </p>
               <p className="text-primary/80 mb-4">
                 <span className="font-semibold text-primary">Global Proof:</span> Alhamdulillah, a recent parcel reached
@@ -43,8 +43,8 @@ export default function Home() {
                 that reflects the heritage of Mumbai and the dignity of Cape Malay tradition.
               </p>
               <p className="text-primary/70 text-sm">
-                This Mumbai-to-New York-to-Cape Town journey is your assurance that every discounted piece in the 30%
-                Eid Sale carries true premium value—not mass-produced stock.
+                This Mumbai-to-New York-to-Cape Town journey is your assurance that every piece carries true premium
+                value—not mass-produced stock.
               </p>
             </div>
             <div className="flex justify-center">
@@ -80,6 +80,11 @@ export default function Home() {
               Cape Town: <Link to="/near/bo-kaap" className="text-primary hover:text-accent hover:underline">Bo-Kaap</Link>
               {" · "}
               <Link to="/near/athlone" className="text-primary hover:text-accent hover:underline">Athlone</Link>
+            </p>
+            <p className="mt-2 text-sm text-primary/70">
+              <Link to="/guides/sufi-headwear-tariqah-south-africa" className="text-primary hover:text-accent hover:underline">Sufi &amp; tariqah headwear in South Africa</Link>
+              {" · "}
+              <Link to="/guides" className="text-primary hover:text-accent hover:underline">All guides</Link>
             </p>
           </div>
         </section>

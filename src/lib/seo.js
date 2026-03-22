@@ -1,6 +1,6 @@
 /**
  * SEO utilities — JSON-LD schema injection and meta helpers
- * Target: first-page Google for Islamic fashion, kufi, fez, taj, Cape Town, South Africa, Ramadaan, Eid, Sufi
+ * Target: Islamic fashion, kufi, fez, taj, Cape Town, South Africa, tasawwuf & tariqah-related discovery
  */
 
 const BASE_URL = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 'https://alameencaps.com';
@@ -21,9 +21,9 @@ const CATEGORY_LABELS = { Caps: 'Kufi & Islamic cap', Taj: 'Taj', Rumal: 'Rumal 
 
 /** Category → short entity snippet for schema/meta (semantic SEO). Perfect for Jumu'ah/Eid on headwear. */
 const CATEGORY_ENTITY_TAILS = {
-  Caps: 'Perfect for Jumu\'ah and Eid. Kufi, Taqiyah, breathable cotton, Salah. Cape Town.',
-  Taj: 'Perfect for Jumu\'ah and Eid. Taj, Islamic headwear. Cape Town.',
-  Rumal: 'Rumal, turban, Islamic headwear. Cape Town.',
+  Caps: 'Perfect for Jumu\'ah and Eid. Kufi, Taqiyah, breathable cotton, Salah. Cape Town, South Africa.',
+  Taj: 'Perfect for Jumu\'ah and Eid. Taj, Islamic headwear. Cape Town, South Africa.',
+  Rumal: 'Rumal, turban, Islamic headwear. Cape Town, South Africa.',
   Perfumes: 'Attar, Oud, alcohol-free perfume. Cape Town, South Africa.',
 };
 
@@ -53,11 +53,20 @@ export function getProductMetaDescription(product) {
 
 /** Homepage meta description — entity-rich for semantic search (≤160 chars). */
 export const HOMEPAGE_META_DESCRIPTION =
-  "Premium Kufi, Taqiyah, Fez & Islamic headwear for Jumu'ah, Salah & Eid. Handcrafted in Cape Town. Nationwide delivery. Al-Ameen Caps.";
+  "South Africa's premium Kufi, Taqiyah & Fez — handcrafted in Cape Town for Jumu'ah, dhikr & Eid. Sufi & Cape Malay heritage. Nationwide delivery. Al-Ameen Caps.";
 
-/** Comma-separated meta keywords: headwear entities, fragrance, Cape Malay/local, occasions (semantic SEO). */
-export const SEO_KEYWORDS =
-  'Kufi, Taqiyah, Topi, Fez, Kopiah, Peci, Islamic headwear, prayer cap, Jummah attire, Salah, Eid, Cape Malay, Bo-Kaap, Cape Town, South Africa, Durban, Johannesburg, Attar, Oud, Arabian perfume, alcohol-free perfume, handcrafted kufi, breathable cotton, velvet fez, Naqshbandi Taj, Rumal, turban, Ashrafi, Azhari cap, Nalain cap, Islamic fashion, Sufi clothing, Gatesville, Athlone, Rylands, Winelands, nationwide delivery';
+/**
+ * Major tariqah / tasawwuf terms (English transliterations) for semantic discovery — South African Muslim search context.
+ * Educational only; not an endorsement of any order. Appended to site-wide keywords.
+ */
+export const TARIQAH_SUFI_KEYWORDS =
+  'tasawwuf, tariqah, tariqa, Sufi path, Sufism South Africa, dhikr, murid, shaykh, pir, Naqshbandiyya, Naqshbandi, Qadiriyya, Qadiri, Chishtiyya, Chishti, Shadhiliyya, Shadhili, Tijaniyya, Tijani, Rifaiyya, Rifai order, Khalwatiyya, Alawiyya, Darqawiyya, Inayati, Idrisi tariqah, Uwaisi, Ba Alawi, Cape Town tariqah, Durban tariqah, Johannesburg Sufi, Sufi headwear, mawlid';
+
+/** Comma-separated meta keywords: headwear, locality, fragrance, tariqah / Sufi discovery terms. */
+export const SEO_KEYWORDS = [
+  'Islamic headwear South Africa, Kufi Cape Town, Taqiyah, Topi, Fez, Kopiah, Peci, Islamic headwear, prayer cap, Jummah attire, Salah, Eid, Cape Malay, Bo-Kaap, Cape Town, Western Cape, South Africa, Durban, Johannesburg, Attar, Oud, Arabian perfume, alcohol-free perfume, handcrafted kufi, breathable cotton, velvet fez, Naqshbandi Taj, Rumal, turban, Ashrafi, Azhari cap, Nalain cap, Islamic fashion, Sufi clothing, Gatesville, Athlone, Rylands, Winelands, nationwide delivery',
+  TARIQAH_SUFI_KEYWORDS,
+].join(', ');
 
 /** Unified Heritage narrative — single source for meta description and keywords (entity anchors). */
 export const HERITAGE_META = {
@@ -176,6 +185,7 @@ export function getLeadCuratorSchema() {
       'Naqshbandi tradition',
       'Taj and Kufi craftsmanship',
       'Fez and Sufi headwear',
+      'Tasawwuf and tariqah headwear traditions',
     ],
   };
 }
@@ -352,7 +362,7 @@ export function getShopItemListSchema(products) {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'Inaugural Collection — Kufi, Fez, Taj, Turban',
-    description: 'Islamic headwear Cape Town: handcrafted Kufi, Fez, Taj, Turban. Al-Ameen Caps.',
+    description: 'Islamic headwear Cape Town & South Africa: handcrafted Kufi, Fez, Taj, Turban. Al-Ameen Caps.',
     numberOfItems: products?.length ?? 0,
     itemListElement: (products || []).map((p, i) => ({
       '@type': 'ListItem',
@@ -398,12 +408,17 @@ export function getLocalBusinessSchema() {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: 'Al-Ameen Caps',
-    description: 'Premium Kufi, Taqiyah, Fez and Islamic headwear for Jumu\'ah and Salah. Handcrafted in Cape Town; Cape Malay culture and Bo-Kaap heritage. Attar and Oud perfumes. Nationwide delivery. South Africa.',
+    description: 'Premium Kufi, Taqiyah, Fez and Islamic headwear for Jumu\'ah, Salah, and dhikr gatherings. Handcrafted in Cape Town; Cape Malay culture and Bo-Kaap heritage. Attar and Oud perfumes. Nationwide delivery. South Africa.',
     url: base,
     image: `${base}/collection/nalain-cap.png`,
     priceRange: 'R',
     sameAs: [FACEBOOK_URL],
     founder: getLeadCuratorPersonForOrg(),
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: '-33.966',
+      longitude: '18.483',
+    },
     address: (() => {
       const street = import.meta.env.VITE_ADDRESS_STREET?.trim() || '205 Wallace Street, Glenwood, Cape Town';
       const postal = import.meta.env.VITE_ADDRESS_POSTAL_CODE?.trim() || '7460';
@@ -435,7 +450,8 @@ export function getWebSiteSchema() {
     '@type': 'WebSite',
     name: 'Al-Ameen Caps',
     url: getSchemaBaseUrl(),
-    description: 'Premium Kufi, Taqiyah, Fez and Islamic headwear for Jumu\'ah and Salah. Handcrafted in Cape Town; Cape Malay heritage, Bo-Kaap. Attar and Oud perfumes. Nationwide delivery. South Africa.',
+    inLanguage: 'en-ZA',
+    description: 'Premium Kufi, Taqiyah, Fez and Islamic headwear for Jumu\'ah, Salah, and community gatherings. Handcrafted in Cape Town; Cape Malay heritage, Bo-Kaap. Attar and Oud perfumes. Nationwide delivery. South Africa.',
   };
 }
 
@@ -449,9 +465,14 @@ export function getOrganizationSchema() {
     '@type': 'Organization',
     name: 'Al-Ameen Caps',
     url: base,
-    description: 'Premium Islamic headwear and fragrances: Kufi, Taqiyah, Fez, Taj, Rumal. Rooted in Cape Malay culture and Bo-Kaap heritage. Attar and Oud. Cape Town, South Africa. Handcrafted for Jumu\'ah, Eid and modest fashion.',
+    description: 'Premium Islamic headwear and fragrances: Kufi, Taqiyah, Fez, Taj, Rumal. Rooted in Cape Malay culture and Bo-Kaap heritage; suitable for seekers across tasawwuf paths. Attar and Oud. Cape Town, South Africa. Handcrafted for Jumu\'ah, Eid and modest fashion.',
     logo: `${base}/collection/nalain-cap.png`,
-    areaServed: { '@type': 'Place', name: 'Bo-Kaap' },
+    areaServed: [
+      { '@type': 'Country', name: 'South Africa' },
+      { '@type': 'City', name: 'Cape Town' },
+      { '@type': 'AdministrativeArea', name: 'Western Cape' },
+      { '@type': 'Place', name: 'Bo-Kaap' },
+    ],
   };
 }
 
@@ -516,6 +537,67 @@ export function getEvolutionFezKufiArticleSchema() {
       '@type': 'Organization',
       name: 'Al-Ameen Caps',
       url: base,
+    },
+  };
+}
+
+/** FAQ for Sufi / tariqah headwear guide — FAQPage rich results. */
+export const SUFI_HEADWEAR_GUIDE_FAQS = [
+  {
+    question: 'What is a tariqah in Islam?',
+    answer:
+      'A tariqah (spiritual path or Sufi order) is a structured way of spiritual training—often through dhikr, adab, and teaching under qualified scholars. South African Muslims are part of many global and local communities; headwear choices vary by occasion and culture, not by tariqah alone.',
+  },
+  {
+    question: 'Which tariqah names are common among Muslims in South Africa?',
+    answer:
+      'Communities in South Africa include followers and sympathisers across many paths—among the names often encountered in discourse and history are Naqshbandiyya, Qadiriyya, Chishtiyya, Shadhiliyya, Tijaniyya, Rifaiyya, Khalwatiyya, Alawiyya, Darqawiyya, Inayati, and Idrisi-related traditions. This is not an exhaustive list; local mosques and scholars are the best guide.',
+  },
+  {
+    question: 'What headwear do people wear for dhikr or Sufi gatherings in South Africa?',
+    answer:
+      'Many brothers wear a kufi or taqiyah for salah and gatherings; a Taj or turban may be chosen for formal or ceremonial occasions. Al-Ameen Caps offers handcrafted kufis, fezzes, and Taj styles—including Naqshbandi-inspired pieces—for Jumu\'ah, Eid, and community events, with delivery across South Africa.',
+  },
+  {
+    question: 'Is Al-Ameen Caps affiliated with a specific tariqah?',
+    answer:
+      'No. We are a Cape Town–based retailer of Islamic headwear and fragrances. We respect all lawful paths of tasawwuf and serve Muslims across South Africa without claiming affiliation to any single tariqah.',
+  },
+];
+
+/**
+ * Article schema for the Sufi headwear / tariqah guide (South Africa).
+ */
+export function getSufiHeadwearGuideArticleSchema() {
+  const base = getSchemaBaseUrl();
+  const pageUrl = `${base}/guides/sufi-headwear-tariqah-south-africa`;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'Sufi Headwear & Tariqah Traditions in South Africa',
+    description:
+      'Tasawwuf, tariqah names, and Islamic headwear in South Africa: kufi, Taj, fez for dhikr, Jumu\'ah, and Eid. Cape Town & nationwide. Al-Ameen Caps.',
+    url: pageUrl,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+    datePublished: '2026-03-01',
+    dateModified: '2026-03-22',
+    inLanguage: 'en-ZA',
+    keywords: TARIQAH_SUFI_KEYWORDS,
+    author: {
+      '@type': 'Organization',
+      name: 'Al-Ameen Caps',
+      url: `${base}/about`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Al-Ameen Caps',
+      url: base,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${base}/collection/nalain-cap.png`,
+        width: 800,
+        height: 800,
+      },
     },
   };
 }

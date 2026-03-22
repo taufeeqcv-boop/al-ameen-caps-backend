@@ -92,7 +92,7 @@ export default function HeadwearCollection() {
         ]}
       />
       <Navbar />
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24" role="main">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[var(--site-header-offset)] pb-24" role="main">
         <header className="mb-10 max-w-3xl">
           <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-primary mb-4">
             Headwear Collection — Na&apos;lain, Kufi &amp; Fez

@@ -1,12 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-ZA">
   <head>
     <!-- Preconnect to critical third parties (PageSpeed: faster LCP / font load) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" />
-    <!-- LCP: preload hero image so above-the-fold paint is fast (Core Web Vitals) -->
-    <link rel="preload" as="image" href="/hero-bg.webp" fetchpriority="high" />
+    <!-- LCP hero image preload: injected on Home only (see Hero.jsx) to avoid unused preload on /checkout etc. -->
     <!-- Fonts: load async to avoid blocking render (PageSpeed ~750ms savings) -->
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" /></noscript>
@@ -45,8 +44,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
     <link rel="shortcut icon" type="image/png" href="/favicon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="description" content="Premium Kufi, Taqiyah, Fez &amp; Islamic headwear for Jumu'ah, Salah &amp; Eid. Handcrafted in Cape Town. Nationwide delivery. Al-Ameen Caps." />
-    <meta name="keywords" content="Kufi, Taqiyah, Topi, Fez, Kopiah, Peci, Islamic headwear, prayer cap, Jummah attire, Salah, Eid, Cape Malay, Bo-Kaap, Cape Town, South Africa, Durban, Johannesburg, Attar, Oud, Arabian perfume, alcohol-free perfume, handcrafted kufi, breathable cotton, velvet fez, Naqshbandi Taj, Rumal, turban, Ashrafi, Azhari cap, Nalain cap, Islamic fashion, Sufi clothing, Gatesville, Athlone, Rylands, Winelands, nationwide delivery" />
+    <meta name="description" content="South Africa's premium Kufi, Taqiyah &amp; Fez — handcrafted in Cape Town for Jumu'ah, dhikr &amp; Eid. Sufi &amp; Cape Malay heritage. Nationwide delivery. Al-Ameen Caps." />
+    <meta name="keywords" content="Islamic headwear South Africa, Kufi Cape Town, Taqiyah, Topi, Fez, Kopiah, Peci, Islamic headwear, prayer cap, Jummah attire, Salah, Eid, Cape Malay, Bo-Kaap, Cape Town, Western Cape, South Africa, Durban, Johannesburg, Attar, Oud, Arabian perfume, alcohol-free perfume, handcrafted kufi, breathable cotton, velvet fez, Naqshbandi Taj, Rumal, turban, Ashrafi, Azhari cap, Nalain cap, Islamic fashion, Sufi clothing, Gatesville, Athlone, Rylands, Winelands, nationwide delivery, tasawwuf, tariqah, tariqa, Sufi path, Sufism South Africa, dhikr, murid, shaykh, pir, Naqshbandiyya, Naqshbandi, Qadiriyya, Qadiri, Chishtiyya, Chishti, Shadhiliyya, Shadhili, Tijaniyya, Tijani, Rifaiyya, Rifai order, Khalwatiyya, Alawiyya, Darqawiyya, Inayati, Idrisi tariqah, Uwaisi, Ba Alawi, Cape Town tariqah, Durban tariqah, Johannesburg Sufi, Sufi headwear, mawlid" />
     <meta name="robots" content="index, follow" />
     <meta name="geo.region" content="ZA-WC" />
     <meta name="geo.placename" content="Cape Town" />
@@ -57,15 +56,15 @@
     <meta property="og:locale" content="en_ZA" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Al-Ameen Caps" />
-    <meta property="og:title" content="Al-Ameen Caps | Premium Islamic Headwear &amp; Scents" />
-    <meta property="og:description" content="Premium Kufi, Taqiyah, Fez &amp; Islamic headwear for Jumu'ah, Salah &amp; Eid. Handcrafted in Cape Town. Nationwide delivery. Al-Ameen Caps." />
+    <meta property="og:title" content="Al-Ameen Caps | Kufi, Fez &amp; Islamic headwear — Cape Town &amp; South Africa" />
+    <meta property="og:description" content="South Africa's premium Kufi, Taqiyah &amp; Fez — handcrafted in Cape Town for Jumu'ah, dhikr &amp; Eid. Sufi &amp; Cape Malay heritage. Nationwide delivery. Al-Ameen Caps." />
     <meta property="og:image" content="https://alameencaps.com/collection/nalain-cap.png" />
     <meta property="og:url" content="https://alameencaps.com/" />
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Al-Ameen Caps | Premium Islamic Headwear &amp; Scents" />
-    <meta name="twitter:description" content="Premium Kufi, Taqiyah, Fez &amp; Islamic headwear for Jumu'ah, Salah &amp; Eid. Handcrafted in Cape Town. Nationwide delivery. Al-Ameen Caps." />
-    <title>Al-Ameen Caps | Premium Islamic Headwear &amp; Scents</title>
+    <meta name="twitter:title" content="Al-Ameen Caps | Kufi, Fez &amp; Islamic headwear — Cape Town &amp; South Africa" />
+    <meta name="twitter:description" content="South Africa's premium Kufi, Taqiyah &amp; Fez — handcrafted in Cape Town for Jumu'ah, dhikr &amp; Eid. Sufi &amp; Cape Malay heritage. Nationwide delivery. Al-Ameen Caps." />
+    <title>Al-Ameen Caps | Kufi, Fez &amp; Islamic headwear — Cape Town &amp; South Africa</title>
     <!-- Al-Ameen loading screen: matches PageLoader (dark, gold accent) -->
     <style>
       #root{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000}

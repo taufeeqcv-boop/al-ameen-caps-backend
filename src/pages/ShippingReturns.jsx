@@ -11,7 +11,7 @@ export default function ShippingReturns() {
         url="/shipping-returns"
       />
       <Navbar />
-      <main className="flex-1 pt-32 pb-16">
+      <main className="flex-1 pt-[var(--site-header-offset)] pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="font-serif text-3xl md:text-4xl font-semibold text-primary mb-2">
             Shipping &amp; Returns

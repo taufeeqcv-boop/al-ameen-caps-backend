@@ -79,7 +79,7 @@ export default function Success() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 max-w-2xl mx-auto px-4 pt-32 pb-24 text-center">
+      <main className="flex-1 max-w-2xl mx-auto px-4 pt-[var(--site-header-offset)] pb-24 text-center">
         <h1 className="font-serif text-3xl font-semibold text-primary">Order Confirmed</h1>
         <p className="mt-4 text-primary/80">
           We have successfully received your payment. Thank you for choosing Al-Ameen Caps. We sincerely appreciate your business and look forward to serving you again. We will be in touch shortly with your delivery details.

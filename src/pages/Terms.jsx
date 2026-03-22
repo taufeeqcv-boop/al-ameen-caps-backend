@@ -8,7 +8,7 @@ export default function Terms() {
     <div className="min-h-screen flex flex-col">
       <Seo title="Terms of Sale" description="Al-Ameen Caps Terms of Sale. Conditions for purchasing Islamic headwear from our store." url="/terms" />
       <Navbar />
-      <main className="flex-1 pt-32 pb-16">
+      <main className="flex-1 pt-[var(--site-header-offset)] pb-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="font-serif text-3xl md:text-4xl font-semibold text-primary mb-2">Terms of Sale</h1>
           <p className="text-primary/60 text-sm mb-10">Last updated: {new Date().toLocaleDateString("en-ZA")}</p>

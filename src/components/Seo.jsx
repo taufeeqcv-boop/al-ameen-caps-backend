@@ -25,8 +25,9 @@ const BASE_URL = getBaseUrl();
 // Canonical domain - always use alameencaps.com (not www) for SEO consistency
 const CANONICAL_DOMAIN = 'https://alameencaps.com';
 const SITE_NAME = 'Al-Ameen Caps';
-const DEFAULT_TITLE = 'Islamic Fashion, Kufi, Fez, Taj – Cape Town & South Africa';
-const DEFAULT_DESCRIPTION = 'Islamic fashion and Sufi clothing: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville. Top boutique. South Africa.';
+const DEFAULT_TITLE = 'Kufi, Fez, Taj & Islamic headwear — Cape Town & South Africa';
+const DEFAULT_DESCRIPTION =
+  "South Africa's premium Islamic headwear: kufi, fez, taj, turban, Rumal, salaah cap. Cape Town, Durban, Johannesburg, PE. Western Cape, Winelands, Bo-Kaap, Tableview, Bellville. Al-Ameen Caps.";
 
 /**
  * Normalizes a URL path for canonical tags:
@@ -125,7 +126,7 @@ export default function Seo({
       metaKw.name = 'keywords';
       document.head.appendChild(metaKw);
     }
-    metaKw.content = (metaKeywords || '').slice(0, 500);
+    metaKw.content = (metaKeywords || '').slice(0, 1200);
 
     // Robots (noindex for checkout, account, 404)
     let metaRobots = document.querySelector('meta[name="robots"]');
@@ -138,6 +139,31 @@ export default function Seo({
       metaRobots.content = 'noindex, nofollow';
     } else if (metaRobots && metaRobots.content === 'noindex, nofollow') {
       metaRobots.remove();
+    }
+
+    // hreflang: South African English + x-default (regional relevance for ZA / Cape Town queries)
+    const removeHreflang = () => {
+      document.querySelectorAll('link[rel="alternate"][hreflang="en-ZA"], link[rel="alternate"][hreflang="x-default"]').forEach((el) => el.remove());
+    };
+    if (noindex) {
+      removeHreflang();
+    } else {
+      let hlZa = document.querySelector('link[rel="alternate"][hreflang="en-ZA"]');
+      let hlDef = document.querySelector('link[rel="alternate"][hreflang="x-default"]');
+      if (!hlZa) {
+        hlZa = document.createElement('link');
+        hlZa.rel = 'alternate';
+        hlZa.hreflang = 'en-ZA';
+        document.head.appendChild(hlZa);
+      }
+      if (!hlDef) {
+        hlDef = document.createElement('link');
+        hlDef.rel = 'alternate';
+        hlDef.hreflang = 'x-default';
+        document.head.appendChild(hlDef);
+      }
+      hlZa.href = canonicalUrl;
+      hlDef.href = canonicalUrl;
     }
 
     // Canonical (skip for noindex pages - they shouldn't have canonical tags)
@@ -196,7 +222,7 @@ export default function Seo({
       }
       twTag.content = twContent;
     });
-  }, [title, description, metaKeywords, fullUrl, ogImage, noindex]);
+  }, [title, description, metaKeywords, fullUrl, ogImage, noindex, canonicalUrl]);
 
   // JSON-LD: Product schema
   useEffect(() => {

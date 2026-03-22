@@ -19,7 +19,7 @@ const baseUrl = SITEMAP_BASE_URL.replace(/\/+$/, '');
 
 const staticPages = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
-  // Shop: primary commercial page – highest priority, crawled frequently during launch
+  // Shop: primary commercial page
   { path: '/shop', changefreq: 'daily', priority: '1.0' },
   { path: '/collection/headwear', changefreq: 'weekly', priority: '0.9' },
   { path: '/blog', changefreq: 'weekly', priority: '0.8' },
@@ -28,6 +28,7 @@ const staticPages = [
   { path: '/guides/kufi-care', changefreq: 'monthly', priority: '0.8' },
   { path: '/guides/eid-headwear-south-africa', changefreq: 'monthly', priority: '0.8' },
   { path: '/guides/islamic-headwear-cape-town', changefreq: 'monthly', priority: '0.8' },
+  { path: '/guides/sufi-headwear-tariqah-south-africa', changefreq: 'monthly', priority: '0.85' },
   { path: '/community', changefreq: 'weekly', priority: '0.7' },
   { path: '/about', changefreq: 'monthly', priority: '0.7' },
   { path: '/heritage', changefreq: 'monthly', priority: '0.7', video: true },
@@ -48,8 +49,8 @@ const blogPages = (BLOG_POSTS || []).map((p) => ({
   priority: '0.8', // Increased from 0.7 to improve indexing
 }));
 
-// Products: all collection items, with explicit lastmod for sale update
-const PRODUCTS_LASTMOD = '2026-03-12'; // Grand Opening Eid Sale update
+// Products: all collection items, with explicit lastmod
+const PRODUCTS_LASTMOD = '2026-03-12'; // catalog last update
 
 const productPages = (COLLECTION_PRODUCTS || []).map((p) => ({
   path: `/product/${p.id}`,

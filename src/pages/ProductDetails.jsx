@@ -163,7 +163,7 @@ const ProductDetails = () => {
     return (
       <div className="min-h-screen flex flex-col bg-secondary/30">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center px-4 pt-32">
+        <main className="flex-1 flex items-center justify-center px-4 pt-[var(--site-header-offset)]">
           <div className="text-center">
             <Loader2 className="w-12 h-12 text-accent animate-spin mx-auto" aria-hidden />
             <p className="mt-4 text-primary/70">Loading product…</p>
@@ -178,7 +178,7 @@ const ProductDetails = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center px-4 pt-32">
+        <main className="flex-1 flex items-center justify-center px-4 pt-[var(--site-header-offset)]">
           <div className="text-center max-w-md">
             <p className="text-primary font-medium">Couldn’t load this product</p>
             <p className="mt-2 text-sm text-primary/70">{loadError}</p>
@@ -201,7 +201,7 @@ const ProductDetails = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center px-4 pt-32">
+        <main className="flex-1 flex items-center justify-center px-4 pt-[var(--site-header-offset)]">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-primary">Product Not Found</h2>
             <Link to="/shop" className="text-accent mt-4 block hover:underline">
@@ -230,7 +230,7 @@ const ProductDetails = () => {
       />
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 pt-32 flex-1">
+      <div className="max-w-4xl mx-auto px-4 pt-[var(--site-header-offset)] flex-1">
         <Link to="/shop" className="inline-flex items-center text-primary/70 hover:text-accent mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" /> Back to Shop
         </Link>

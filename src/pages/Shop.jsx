@@ -36,14 +36,14 @@ export default function Shop() {
     <div className="min-h-screen flex flex-col">
       <Seo
         title="Shop – Kufi, Fez, Taj, Turban, Rumal"
-        description="Buy kufi, fez, taj, turban, Rumal, Nalain cap, Azhari cap. Islamic fashion, top boutique. Cape Town, Durban, Johannesburg, PE. Northern and Southern suburbs, Winelands, Bo-Kaap, Tableview, Bellville, Durbanville."
+        description="Buy kufi, fez, taj, turban, Rumal, Nalain cap, Azhari cap. Islamic fashion, South Africa. Cape Town, Durban, Johannesburg, PE. Western Cape, Winelands, Bo-Kaap, Tableview, Bellville, Durbanville."
         url="/shop"
         breadcrumbs={[{ name: "Home", url: "/" }, { name: "Shop", url: null }]}
         itemListProducts={COLLECTION_PRODUCTS}
         localBusiness
       />
       <Navbar />
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[8.5rem] sm:pt-[9rem] pb-24" role="main">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[var(--site-header-offset)] pb-24" role="main">
         <div className="mb-8">
           <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-primary mb-2 leading-tight">
             Inaugural Collection

@@ -11,7 +11,9 @@ import { formatPrice } from '../lib/format';
 import { generateSignature } from '../utils/payfast';
 import { supabase } from '../lib/supabase';
 import { getFunctionUrl, getFunctionUrlAbsolute } from '../lib/config';
-import { validateCheckoutForm } from '../lib/validateCheckoutForm';
+import { validateCheckoutForm, validateSouthAfricanMobilePhone } from '../lib/validateCheckoutForm';
+import { buildShippingPayload } from '../lib/checkoutShipping';
+import { applyCheckoutValidationFailure } from '../lib/checkoutFormActions';
 import { pushEcommerceEvent } from '../lib/analytics';
 
 const DELIVERY_FEE = Number(import.meta.env.VITE_DELIVERY_FEE) || 99;
@@ -28,6 +30,7 @@ const Checkout = () => {
   const [deliveryType, setDeliveryType] = useState('delivery'); // 'delivery' | 'collection'
   const [paymentMethod, setPaymentMethod] = useState('payfast'); // 'payfast' | 'yoco'
   const [isProcessingYoco, setIsProcessingYoco] = useState(false);
+  const [cellNumberBlurred, setCellNumberBlurred] = useState(false);
   const subtotal = cartTotal;
   const delivery = cart.length > 0 ? (deliveryType === 'collection' ? 0 : DELIVERY_FEE) : 0;
   const total = subtotal + delivery;
@@ -83,6 +86,9 @@ const Checkout = () => {
     }));
   }, [user?.id]);
 
+  const phoneFieldValidation = validateSouthAfricanMobilePhone(formData.cell_number);
+  const showPhoneFieldError = cellNumberBlurred && !phoneFieldValidation.valid;
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -93,7 +99,7 @@ const Checkout = () => {
     setError('');
     const validation = validateCheckoutForm(formData, true);
     if (!validation.valid) {
-      setError(validation.message);
+      applyCheckoutValidationFailure(validation, { setError, setCellNumberBlurred });
       return;
     }
     if (!user?.id) {
@@ -147,14 +153,7 @@ const Checkout = () => {
       }
 
       // Create order (and order_items) so Admin Orders page and PayFast ITN can use it
-      const shippingPayload = {
-        delivery_type: deliveryType,
-        address_line1: (formData.address_line_1 ?? '').trim(),
-        address_line2: (formData.address_line_2 ?? '').trim(),
-        city: (formData.city ?? '').trim(),
-        postal_code: (formData.postal_code ?? '').trim(),
-        phone: (formData.cell_number ?? '').trim(),
-      };
+      const shippingPayload = buildShippingPayload(formData, deliveryType);
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -186,7 +185,11 @@ const Checkout = () => {
         });
       }
 
-      const origin = window.location.origin;
+      // PayFast validates return/cancel URLs against the merchant profile; prefer canonical site URL when set (see VITE_SITE_URL).
+      const payfastSiteBase = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(
+        /\/$/,
+        ''
+      );
       const { count: orderCount } = await supabase
         .from('orders')
         .select('*', { count: 'exact', head: true })
@@ -214,8 +217,8 @@ const Checkout = () => {
       const data = {
         merchant_id: merchantId,
         merchant_key: merchantKey,
-        return_url: `${origin}/success?${successParams.toString()}`,
-        cancel_url: `${origin}/checkout`,
+        return_url: `${payfastSiteBase}/success?${successParams.toString()}`,
+        cancel_url: `${payfastSiteBase}/checkout`,
         notify_url: notifyUrl, // Exact URL as set in PayFast dashboard
         name_first: formData.name_first?.trim() || 'Guest',
         name_last: formData.name_last?.trim() || 'User',
@@ -357,7 +360,7 @@ const Checkout = () => {
 
     const validation = validateCheckoutForm(formData, true);
     if (!validation.valid) {
-      setError(validation.message);
+      applyCheckoutValidationFailure(validation, { setError, setCellNumberBlurred });
       return;
     }
 
@@ -365,8 +368,9 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      const successUrl = `${window.location.origin}/success`;
-      const cancelUrl = `${window.location.origin}/checkout`;
+      const yocoSiteBase = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/$/, '');
+      const successUrl = `${yocoSiteBase}/success`;
+      const cancelUrl = `${yocoSiteBase}/checkout`;
 
       const res = await fetch(getFunctionUrl('yoco-checkout'), {
         method: 'POST',
@@ -376,20 +380,31 @@ const Checkout = () => {
           currency: 'ZAR',
           successUrl,
           cancelUrl,
+          phone: formData.cell_number,
+          email: formData.email_address,
         }),
       });
 
       const data = await res.json().catch(() => ({}));
 
-      if (!res.ok || !data?.redirectUrl) {
-        setError(
-          data?.error ||
-            'Could not start secure card payment. Please try again, or choose PayFast / Place Order.'
-        );
+      const yocoRedirect =
+        data?.redirectUrl || data?.redirect_url;
+      if (!res.ok || !yocoRedirect) {
+        const base =
+          typeof data?.error === 'string' && data.error.trim()
+            ? data.error.trim()
+            : 'Could not start secure card payment. Please try again, or choose PayFast / Place Order.';
+        const hint =
+          !res.ok && res.status
+            ? ` (${res.status})`
+            : res.ok && !yocoRedirect
+              ? ' (No redirect URL from gateway.)'
+              : '';
+        setError(`${base}${hint}`);
         return;
       }
 
-      window.location.href = data.redirectUrl;
+      window.location.href = yocoRedirect;
     } catch (err) {
       setError(
         err?.message ||
@@ -407,7 +422,7 @@ const Checkout = () => {
     setError('');
     const validation = validateCheckoutForm(formData, true);
     if (!validation.valid) {
-      setError(validation.message);
+      applyCheckoutValidationFailure(validation, { setError, setCellNumberBlurred });
       return;
     }
     setLoading(true);
@@ -434,7 +449,7 @@ const Checkout = () => {
         throw new Error(msg);
       }
       setPreOrderName([formData.name_first, formData.name_last].filter(Boolean).join(' ') || 'Valued Customer');
-      setPreOrderPhone(formData.cell_number?.trim() || '');
+      setPreOrderPhone(phoneFieldValidation.digits);
       setIsPreOrder(true);
       clearCart();
     } catch (err) {
@@ -453,7 +468,7 @@ const Checkout = () => {
       <>
         <div className="min-h-screen flex flex-col">
           <Navbar />
-          <main className="flex-1 pt-32 pb-24" />
+          <main className="flex-1 pt-[var(--site-header-offset)] pb-24" />
           <Footer />
         </div>
         <SuccessModal customerName={preOrderName} preOrderPhone={preOrderPhone} />
@@ -465,7 +480,7 @@ const Checkout = () => {
     <div className="min-h-screen flex flex-col">
       <Seo noindex title="Checkout" url="/checkout" />
       <Navbar />
-      <main className="flex-1 max-w-4xl mx-auto w-full px-6 text-primary pt-32 pb-24">
+      <main className="flex-1 max-w-4xl mx-auto w-full px-6 text-primary pt-[var(--site-header-offset)] pb-24">
         <h1 className="font-serif text-3xl font-bold text-accent mb-8 text-center">Secure Checkout</h1>
 
         {cart.length === 0 && (
@@ -557,14 +572,32 @@ const Checkout = () => {
                 required
                 className="font-sans w-full p-3 border border-black/20 rounded focus:border-accent focus:ring-1 focus:ring-accent outline-none"
               />
-              <input
-                name="cell_number"
-                placeholder="Phone Number"
-                value={formData.cell_number}
-                onChange={handleInputChange}
-                required
-                className="font-sans w-full p-3 border border-black/20 rounded focus:border-accent focus:ring-1 focus:ring-accent outline-none"
-              />
+              <div>
+                <input
+                  id="checkout-cell-number"
+                  name="cell_number"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  placeholder="Phone Number (e.g. 0821234567)"
+                  value={formData.cell_number}
+                  onChange={handleInputChange}
+                  onBlur={() => setCellNumberBlurred(true)}
+                  required
+                  aria-invalid={showPhoneFieldError}
+                  aria-describedby={showPhoneFieldError ? 'checkout-cell-number-error' : undefined}
+                  className={`font-sans w-full p-3 border rounded focus:ring-1 focus:ring-accent outline-none ${
+                    showPhoneFieldError
+                      ? 'border-red-500 bg-red-50/50 focus:border-red-500'
+                      : 'border-black/20 focus:border-accent'
+                  }`}
+                />
+                {showPhoneFieldError && (
+                  <p id="checkout-cell-number-error" className="mt-1.5 text-sm text-red-600 font-sans" role="alert">
+                    {phoneFieldValidation.message}
+                  </p>
+                )}
+              </div>
               {showPayment && (
                 <div className="font-sans space-y-2">
                   <p className="text-sm font-medium text-primary">Delivery method</p>

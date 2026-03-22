@@ -2,13 +2,40 @@
  * Tests for lib/validateCheckoutForm.js
  */
 import { describe, it, expect } from "vitest";
-import { validateCheckoutForm } from "./validateCheckoutForm.js";
+import {
+  validateCheckoutForm,
+  validateSouthAfricanMobilePhone,
+  SA_MOBILE_REGEX,
+} from "./validateCheckoutForm.js";
 
 const validAddress = {
   address_line_1: "123 Main Rd",
   city: "Cape Town",
   postal_code: "8001",
 };
+
+describe("SA_MOBILE_REGEX", () => {
+  it("matches 10-digit SA mobile prefixes 06, 07, 08", () => {
+    expect(SA_MOBILE_REGEX.test("0622996917")).toBe(true);
+    expect(SA_MOBILE_REGEX.test("0821234567")).toBe(true);
+    expect(SA_MOBILE_REGEX.test("0712345678")).toBe(true);
+    expect(SA_MOBILE_REGEX.test("0912345678")).toBe(false);
+    expect(SA_MOBILE_REGEX.test("082123456")).toBe(false);
+  });
+});
+
+describe("validateSouthAfricanMobilePhone", () => {
+  it("normalizes and validates spaced input", () => {
+    const r = validateSouthAfricanMobilePhone("082 123 4567");
+    expect(r.valid).toBe(true);
+    expect(r.digits).toBe("0821234567");
+  });
+
+  it("rejects wrong prefix", () => {
+    const r = validateSouthAfricanMobilePhone("0123456789");
+    expect(r.valid).toBe(false);
+  });
+});
 
 describe("validateCheckoutForm", () => {
   it("returns valid for complete form with address", () => {
@@ -59,7 +86,7 @@ describe("validateCheckoutForm", () => {
     expect(result.message).toMatch(/valid email/i);
   });
 
-  it("fails when phone has fewer than 9 digits", () => {
+  it("fails when phone is not valid SA mobile format", () => {
     const result = validateCheckoutForm({
       name_first: "A",
       name_last: "B",
@@ -68,10 +95,10 @@ describe("validateCheckoutForm", () => {
       ...validAddress,
     });
     expect(result.valid).toBe(false);
-    expect(result.message).toMatch(/phone|9 digits/i);
+    expect(result.message).toMatch(/phone|mobile|digit|South African/i);
   });
 
-  it("accepts phone with spaces/dashes (9+ digits)", () => {
+  it("accepts phone with spaces/dashes (10 digits 06/07/08)", () => {
     const result = validateCheckoutForm({
       name_first: "A",
       name_last: "B",

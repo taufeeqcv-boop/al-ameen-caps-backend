@@ -24,7 +24,7 @@ alwaysApply: false
 
 ## Performance (LCP & CLS)
 
-- Preload LCP hero image from `index.html`: `<link rel="preload" as="image" href="/hero-bg.webp" fetchpriority="high" />`.
+- Preload LCP hero image on the Home route only: `Hero.jsx` injects `<link rel="preload" as="image" href="/hero-bg.webp" fetchpriority="high" />` on mount (avoids unused preload warnings on `/checkout` and other routes).
 - Use explicit aspect ratio (e.g. `aspect-[4/5]`) on product image containers to prevent layout shift.
 - Fonts must use `display=swap` (already in index).
 
