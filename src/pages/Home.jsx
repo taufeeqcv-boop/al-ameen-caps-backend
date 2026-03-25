@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 import Seo from "../components/Seo";
-import { injectJsonLd, getLocalBusinessSchema, getWebSiteSchema, getOrganizationSchema, HOMEPAGE_META_DESCRIPTION } from "../lib/seo";
+import { injectJsonLd, getLocalBusinessSchema, getWebSiteSchema, HOMEPAGE_META_DESCRIPTION } from "../lib/seo";
 
 const FeaturedReviews = lazy(() => import("../components/FeaturedReviews"));
 
@@ -12,11 +12,9 @@ export default function Home() {
   useEffect(() => {
     const cleanup1 = injectJsonLd(getLocalBusinessSchema());
     const cleanup2 = injectJsonLd(getWebSiteSchema());
-    const cleanup3 = injectJsonLd(getOrganizationSchema());
     return () => {
       cleanup1();
       cleanup2();
-      cleanup3();
     };
   }, []);
 

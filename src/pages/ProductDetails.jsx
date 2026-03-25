@@ -64,6 +64,10 @@ const ProductDetails = () => {
 
   const bundledImg = product ? (COLLECTION_IMAGE_IMPORTS[product.id] || COLLECTION_IMAGE_IMPORTS[product.sku]) : null;
   const imageSrc = bundledImg || (product ? getCollectionImageUrl(product) : null);
+  /** Prefer canonical https://alameencaps.com/collection/... for og:image; else relative path for Seo to absolutize. */
+  const seoOgImage = product
+    ? getCollectionImageUrl(product) || (typeof imageSrc === "string" ? imageSrc : "/collection/nalain-cap.png")
+    : "/collection/nalain-cap.png";
 
   // GA4 ecommerce: view_item once per product load
   useEffect(() => {
@@ -221,7 +225,7 @@ const ProductDetails = () => {
         description={getProductMetaDescription(product)}
         url={`/product/${product.id}`}
         product={product}
-        image={imageSrc}
+        image={seoOgImage}
         breadcrumbs={[
           { name: "Home", url: "/" },
           { name: "Shop", url: "/shop" },

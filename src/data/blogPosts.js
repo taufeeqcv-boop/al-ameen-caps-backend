@@ -40,20 +40,103 @@ export const BLOG_POSTS = [
   {
     slug: 'types-of-islamic-headwear-kufi-taj-fez',
     title: 'Types of Islamic Headwear: Kufi, Taj, Fez & More',
-    description: 'Learn about kufi, Taj, fez, rumal, and other Islamic headwear. Cape Town and South Africa\'s leading selection.',
+    seoTitle: 'What Is a Kufi? Types of Islamic Headwear in South Africa',
+    description:
+      'What are Muslim hats called? Kufi meaning, taqiyah, Taj, fez & rumal explained. Buy Islamic headwear online—Cape Town, nationwide delivery. Al-Ameen Caps.',
     date: '2026-02-15',
+    dateModified: '2026-03-25',
     author: 'Al-Ameen Caps',
     category: 'Learn',
+    ogImage: '/collection/nalain-cap.png',
+    faqs: [
+      {
+        question: 'What is a kufi?',
+        answer:
+          'A kufi is a small, close-fitting cap worn by many Muslim men for salah and daily life. It is also called a prayer cap, taqiyah, or topi in different communities. It is not the only style of Islamic headwear, but it is one of the most common in South Africa.',
+      },
+      {
+        question: 'What are Muslim hats called?',
+        answer:
+          'People use many names: kufi, taqiyah, topi, fez (tarboosh), Taj (a wrapped or layered crown), turban, and rumal. The name depends on the shape, culture, and occasion—not every cap is a “kufi.”',
+      },
+      {
+        question: 'Is a kufi the same as a taqiyah?',
+        answer:
+          'Often yes. “Taqiyah” is a general term for a modest cap; “kufi” usually describes a rounded, brimless style. Both can refer to similar caps in everyday speech.',
+      },
+      {
+        question: 'What is a fez hat in Islam?',
+        answer:
+          'A fez (tarboosh) is a brimless cap, often with a tassel, with Ottoman and North African roots. Muslims may wear it for formal or cultural occasions; it is different from a simple round kufi.',
+      },
+      {
+        question: 'When do people wear a Taj?',
+        answer:
+          'A Taj is often chosen for Jumu\'ah, Eid, nikah, or gatherings where a more layered or ceremonial look is preferred. Styles vary from Naqshbandi-inspired crowns to other traditional wraps.',
+      },
+      {
+        question: 'Where can I buy Islamic headwear in South Africa?',
+        answer:
+          'Al-Ameen Caps is based in Cape Town and delivers nationwide. Browse the online shop for kufi, Taj, fez, rumal, and perfumes—secure checkout, South Africa-wide delivery.',
+      },
+    ],
     content: [
-      { type: 'p', text: 'Islamic headwear comes in many forms—each with its own history and place in tradition. Here we outline the main types you\'ll find at Al-Ameen Caps and across Cape Town and South Africa.' },
+      {
+        type: 'p',
+        text: 'If you have searched “what is a kufi,” “muslim hat name,” or “types of muslim caps,” this guide is for you. In South Africa—Cape Town, Johannesburg, Durban, and beyond—Muslims wear different kinds of headwear for salah, Jumu\'ah, Eid, and daily life. Below we answer the common names people use, then explain each type in plain language.',
+      },
+      {
+        type: 'h2',
+        text: 'Names people use for Muslim caps and crowns',
+      },
+      {
+        type: 'p',
+        text: 'English does not have one word for every style. You might hear kufi, taqiyah, topi, fez, Taj, turban, or rumal. The same person may say “prayer cap” for a simple round cap and “Taj” for a wrapped crown. What matters is fit, adab, and occasion—then you choose the right piece.',
+      },
+      {
+        type: 'table',
+        headers: ['Name', 'What it usually means'],
+        rows: [
+          ['Kufi / taqiyah / topi', 'A close-fitting cap for salah and everyday wear.'],
+          ['Fez (tarboosh)', 'A structured, often tasselled brimless cap; formal or cultural occasions.'],
+          ['Taj', 'A layered or wrapped crown—often more ceremonial.'],
+          ['Rumal / turban cloth', 'A woven scarf; may be styled as headwear or worn with other pieces.'],
+        ],
+      },
       { type: 'h2', text: 'Kufi' },
-      { type: 'p', text: 'The kufi (also prayer cap, namaz cap) is a close-fitting cap worn for salaah and daily life. Woven or embroidered, it is the most common Islamic cap in South Africa and the Cape.' },
+      {
+        type: 'p',
+        text: 'The kufi (prayer cap, namaz cap) is a close-fitting cap worn for salaah and daily life. Woven or embroidered, it is the most common Islamic cap in South Africa and the Cape. For a premium example, see our Na\'lain-style collection.',
+      },
       { type: 'h2', text: 'Taj' },
-      { type: 'p', text: 'The Taj (crown) is often layered or wrapped, and is associated with spiritual and ceremonial occasions. The Naqshbandi Taj and Turkish Naqshbandi Taj are worn for Jumu\'ah, Eid, and gatherings.' },
+      {
+        type: 'p',
+        text: 'The Taj (crown) is often layered or wrapped, and is associated with spiritual and ceremonial occasions. The Naqshbandi Taj and Turkish Naqshbandi Taj are worn for Jumu\'ah, Eid, and gatherings when brothers want a more formal silhouette.',
+      },
       { type: 'h2', text: 'Fez' },
-      { type: 'p', text: 'The fez is a brimless, usually felt or velvet cap with a tassel. It carries Ottoman and North African heritage and is worn for formal and cultural events. Our Royal Ottoman Fez is a classic choice.' },
+      {
+        type: 'p',
+        text: 'The fez is a brimless, usually felt or velvet cap with a tassel. It carries Ottoman and North African heritage and is worn for formal and cultural events. Our Royal Ottoman Fez remains a classic choice.',
+      },
       { type: 'h2', text: 'Rumal and more' },
-      { type: 'p', text: 'The Arabic rumal is a woven scarf that can be worn as headwear or around the neck. We also offer military-style caps and winter caps for variety. Explore the full collection online.' },
+      {
+        type: 'p',
+        text: 'The Arabic rumal is a woven scarf that can be worn as headwear or around the neck. We also offer military-style caps and winter caps for variety.',
+      },
+      {
+        type: 'h2',
+        text: 'Shop online & explore traditions',
+      },
+      {
+        type: 'links',
+        links: [
+          { to: '/shop', label: 'Shop Islamic headwear (South Africa delivery)' },
+          { to: '/guides/sufi-headwear-tariqah-south-africa', label: 'Sufi & tariqah headwear traditions' },
+          { to: '/product/collection-1', label: "Na'lain Premium Cap — flagship kufi" },
+          { to: '/product/collection-5', label: 'Naqshbandi Taj — Cape Heritage' },
+          { to: '/product/collection-12', label: 'Royal Ottoman Fez' },
+        ],
+      },
     ],
   },
   {

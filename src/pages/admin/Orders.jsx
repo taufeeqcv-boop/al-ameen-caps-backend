@@ -2,7 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "../../lib/supabase";
 import { formatPrice } from "../../lib/format";
 import { getFunctionUrl } from "../../lib/config";
-import { Loader2, MoreHorizontal, RotateCcw, Truck, Download, Printer, FileText, Search, Receipt } from "lucide-react";
+import { Loader2, MoreHorizontal, RotateCcw, Truck, Download, Printer, FileText, Search, Receipt, CircleDollarSign } from "lucide-react";
+import { insertCashSaleOrder } from "../../lib/orders";
 import { useSearchParams } from "react-router-dom";
 
 const STATUS_OPTIONS = ["PENDING", "PAID", "SHIPPED", "CANCELLED"];
@@ -62,6 +63,13 @@ export default function AdminOrders() {
   const [dateTo, setDateTo] = useState(urlDateTo);
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [bulkUpdateMessage, setBulkUpdateMessage] = useState(null);
+  const [cashModalOpen, setCashModalOpen] = useState(false);
+  const [cashJson, setCashJson] = useState('[{"product_id": 1, "quantity": 1}]');
+  const [cashEmail, setCashEmail] = useState("");
+  const [cashNotes, setCashNotes] = useState("");
+  const [cashBusy, setCashBusy] = useState(false);
+  const [cashErr, setCashErr] = useState(null);
+  const [cashMsg, setCashMsg] = useState(null);
 
   const fetchOrders = async () => {
     if (!supabase) return;
@@ -78,6 +86,7 @@ export default function AdminOrders() {
         shipping_data,
         customer_email,
         admin_notes,
+        payment_method,
         profiles ( first_name, last_name )
       `)
       .order("created_at", { ascending: false });
@@ -281,7 +290,7 @@ export default function AdminOrders() {
   };
 
   const exportCsv = () => {
-    const headers = ["Order ID", "Date", "Customer", "Email", "Total (ZAR)", "Status", "Shipping address", "Phone", "Admin notes"];
+    const headers = ["Order ID", "Date", "Customer", "Email", "Total (ZAR)", "Payment", "Status", "Shipping address", "Phone", "Admin notes"];
     const rows = filteredOrders.map((o) => {
       const sd = o.shipping_data || {};
       const addr = [sd.address_line1, sd.address_line2, sd.city, sd.postal_code].filter(Boolean).join(", ");
@@ -291,6 +300,7 @@ export default function AdminOrders() {
         customerName(o),
         o.customer_email ?? "",
         o.total_amount ?? "",
+        o.payment_method ?? "online",
         o.status ?? "",
         addr,
         sd.phone ?? "",
@@ -353,6 +363,40 @@ export default function AdminOrders() {
     }
   };
 
+  const submitCashSale = async () => {
+    setCashErr(null);
+    setCashMsg(null);
+    let items;
+    try {
+      items = JSON.parse(cashJson);
+    } catch {
+      setCashErr("Invalid JSON. Use an array like [{\"product_id\": 1, \"quantity\": 2}].");
+      return;
+    }
+    if (!Array.isArray(items) || items.length === 0) {
+      setCashErr("Provide a non-empty array of line items.");
+      return;
+    }
+    setCashBusy(true);
+    try {
+      const { orderId, total } = await insertCashSaleOrder({
+        items,
+        customerEmail: cashEmail.trim() || undefined,
+        adminNotes: cashNotes.trim() || undefined,
+      });
+      setCashMsg(`Recorded: ${orderId} · ${formatPrice(total)} (PAID, cash)`);
+      setCashModalOpen(false);
+      setCashJson('[{"product_id": 1, "quantity": 1}]');
+      setCashEmail("");
+      setCashNotes("");
+      await fetchOrders();
+    } catch (e) {
+      setCashErr(e?.message || "Failed to record cash sale.");
+    } finally {
+      setCashBusy(false);
+    }
+  };
+
   const exportCustomerListCsv = () => {
     const seen = new Set();
     const rows = [];
@@ -399,6 +443,9 @@ export default function AdminOrders() {
       )}
       {bulkUpdateMessage && (
         <div className="rounded-lg bg-emerald-50 text-emerald-800 p-4 text-sm">{bulkUpdateMessage}</div>
+      )}
+      {cashMsg && (
+        <div className="rounded-lg bg-emerald-50 text-emerald-800 p-4 text-sm">{cashMsg}</div>
       )}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -498,6 +545,15 @@ export default function AdminOrders() {
             )}
             <button
               type="button"
+              onClick={() => { setCashErr(null); setCashMsg(null); setCashModalOpen(true); }}
+              className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-secondary hover:bg-primary/90 flex items-center gap-2"
+              title="Record in-person cash: creates PAID order and updates stock"
+            >
+              <CircleDollarSign className="w-4 h-4" />
+              Log cash sale
+            </button>
+            <button
+              type="button"
               onClick={exportCsv}
               disabled={filteredOrders.length === 0}
               className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-secondary/40 text-primary hover:bg-secondary/20 flex items-center gap-2 disabled:opacity-50"
@@ -527,6 +583,7 @@ export default function AdminOrders() {
                 <th className="px-6 py-3 font-medium">Customer</th>
                 <th className="px-6 py-3 font-medium">Email</th>
                 <th className="px-6 py-3 font-medium">Total</th>
+                <th className="px-6 py-3 font-medium">Pay</th>
                 <th className="px-6 py-3 font-medium">Status</th>
                 <th className="px-6 py-3 font-medium">Notes</th>
                 <th className="px-6 py-3 font-medium w-32">Actions</th>
@@ -541,6 +598,13 @@ export default function AdminOrders() {
                   <td className="px-6 py-3 text-primary">{customerName(o)}</td>
                   <td className="px-6 py-3 text-primary text-sm">{o.customer_email || "—"}</td>
                   <td className="px-6 py-3 text-primary font-medium">{formatPrice(o.total_amount)}</td>
+                  <td className="px-6 py-3 text-primary text-xs">
+                    {(o.payment_method || "online") === "cash" ? (
+                      <span className="inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-medium">cash</span>
+                    ) : (
+                      <span className="text-primary/60">online</span>
+                    )}
+                  </td>
                   <td className="px-6 py-3">
                     <span
                       className={`inline-block px-2 py-1 rounded text-xs font-medium ${
@@ -702,6 +766,82 @@ export default function AdminOrders() {
               >
                 <Printer className="w-4 h-4" />
                 Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {cashModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          aria-modal="true"
+          role="dialog"
+          onClick={(e) => e.target === e.currentTarget && !cashBusy && setCashModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-premium border border-secondary/30 w-full max-w-lg p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="font-serif text-xl font-semibold text-primary flex items-center gap-2">
+              <CircleDollarSign className="w-5 h-5 text-accent" />
+              Log cash sale
+            </h2>
+            <p className="mt-2 text-sm text-primary/70">
+              Creates a PAID order with payment cash, decrements stock. Use your real product IDs from the catalog.
+            </p>
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1">Line items (JSON)</label>
+                <textarea
+                  value={cashJson}
+                  onChange={(e) => setCashJson(e.target.value)}
+                  rows={5}
+                  className="w-full px-3 py-2 border border-secondary/40 rounded-lg text-primary text-sm font-mono focus:ring-2 focus:ring-accent focus:border-accent"
+                  spellCheck={false}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1">Customer email (optional)</label>
+                <input
+                  type="email"
+                  value={cashEmail}
+                  onChange={(e) => setCashEmail(e.target.value)}
+                  placeholder="walk-in@example.com"
+                  className="w-full px-3 py-2 border border-secondary/40 rounded-lg text-primary text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1">Notes (optional)</label>
+                <input
+                  type="text"
+                  value={cashNotes}
+                  onChange={(e) => setCashNotes(e.target.value)}
+                  placeholder="e.g. Market stall, 22 Mar"
+                  className="w-full px-3 py-2 border border-secondary/40 rounded-lg text-primary text-sm focus:ring-2 focus:ring-accent focus:border-accent"
+                />
+              </div>
+              {cashErr && (
+                <div className="rounded-lg bg-red-50 text-red-800 p-3 text-sm">{cashErr}</div>
+              )}
+            </div>
+            <div className="mt-6 flex gap-3 justify-end">
+              <button
+                type="button"
+                onClick={() => !cashBusy && setCashModalOpen(false)}
+                className="px-4 py-2 rounded-lg border border-secondary/40 text-primary hover:bg-secondary/20 disabled:opacity-50"
+                disabled={cashBusy}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={submitCashSale}
+                disabled={cashBusy}
+                className="btn-accent px-4 py-2 flex items-center gap-2 disabled:opacity-50"
+              >
+                {cashBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <CircleDollarSign className="w-4 h-4" />}
+                Record sale
               </button>
             </div>
           </div>

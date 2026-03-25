@@ -16,6 +16,19 @@ export function getSchemaBaseUrl() {
   return CANONICAL_SITE_URL.replace(/\/$/, '');
 }
 
+/**
+ * Canonical @id for Al-Ameen Caps as a brand entity.
+ * LocalBusiness + Organization JSON-LD share this @id so Google merges one Knowledge Graph node (not fragmented).
+ */
+export function getOrganizationSchemaId() {
+  return `${getSchemaBaseUrl()}/#organization`;
+}
+
+/** @id for the site (WebSite); publisher points at Organization. */
+export function getWebsiteSchemaId() {
+  return `${getSchemaBaseUrl()}/#website`;
+}
+
 /** Category → SEO label for product meta (Kufi, Fez, Taj, etc.) */
 const CATEGORY_LABELS = { Caps: 'Kufi & Islamic cap', Taj: 'Taj', Rumal: 'Rumal & Turban', Perfumes: 'Islamic perfume' };
 
@@ -174,6 +187,7 @@ export function getLeadCuratorSchema() {
     url: `${base}/about`,
     worksFor: {
       '@type': 'Organization',
+      '@id': getOrganizationSchemaId(),
       name: 'Al-Ameen Caps',
       url: base,
     },
@@ -400,18 +414,60 @@ export function getHeadwearTypeItemListSchema({ type, description, products }) {
  */
 const FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61587066161054';
 
-export function getLocalBusinessSchema() {
+/**
+ * Single JSON-LD node: LocalBusiness + Organization together.
+ * Avoids duplicate @id scripts (which made Rich Results show “missing” telephone/image/address on LocalBusiness).
+ */
+function getPostalAddressForSchema() {
+  const street = import.meta.env.VITE_ADDRESS_STREET?.trim() || '205 Wallace Street, Glenwood, Cape Town';
+  const postal = import.meta.env.VITE_ADDRESS_POSTAL_CODE?.trim() || '7460';
+  return {
+    '@type': 'PostalAddress',
+    streetAddress: street,
+    addressLocality: 'Cape Town',
+    addressRegion: 'Western Cape',
+    postalCode: postal,
+    addressCountry: 'ZA',
+  };
+}
+
+/** ZA national (0…) → E.164 +27 for schema.org telephone (Google prefers international format). */
+function toZaE164(nationalOrE164) {
+  const raw = (nationalOrE164 || '').replace(/\s/g, '');
+  if (raw.startsWith('+')) return raw;
+  if (raw.startsWith('0')) return `+27${raw.slice(1)}`;
+  if (raw.startsWith('27')) return `+${raw}`;
+  return '+27810487447';
+}
+
+export function getMergedBusinessEntitySchema() {
   const base = getSchemaBaseUrl();
-  // Prefer env phone, but fall back to primary business number so LocalBusiness always has a telephone.
-  const telephone = (import.meta.env.VITE_CONTACT_PHONE || "0810487447").trim() || undefined;
-  const schema = {
+  const telephone = toZaE164((import.meta.env.VITE_CONTACT_PHONE || '0810487447').trim());
+  const logoAndImageUrl = `${base}/collection/nalain-cap.png`;
+  const mapQuery = encodeURIComponent('205 Wallace Street Glenwood Cape Town 7460 South Africa');
+  return {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': ['LocalBusiness', 'Organization'],
+    '@id': getOrganizationSchemaId(),
     name: 'Al-Ameen Caps',
-    description: 'Premium Kufi, Taqiyah, Fez and Islamic headwear for Jumu\'ah, Salah, and dhikr gatherings. Handcrafted in Cape Town; Cape Malay culture and Bo-Kaap heritage. Attar and Oud perfumes. Nationwide delivery. South Africa.',
     url: base,
-    image: `${base}/collection/nalain-cap.png`,
-    priceRange: 'R',
+    description:
+      'Premium Islamic headwear and fragrances: Kufi, Taqiyah, Fez, Taj, Rumal. Rooted in Cape Malay culture and Bo-Kaap heritage; suitable for seekers across tasawwuf paths. Attar and Oud. Cape Town, South Africa. Handcrafted for Jumu\'ah, Eid and modest fashion.',
+    logo: logoAndImageUrl,
+    image: [
+      logoAndImageUrl,
+      {
+        '@type': 'ImageObject',
+        url: logoAndImageUrl,
+        width: 800,
+        height: 800,
+      },
+    ],
+    telephone,
+    priceRange: '$$',
+    currenciesAccepted: 'ZAR',
+    paymentAccepted: 'PayFast, Yoco, major cards where enabled',
+    hasMap: `https://www.google.com/maps/search/?api=1&query=${mapQuery}`,
     sameAs: [FACEBOOK_URL],
     founder: getLeadCuratorPersonForOrg(),
     geo: {
@@ -419,61 +475,51 @@ export function getLocalBusinessSchema() {
       latitude: '-33.966',
       longitude: '18.483',
     },
-    address: (() => {
-      const street = import.meta.env.VITE_ADDRESS_STREET?.trim() || '205 Wallace Street, Glenwood, Cape Town';
-      const postal = import.meta.env.VITE_ADDRESS_POSTAL_CODE?.trim() || '7460';
-      return {
-        '@type': 'PostalAddress',
-        streetAddress: street,
-        addressLocality: 'Cape Town',
-        addressRegion: 'Western Cape',
-        postalCode: postal,
-        addressCountry: 'ZA',
-      };
-    })(),
+    address: getPostalAddressForSchema(),
     areaServed: AREAS_SERVED.map((name) =>
       name === 'South Africa'
         ? { '@type': 'Country', name: 'South Africa' }
         : { '@type': 'Place', name }
     ),
   };
-  if (telephone) schema.telephone = telephone;
-  return schema;
+}
+
+/** @deprecated Prefer merged entity — kept as alias for Shop/Home/Seo callers. */
+export function getLocalBusinessSchema() {
+  return getMergedBusinessEntitySchema();
 }
 
 /**
  * WebSite schema for homepage (entity-rich for Knowledge Graph)
  */
 export function getWebSiteSchema() {
+  const base = getSchemaBaseUrl();
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
+    '@id': getWebsiteSchemaId(),
     name: 'Al-Ameen Caps',
-    url: getSchemaBaseUrl(),
+    url: base,
     inLanguage: 'en-ZA',
     description: 'Premium Kufi, Taqiyah, Fez and Islamic headwear for Jumu\'ah, Salah, and community gatherings. Handcrafted in Cape Town; Cape Malay heritage, Bo-Kaap. Attar and Oud perfumes. Nationwide delivery. South Africa.',
+    publisher: { '@id': getOrganizationSchemaId() },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${base}/shop?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
   };
 }
 
 /**
- * Organization schema for homepage (E-E-A-T; local authority: Bo-Kaap, Cape Malay)
+ * Organization schema for homepage — same graph node as LocalBusiness (no second script).
+ * @deprecated Call sites should use getMergedBusinessEntitySchema / getLocalBusinessSchema once.
  */
 export function getOrganizationSchema() {
-  const base = getSchemaBaseUrl();
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Al-Ameen Caps',
-    url: base,
-    description: 'Premium Islamic headwear and fragrances: Kufi, Taqiyah, Fez, Taj, Rumal. Rooted in Cape Malay culture and Bo-Kaap heritage; suitable for seekers across tasawwuf paths. Attar and Oud. Cape Town, South Africa. Handcrafted for Jumu\'ah, Eid and modest fashion.',
-    logo: `${base}/collection/nalain-cap.png`,
-    areaServed: [
-      { '@type': 'Country', name: 'South Africa' },
-      { '@type': 'City', name: 'Cape Town' },
-      { '@type': 'AdministrativeArea', name: 'Western Cape' },
-      { '@type': 'Place', name: 'Bo-Kaap' },
-    ],
-  };
+  return getMergedBusinessEntitySchema();
 }
 
 /**
@@ -599,6 +645,47 @@ export function getSufiHeadwearGuideArticleSchema() {
         height: 800,
       },
     },
+  };
+}
+
+/**
+ * BlogPosting JSON-LD for /blog/:slug posts (rich results / discover).
+ */
+export function getBlogPostingSchema(post) {
+  if (!post?.slug) return null;
+  const base = getSchemaBaseUrl();
+  const pageUrl = `${base}/blog/${post.slug}`;
+  const rawImg = (post.ogImage || '').trim() || '/collection/nalain-cap.png';
+  const imageUrl = rawImg.startsWith('http') ? rawImg : `${base}${rawImg.startsWith('/') ? '' : '/'}${rawImg}`;
+  const headline = post.title || '';
+  const desc = (post.description || '').slice(0, 500);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline,
+    description: desc,
+    url: pageUrl,
+    datePublished: post.date,
+    dateModified: post.dateModified || post.date,
+    inLanguage: 'en-ZA',
+    mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+    author: {
+      '@type': 'Organization',
+      name: post.author || 'Al-Ameen Caps',
+      url: `${base}/about`,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Al-Ameen Caps',
+      url: base,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${base}/collection/nalain-cap.png`,
+        width: 800,
+        height: 800,
+      },
+    },
+    image: imageUrl,
   };
 }
 

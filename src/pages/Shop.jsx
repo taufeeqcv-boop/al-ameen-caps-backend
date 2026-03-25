@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Seo from "../components/Seo";
@@ -12,8 +13,21 @@ const CATEGORY_OPTIONS = [
 ];
 
 export default function Shop() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") ?? "");
   const [categoryFilter, setCategoryFilter] = useState("");
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") ?? "");
+  }, [searchParams]);
+
+  function handleSearchChange(value) {
+    const next = new URLSearchParams(searchParams);
+    const trimmed = value.trim();
+    if (trimmed) next.set("q", trimmed);
+    else next.delete("q");
+    setSearchParams(next, { replace: true });
+  }
 
   const filtered = useMemo(() => {
     let list = COLLECTION_PRODUCTS;
@@ -61,7 +75,7 @@ export default function Shop() {
               id="shop-search"
               type="search"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search by name or category…"
               className="w-full pl-10 pr-4 py-2.5 border-2 border-primary/10 rounded-lg text-primary placeholder-primary/50 focus:border-accent focus:ring-2 focus:ring-accent/20 outline-none"
             />
@@ -89,7 +103,12 @@ export default function Shop() {
             <p className="text-primary/70 mb-4">No products match your search. Try a different term or category.</p>
             <button
               type="button"
-              onClick={() => { setSearchQuery(""); setCategoryFilter(""); }}
+              onClick={() => {
+                setCategoryFilter("");
+                const next = new URLSearchParams(searchParams);
+                next.delete("q");
+                setSearchParams(next, { replace: true });
+              }}
               className="btn-outline-contrast px-6 py-2.5 text-sm"
             >
               Clear filters

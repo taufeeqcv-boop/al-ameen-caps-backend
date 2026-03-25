@@ -17,6 +17,7 @@ import {
   getShopItemListSchema,
   getLocalBusinessSchema,
   getFAQPageSchema,
+  getBlogPostingSchema,
   getBaseUrl,
   SEO_KEYWORDS,
 } from '../lib/seo';
@@ -89,6 +90,8 @@ export default function Seo({
   itemListProducts = null,
   localBusiness = false,
   faqs = null,
+  /** Full blog post object from blogPosts.js — injects BlogPosting JSON-LD and sets og:type to article */
+  blogPost = null,
   noindex = false,
 }) {
   const location = useLocation();
@@ -187,13 +190,14 @@ export default function Seo({
 
     // Open Graph
     const pageTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | ${DEFAULT_TITLE}`;
+    const ogType = product ? 'product' : blogPost ? 'article' : 'website';
     const ogTags = [
       ['og:locale', 'en_ZA'],
       ['og:title', pageTitle],
       ['og:description', description.slice(0, 160)],
       ['og:url', fullUrl],
       ['og:image', ogImage],
-      ['og:type', product ? 'product' : 'website'],
+      ['og:type', ogType],
       ['og:site_name', SITE_NAME],
     ];
     ogTags.forEach(([property, content]) => {
@@ -222,7 +226,7 @@ export default function Seo({
       }
       twTag.content = twContent;
     });
-  }, [title, description, metaKeywords, fullUrl, ogImage, noindex, canonicalUrl]);
+  }, [title, description, metaKeywords, fullUrl, ogImage, noindex, canonicalUrl, blogPost, product]);
 
   // JSON-LD: Product schema
   useEffect(() => {
@@ -293,6 +297,15 @@ export default function Seo({
     const cleanup = injectJsonLd(schema);
     return cleanup;
   }, [faqs]);
+
+  // JSON-LD: BlogPosting for /blog/:slug
+  useEffect(() => {
+    if (!blogPost) return;
+    const schema = getBlogPostingSchema(blogPost);
+    if (!schema) return;
+    const cleanup = injectJsonLd(schema);
+    return cleanup;
+  }, [blogPost]);
 
   return null;
 }
