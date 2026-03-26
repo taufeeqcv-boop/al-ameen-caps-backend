@@ -28,33 +28,32 @@ export default function Home() {
           <div className="max-w-6xl mx-auto grid gap-8 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-center">
             <div>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold text-primary mb-3">
-                Crafted in Mumbai. Approved in New York. Landing in Cape Town.
+                Premium headwear, chosen with care—for Cape Town and South Africa.
               </h2>
               <p className="text-primary/80 mb-4">
-                Our collection is curated directly from master artisans at Azhari Cap Global Marketing in Mumbai,
-                verified by discerning customers abroad, and prepared for brothers and families across Cape Town and
-                South Africa.
+                Al-Ameen Caps brings together kufi, fez, taj, and complementary pieces selected for craft, comfort, and
+                dignity. We serve brothers and families who want reliable quality for Jumu&apos;ah, Eid, and everyday
+                dress—without the noise of mass-market stock.
               </p>
               <p className="text-primary/80 mb-4">
-                <span className="font-semibold text-primary">Global Proof:</span> Alhamdulillah, a recent parcel reached
-                Brother Ghazi Waheed safely in New York—caps and shawl arriving in perfect condition, with workmanship
-                that reflects the heritage of Mumbai and the dignity of Cape Malay tradition.
+                Our roots are in this community: Cape Malay heritage, modest fashion, and nationwide delivery so you can
+                order with confidence whether you are in the Western Cape, Gauteng, KwaZulu-Natal, or beyond.
               </p>
               <p className="text-primary/70 text-sm">
-                This Mumbai-to-New York-to-Cape Town journey is your assurance that every piece carries true premium
-                value—not mass-produced stock.
+                Each piece is packed and fulfilled with the same attention we would want for our own households—because
+                what you wear for salah and gathering should feel right, look right, and last.
               </p>
             </div>
             <div className="flex justify-center">
               <figure className="max-w-sm w-full rounded-2xl overflow-hidden border border-primary/10 shadow-premium bg-primary/5">
                 <img
-                  src="/images/WhatsApp Image 2026-03-12 at 2.28.55 AM (1).jpeg"
-                  alt="Brother Ghazi Waheed wearing Al-Ameen Caps headwear and shawl after receiving his parcel safely in New York."
+                  src="/collection/nalain-cap.png"
+                  alt="Premium Islamic headwear from Al-Ameen Caps—Na'lain-style cap, curated for South Africa."
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
                 <figcaption className="px-4 py-3 text-xs text-primary/70 bg-secondary/80">
-                  Crafted in Mumbai. Approved in New York. Landing in Cape Town.
+                  Handpicked pieces · Secure checkout · Nationwide delivery
                 </figcaption>
               </figure>
             </div>
