@@ -1,6 +1,9 @@
 import type { Handler } from '@netlify/functions';
 import { supabaseAdmin } from './lib/supabaseAdmin';
-import { generateSignature } from '../../src/utils/payfast-crypto';
+import {
+  describeItnSignatureAttempts,
+  verifyPayfastItnSignature,
+} from '../../src/utils/payfast-crypto';
 
 function parseFormBody(body: string | null): Record<string, string> {
   if (!body || typeof body !== 'string') return {};
@@ -18,21 +21,35 @@ export const handler: Handler = async (event) => {
   }
 
   const passphrase = process.env.PAYFAST_PASSPHRASE ?? '';
+  if (!String(passphrase).trim()) {
+    console.error(
+      'ITN: PAYFAST_PASSPHRASE is empty on Netlify. Set it to the same passphrase as your PayFast profile (must match VITE_PAYFAST_PASSPHRASE used on the payment form). Without it, ITN signature checks always fail and orders stay PENDING.'
+    );
+  }
+
   const params = parseFormBody(event.body);
   const receivedSignature = params.signature;
 
   if (!receivedSignature) {
+    console.error('ITN: missing signature in POST body');
     return { statusCode: 400, body: 'Bad Request: missing signature' };
   }
 
   const { signature: _, ...rest } = params;
-  const computedSignature = generateSignature(rest, passphrase || undefined);
-  if (computedSignature.toLowerCase() !== receivedSignature.toLowerCase()) {
-    console.error('ITN: signature mismatch – security risk');
+  if (!verifyPayfastItnSignature(rest, passphrase || undefined, receivedSignature)) {
+    console.error(
+      'ITN: signature mismatch (check PAYFAST_PASSPHRASE matches dashboard and sandbox vs live passphrase)',
+      describeItnSignatureAttempts(rest, passphrase || undefined, receivedSignature)
+    );
     return { statusCode: 400, body: 'Bad Request: invalid signature' };
   }
 
-  if (params.payment_status !== 'COMPLETE') {
+  const paymentStatus = (params.payment_status ?? '').trim().toUpperCase();
+  if (paymentStatus !== 'COMPLETE') {
+    console.log('ITN: payment_status not COMPLETE, skipping order update', {
+      payment_status: params.payment_status,
+      m_payment_id: params.m_payment_id,
+    });
     return { statusCode: 200, body: '' };
   }
 

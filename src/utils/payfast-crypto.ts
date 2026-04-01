@@ -9,6 +9,13 @@ function encodeValue(value: string): string {
     .replace(/%([0-9a-f]{2})/gi, (_, hex) => '%' + hex.toUpperCase());
 }
 
+/** Some PayFast/PHP paths use lowercase percent-encoding in ITN strings. */
+function encodeValueLowerHex(value: string): string {
+  return encodeURIComponent(value)
+    .replace(/%20/g, '+')
+    .replace(/%([0-9A-Fa-f]{2})/g, (m) => m.toLowerCase());
+}
+
 /**
  * Custom / hosted payment form: field order per PayFast & Network International integration docs
  * (NOT alphabetical). Includes merchant_key. URLs and email must be encoded in the signing string.
@@ -84,8 +91,8 @@ export function generateFormSignature(data: Record<string, any>, passphrase?: st
 
 /**
  * PayFast **ITN** (Instant Transaction Notification) verification.
- * PayFast sends POST params; integrations typically rebuild with alphabetically sorted keys.
- * Excludes merchant_key, signature, testing from the string (legacy ITN behaviour).
+ * Alphabetically sorted keys, URL-encoded values; include merchant_key if PayFast sends it.
+ * Excludes: signature, testing (per PayFast ITN docs).
  */
 export function generateSignature(
   data: Record<string, any>,
@@ -93,7 +100,7 @@ export function generateSignature(
 ): string {
   const filtered: Record<string, string> = {};
   for (const [key, value] of Object.entries(data)) {
-    if (value != null && value !== '' && key !== 'merchant_key' && key !== 'signature' && key !== 'testing') {
+    if (value != null && value !== '' && key !== 'signature' && key !== 'testing') {
       filtered[key] = String(value).trim();
     }
   }
@@ -106,4 +113,69 @@ export function generateSignature(
   str += `&passphrase=${encodeValue(passphraseValue)}`;
 
   return crypto.createHash('md5').update(str).digest('hex');
+}
+
+/**
+ * Verify PayFast ITN signature — try common variants (encoding + optional merchant_key exclusion).
+ */
+export function verifyPayfastItnSignature(
+  dataWithoutSignature: Record<string, string>,
+  passphrase: string | undefined,
+  receivedSignature: string
+): boolean {
+  const want = receivedSignature.trim().toLowerCase();
+
+  const encoders: Array<{ fn: (s: string) => string }> = [{ fn: encodeValue }, { fn: encodeValueLowerHex }];
+
+  for (const { fn: enc } of encoders) {
+    for (const excludeMerchantKey of [false, true]) {
+      const filtered: Record<string, string> = {};
+      for (const [key, value] of Object.entries(dataWithoutSignature)) {
+        if (key === 'signature' || key === 'testing') continue;
+        if (excludeMerchantKey && key === 'merchant_key') continue;
+        if (value == null || value === '') continue;
+        filtered[key] = String(value).trim();
+      }
+      const keys = Object.keys(filtered).sort();
+      const parts = keys.map((k) => `${k}=${enc(filtered[k])}`);
+      let str = parts.join('&');
+      const passphraseValue = passphrase != null ? String(passphrase).trim() : '';
+      str += `&passphrase=${enc(passphraseValue)}`;
+      const hash = crypto.createHash('md5').update(str).digest('hex');
+      if (hash.toLowerCase() === want) return true;
+    }
+  }
+
+  return false;
+}
+
+/** For debugging failed ITN: safe one-line summary (no secrets). */
+export function describeItnSignatureAttempts(
+  dataWithoutSignature: Record<string, string>,
+  passphrase: string | undefined,
+  receivedSignature: string
+): string {
+  const want = receivedSignature.trim().toLowerCase();
+  const encoders: Array<{ fn: (s: string) => string }> = [{ fn: encodeValue }, { fn: encodeValueLowerHex }];
+  const previews: string[] = [];
+  for (const { fn: enc } of encoders) {
+    for (const excludeMerchantKey of [false, true]) {
+      const filtered: Record<string, string> = {};
+      for (const [key, value] of Object.entries(dataWithoutSignature)) {
+        if (key === 'signature' || key === 'testing') continue;
+        if (excludeMerchantKey && key === 'merchant_key') continue;
+        if (value == null || value === '') continue;
+        filtered[key] = String(value).trim();
+      }
+      const keys = Object.keys(filtered).sort();
+      const parts = keys.map((k) => `${k}=${enc(filtered[k])}`);
+      let str = parts.join('&');
+      const passphraseValue = passphrase != null ? String(passphrase).trim() : '';
+      str += `&passphrase=${enc(passphraseValue)}`;
+      const hash = crypto.createHash('md5').update(str).digest('hex');
+      const ok = hash.toLowerCase() === want;
+      previews.push(ok ? 'OK' : hash.slice(0, 8));
+    }
+  }
+  return `received=${want.slice(0, 8)}… computed=[${previews.join(',')}]`;
 }
