@@ -89,6 +89,43 @@ const Checkout = () => {
   const phoneFieldValidation = validateSouthAfricanMobilePhone(formData.cell_number);
   const showPhoneFieldError = cellNumberBlurred && !phoneFieldValidation.valid;
 
+  /** Creates PENDING order + line items (shared by PayFast and Yoco). */
+  const createPendingOrderWithItems = async () => {
+    if (!supabase || !user?.id) {
+      return { error: 'Checkout is not fully configured or you are not signed in.' };
+    }
+    const shippingPayload = buildShippingPayload(formData, deliveryType);
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .insert({
+        user_id: user.id,
+        status: 'PENDING',
+        total_amount: total,
+        customer_email: (user.email ?? (formData.email_address || '').trim()) || null,
+        shipping_data: shippingPayload,
+      })
+      .select('id')
+      .single();
+
+    if (orderError || !order?.id) {
+      return { error: orderError?.message || 'Could not create order. Try Place Order or sign in and try again.' };
+    }
+
+    for (const item of cart) {
+      const productId = item.product_id ?? (typeof item.id === 'number' ? item.id : parseInt(String(item.id || '').replace(/^collection-/, ''), 10));
+      if (productId == null || Number.isNaN(productId)) continue;
+      const unitPrice = getItemPrice(item);
+      await supabase.from('order_items').insert({
+        order_id: order.id,
+        product_id: productId,
+        quantity: item.quantity || 1,
+        unit_price: unitPrice,
+        product_name: item.name || 'Item',
+      });
+    }
+    return { order };
+  };
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -133,10 +170,11 @@ const Checkout = () => {
     }
     try {
       // PayFast configuration - all must use VITE_ prefix for frontend access
-      const isSandbox = import.meta.env.VITE_PAYFAST_SANDBOX === 'true';
-      const merchantId = import.meta.env.VITE_PAYFAST_MERCHANT_ID;
-      const merchantKey = import.meta.env.VITE_PAYFAST_MERCHANT_KEY;
-      const passPhrase = import.meta.env.VITE_PAYFAST_PASSPHRASE; // Explicitly use VITE_ prefix
+      const sandboxRaw = String(import.meta.env.VITE_PAYFAST_SANDBOX ?? '').trim().toLowerCase();
+      const isSandbox = sandboxRaw === 'true' || sandboxRaw === '1';
+      const merchantId = String(import.meta.env.VITE_PAYFAST_MERCHANT_ID ?? '').trim();
+      const merchantKey = String(import.meta.env.VITE_PAYFAST_MERCHANT_KEY ?? '').trim();
+      const passPhrase = String(import.meta.env.VITE_PAYFAST_PASSPHRASE ?? '').trim();
 
       if (!merchantId || !merchantKey) {
         setError('PayFast is not configured. Please use Place Order.');
@@ -152,38 +190,13 @@ const Checkout = () => {
         return;
       }
 
-      // Create order (and order_items) so Admin Orders page and PayFast ITN can use it
-      const shippingPayload = buildShippingPayload(formData, deliveryType);
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user.id,
-          status: 'PENDING',
-          total_amount: total,
-          customer_email: (user.email ?? (formData.email_address || '').trim()) || null,
-          shipping_data: shippingPayload,
-        })
-        .select('id')
-        .single();
-
-      if (orderError || !order?.id) {
-        setError(orderError?.message || 'Could not create order. Try Place Order or sign in and try again.');
+      const pending = await createPendingOrderWithItems();
+      if ('error' in pending) {
+        setError(pending.error);
+        setLoading(false);
         return;
       }
-
-      // Add order_items for cart items that have a numeric product id (from products table)
-      for (const item of cart) {
-        const productId = item.product_id ?? (typeof item.id === 'number' ? item.id : parseInt(String(item.id || '').replace(/^collection-/, ''), 10));
-        if (productId == null || Number.isNaN(productId)) continue;
-        const unitPrice = getItemPrice(item);
-        await supabase.from('order_items').insert({
-          order_id: order.id,
-          product_id: productId,
-          quantity: item.quantity || 1,
-          unit_price: unitPrice,
-          product_name: item.name || 'Item',
-        });
-      }
+      const { order } = pending;
 
       // PayFast validates return/cancel URLs against the merchant profile; prefer canonical site URL when set (see VITE_SITE_URL).
       const payfastSiteBase = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(
@@ -213,13 +226,14 @@ const Checkout = () => {
       
       // Build PayFast payload in required field order:
       // merchant_id, merchant_key, return_url, cancel_url, notify_url, name_first, name_last, email_address, m_payment_id, amount, item_name
-      const notifyUrl = 'https://alameencaps.com/.netlify/functions/itn-listener';
+      // ITN must match PayFast dashboard exactly (same host as VITE_SITE_URL — no trailing comma, full path below).
+      const notifyUrl = `${payfastSiteBase}/.netlify/functions/itn-listener`;
       const data = {
         merchant_id: merchantId,
         merchant_key: merchantKey,
         return_url: `${payfastSiteBase}/success?${successParams.toString()}`,
         cancel_url: `${payfastSiteBase}/checkout`,
-        notify_url: notifyUrl, // Exact URL as set in PayFast dashboard
+        notify_url: notifyUrl,
         name_first: formData.name_first?.trim() || 'Guest',
         name_last: formData.name_last?.trim() || 'User',
         email_address: payfastEmail,
@@ -363,13 +377,41 @@ const Checkout = () => {
       applyCheckoutValidationFailure(validation, { setError, setCellNumberBlurred });
       return;
     }
+    if (!user?.id) {
+      setError('Please sign in to pay with Yoco. You can use Place Order without signing in.');
+      return;
+    }
+    if (!supabase) {
+      setError('Checkout is not fully configured. Please use Place Order.');
+      return;
+    }
 
     setIsProcessingYoco(true);
     setLoading(true);
 
     try {
+      const pending = await createPendingOrderWithItems();
+      if ('error' in pending) {
+        setError(pending.error);
+        return;
+      }
+      const { order } = pending;
+
       const yocoSiteBase = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/$/, '');
-      const successUrl = `${yocoSiteBase}/success`;
+      const { count: orderCount } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+      const newCustomer = orderCount === 1;
+      const successParams = new URLSearchParams({
+        order_id: order.id,
+        new_customer: newCustomer ? '1' : '0',
+        amount: total.toFixed(2),
+      });
+      const yocoCustomerEmail = (formData.email_address || user.email || '').trim();
+      if (yocoCustomerEmail) successParams.set('email', yocoCustomerEmail);
+
+      const successUrl = `${yocoSiteBase}/success?${successParams.toString()}`;
       const cancelUrl = `${yocoSiteBase}/checkout`;
 
       const res = await fetch(getFunctionUrl('yoco-checkout'), {
@@ -382,6 +424,7 @@ const Checkout = () => {
           cancelUrl,
           phone: formData.cell_number,
           email: formData.email_address,
+          orderId: order.id,
         }),
       });
 

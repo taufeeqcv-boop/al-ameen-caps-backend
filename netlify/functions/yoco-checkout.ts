@@ -5,6 +5,8 @@ interface YocoCheckoutBody {
   currency?: string;
   successUrl?: string;
   cancelUrl?: string;
+  /** Supabase order UUID — passed in metadata for payment webhooks */
+  orderId?: string;
   /** Raw phone from checkout; sanitized before Yoco metadata */
   phone?: string;
   email?: string;
@@ -87,6 +89,14 @@ export const handler: Handler = async (event) => {
     };
   }
 
+  if (!body.orderId?.trim()) {
+    return {
+      statusCode: 400,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'orderId is required' }),
+    };
+  }
+
   const amountNumber = Number(body.amount);
   if (!Number.isFinite(amountNumber) || amountNumber <= 0) {
     return {
@@ -131,6 +141,9 @@ export const handler: Handler = async (event) => {
       };
 
   const metadata: Record<string, string> = {};
+  if (body.orderId?.trim()) {
+    metadata.order_id = body.orderId.trim();
+  }
   if (sanitizedPhone) metadata.customerPhone = sanitizedPhone;
   if (trimmedEmail) metadata.customerEmail = trimmedEmail;
   if (Object.keys(metadata).length > 0) {

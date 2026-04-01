@@ -1,6 +1,6 @@
 import type { Handler } from '@netlify/functions';
 import { supabaseAdmin } from './lib/supabaseAdmin';
-import { generateSignature } from '../../src/utils/payfast-crypto';
+import { generateFormSignature } from '../../src/utils/payfast-crypto';
 
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -37,10 +37,11 @@ export const handler: Handler = async (event) => {
   const email_address = userData?.user?.email ?? '';
 
   const baseUrl = (process.env.VITE_SITE_URL || process.env.URL || 'https://alameencaps.com').replace(/\/$/, '');
-  const merchant_id = process.env.PAYFAST_MERCHANT_ID || '';
-  const merchant_key = process.env.PAYFAST_MERCHANT_KEY || '';
-  const passphrase = process.env.PAYFAST_PASSPHRASE || undefined;
-  const isSandbox = process.env.VITE_PAYFAST_SANDBOX === 'true';
+  const merchant_id = (process.env.PAYFAST_MERCHANT_ID || '').trim();
+  const merchant_key = (process.env.PAYFAST_MERCHANT_KEY || '').trim();
+  const passphrase = (process.env.PAYFAST_PASSPHRASE || '').trim() || undefined;
+  const sandboxRaw = String(process.env.VITE_PAYFAST_SANDBOX ?? '').trim().toLowerCase();
+  const isSandbox = sandboxRaw === 'true' || sandboxRaw === '1';
 
   const payload: Record<string, string> = {
     merchant_id,
@@ -60,7 +61,7 @@ export const handler: Handler = async (event) => {
     payload.testing = '1';
   }
 
-  const signature = generateSignature(payload, passphrase);
+  const signature = generateFormSignature(payload, passphrase);
 
   return {
     statusCode: 200,
