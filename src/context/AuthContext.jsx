@@ -95,6 +95,14 @@ export function AuthProvider({ children }) {
     });
   };
 
+  /** Guest checkout: creates a Supabase session without Google (orders still need auth.uid() for RLS). Requires Anonymous sign-ins enabled in Supabase → Authentication → Providers. */
+  const signInAnonymously = async () => {
+    if (!supabase) return { error: "Not configured" };
+    const { error } = await supabase.auth.signInAnonymously();
+    if (error) return { error: error.message };
+    return {};
+  };
+
   const signOut = async () => {
     if (!supabase) return;
     setUser(null);
@@ -108,7 +116,18 @@ export function AuthProvider({ children }) {
   const clearAuthError = () => setAuthError(null);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signOut, isConfigured: !!supabase, authError, clearAuthError }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signInWithGoogle,
+        signInAnonymously,
+        signOut,
+        isConfigured: !!supabase,
+        authError,
+        clearAuthError,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

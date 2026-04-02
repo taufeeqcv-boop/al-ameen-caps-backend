@@ -21,7 +21,17 @@ const enableEcommerce = import.meta.env.VITE_ENABLE_ECOMMERCE === 'true';
 
 const Checkout = () => {
   const { cart, cartTotal, clearCart, getItemPrice } = useCart();
-  const { user, loading: authLoading, signInWithGoogle, signOut, isConfigured: authConfigured } = useAuth();
+  const {
+    user,
+    loading: authLoading,
+    signInWithGoogle,
+    signInAnonymously,
+    signOut,
+    isConfigured: authConfigured,
+  } = useAuth();
+  const [guestSigningIn, setGuestSigningIn] = useState(false);
+  /** Anonymous / no-email session (guest checkout without Google). */
+  const isGuestSession = Boolean(user && (!user.email?.trim() || user.is_anonymous === true));
   const [loading, setLoading] = useState(false);
   const [isPreOrder, setIsPreOrder] = useState(false);
   const [preOrderName, setPreOrderName] = useState('');
@@ -544,13 +554,15 @@ const Checkout = () => {
         <div className="grid md:grid-cols-2 gap-8 items-start max-w-4xl mx-auto">
           <div className="bg-secondary p-6 shadow-premium rounded-lg border border-accent/20">
             {authConfigured && (
-              <div className="mb-6 text-center">
+              <div className="mb-6 text-center space-y-3">
                 {user ? (
-                  <div className="flex items-center justify-center gap-2">
-                    {user.user_metadata?.avatar_url && (
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    {user.user_metadata?.avatar_url && !isGuestSession && (
                       <img src={user.user_metadata.avatar_url} alt="" width={32} height={32} className="w-8 h-8 rounded-full object-cover" loading="lazy" decoding="async" />
                     )}
-                    <span className="font-sans text-sm text-primary/80">{user.email}</span>
+                    <span className="font-sans text-sm text-primary/80">
+                      {isGuestSession ? "Guest checkout" : user.email}
+                    </span>
                     <button
                       type="button"
                       onClick={signOut}
@@ -560,19 +572,47 @@ const Checkout = () => {
                     </button>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={signInWithGoogle}
-                    className="font-sans w-full py-2.5 px-4 rounded border-2 border-black/20 hover:border-accent hover:bg-accent/10 transition-colors text-sm font-medium"
-                  >
-                    Sign in with Google
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => signInWithGoogle()}
+                      disabled={guestSigningIn}
+                      className="font-sans w-full py-2.5 px-4 rounded border-2 border-black/20 hover:border-accent hover:bg-accent/10 transition-colors text-sm font-medium disabled:opacity-50"
+                    >
+                      Sign in with Google
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setError("");
+                        setGuestSigningIn(true);
+                        const res = await signInAnonymously();
+                        setGuestSigningIn(false);
+                        if (res?.error) {
+                          setError(
+                            res.error.includes("Anonymous") || res.error.includes("anonymous")
+                              ? "Guest checkout is not enabled on the server. Please sign in with Google, or contact us."
+                              : res.error
+                          );
+                        }
+                      }}
+                      disabled={guestSigningIn || authLoading}
+                      className="font-sans w-full py-2.5 px-4 rounded border border-black/15 bg-primary/5 hover:bg-primary/10 transition-colors text-sm text-primary/90 disabled:opacity-50"
+                    >
+                      {guestSigningIn ? "Starting guest session…" : "Continue as guest (no Google account)"}
+                    </button>
+                    <p className="font-sans text-[11px] text-primary/55 text-left leading-snug">
+                      PayFast needs an order in our system first. Guests get a temporary secure session—no Google required. You can still enter your email below for receipts.
+                    </p>
+                  </>
                 )}
               </div>
             )}
             {user && (
               <p className="font-sans text-accent font-medium text-center mb-4">
-                Welcome back, {formData.name_first || (user.user_metadata?.full_name || "").trim().split(/\s+/)[0] || user.email?.split("@")[0] || "there"}. We&apos;ve pre-filled your details for a faster checkout.
+                {isGuestSession
+                  ? "You’re checking out as a guest. Enter your details below—we’ll use your email for PayFast and your order."
+                  : `Welcome back, ${formData.name_first || (user.user_metadata?.full_name || "").trim().split(/\s+/)[0] || user.email?.split("@")[0] || "there"}. We’ve pre-filled your details for a faster checkout.`}
               </p>
             )}
             <h2 className="font-serif text-xl font-semibold text-primary mb-4 text-center">
@@ -739,7 +779,9 @@ const Checkout = () => {
               ) : (
                 <>
                   {!user && (
-                    <p className="font-sans text-primary/70 text-sm mt-4">Sign in above to pay with PayFast. Your order will appear in Admin → Orders once payment is complete.</p>
+                    <p className="font-sans text-primary/70 text-sm mt-4">
+                      Sign in with Google or continue as guest above to pay with PayFast. Your order will appear in Admin → Orders once payment is complete.
+                    </p>
                   )}
                   <div className="mt-4 font-sans space-y-2">
                     <p className="text-sm font-medium text-primary text-center">Choose your payment method</p>
@@ -778,7 +820,7 @@ const Checkout = () => {
                   </p>
                   <button
                     type="submit"
-                    disabled={loading || isProcessingYoco || cart.length === 0 || !user}
+                    disabled={loading || isProcessingYoco || cart.length === 0 || !user || guestSigningIn}
                     className="btn-primary font-sans w-full py-4 min-h-[48px] text-base mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 touch-manipulation"
                   >
                     {paymentMethod === 'yoco'

@@ -22,6 +22,7 @@ const navLinks = [
 ];
 
 function getFirstName(user) {
+  if (user?.is_anonymous || (user && !user.email)) return "Guest";
   const full = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "";
   return full.trim().split(/\s+/)[0] || "there";
 }
