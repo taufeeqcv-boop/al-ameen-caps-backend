@@ -9,6 +9,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # PayFast live process URL (Network International alternate to www.payfast.co.za)
+  VITE_PAYFAST_LIVE_PROCESS_URL = "https://payment.payfast.io/eng/process"
 
 # Headers for performance and security
 [[headers]]
