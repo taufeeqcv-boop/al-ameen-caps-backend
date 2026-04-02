@@ -9,8 +9,8 @@
 
 [build.environment]
   NODE_VERSION = "22"
-  # PayFast live process URL (Network International alternate to www.payfast.co.za)
-  VITE_PAYFAST_LIVE_PROCESS_URL = "https://payment.payfast.io/eng/process"
+  # Live checkout POSTs to www.payfast.co.za by default (see Checkout.jsx).
+  # Do not set VITE_PAYFAST_LIVE_PROCESS_URL to payment.payfast.io unless PayFast confirms it works — it can return HTTP 500 for the same payload.
 
 # Headers for performance and security
 [[headers]]

@@ -8,7 +8,7 @@ import Seo from '../components/Seo';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { formatPrice } from '../lib/format';
-import { generateSignature } from '../utils/payfast';
+import { generateSignature, generateSignatureAlphabetical } from '../utils/payfast';
 import { supabase } from '../lib/supabase';
 import { getFunctionUrl, getFunctionUrlAbsolute } from '../lib/config';
 import { validateCheckoutForm, validateSouthAfricanMobilePhone } from '../lib/validateCheckoutForm';
@@ -248,9 +248,13 @@ const Checkout = () => {
         data.testing = '1';
       }
 
-      // Generate signature using VITE_PAYFAST_PASSPHRASE
-      // Passphrase is required for PayFast signature validation
-      const signature = generateSignature(data, passPhrase);
+      // Generate signature using VITE_PAYFAST_PASSPHRASE (see payfast.js).
+      // Default: documented field order (Network International). Set VITE_PAYFAST_FORM_SIGNATURE_ALPHABETICAL=true for alphabetical / ksort-style if PayFast returns 500.
+      const alphabeticalRaw = String(import.meta.env.VITE_PAYFAST_FORM_SIGNATURE_ALPHABETICAL ?? '').trim().toLowerCase();
+      const useAlphabeticalSig = alphabeticalRaw === 'true' || alphabeticalRaw === '1';
+      const signature = useAlphabeticalSig
+        ? generateSignatureAlphabetical(data, passPhrase)
+        : generateSignature(data, passPhrase);
       data.signature = signature;
 
       // Validate signature was generated (MD5 hash is 32 characters)

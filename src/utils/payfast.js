@@ -98,3 +98,22 @@ export const generateSignature = (data, passPhrase = null) => {
 
   return md5Hex;
 };
+
+/**
+ * PayFast hosted form — **alphabetically sorted** parameter names (common in official examples / PHP `ksort` style).
+ * Use when `VITE_PAYFAST_FORM_SIGNATURE_ALPHABETICAL=true` if the ordered form signature is rejected (e.g. HTTP 500 on process).
+ */
+export const generateSignatureAlphabetical = (data, passPhrase = null) => {
+  const filtered = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (value == null || value === "") continue;
+    if (EXCLUDE_FROM_FORM_SIGNATURE.has(key)) continue;
+    filtered[key] = String(value).trim();
+  }
+  const keys = Object.keys(filtered).sort();
+  const parts = keys.map((k) => `${k}=${encodePayFastValue(filtered[k])}`);
+  let signatureString = parts.join("&");
+  const passphraseValue = passPhrase != null ? String(passPhrase).trim() : "";
+  signatureString += `&passphrase=${encodePayFastValue(passphraseValue)}`;
+  return md5(signatureString).toString();
+};
