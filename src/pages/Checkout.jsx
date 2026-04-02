@@ -279,12 +279,15 @@ const Checkout = () => {
       }
 
       // Create and submit PayFast form
-      // PayFast URLs:
       // Sandbox: https://sandbox.payfast.co.za/eng/process
-      // Live: https://www.payfast.co.za/eng/process
+      // Live default: https://www.payfast.co.za/eng/process
+      // Optional (Network International): VITE_PAYFAST_LIVE_PROCESS_URL=https://payment.payfast.io/eng/process
+      const liveProcessUrl =
+        String(import.meta.env.VITE_PAYFAST_LIVE_PROCESS_URL ?? '').trim() ||
+        'https://www.payfast.co.za/eng/process';
       const payfastUrl = isSandbox
         ? 'https://sandbox.payfast.co.za/eng/process'
-        : 'https://www.payfast.co.za/eng/process';
+        : liveProcessUrl;
 
       // Debug logging - ALWAYS log in production to diagnose 500 errors
       // Log the signature string being generated (before MD5) for debugging
