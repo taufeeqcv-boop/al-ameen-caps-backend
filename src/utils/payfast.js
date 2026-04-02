@@ -10,16 +10,17 @@ function encodePayFastValue(value) {
 }
 
 /**
- * Custom / hosted form: documented field order (NOT alphabetical), includes merchant_key.
- * Network International / PayFast: URLs and email must be properly encoded in this string.
- * @see https://developers.payfast.co.za/docs#step_2_signature
+ * PayFast “Create your checkout form” field order (NOT alphabetical).
+ * custom_int1–5 before custom_str1–5 — matches official docs and Dean Malan’s working integration.
+ * @see https://developers.payfast.co.za/docs#step_1_form_fields
  */
-const PAYFAST_FORM_FIELD_ORDER = [
+const CHECKOUT_SIGNATURE_FIELD_ORDER = [
   "merchant_id",
   "merchant_key",
   "return_url",
   "cancel_url",
   "notify_url",
+  "notify_method",
   "name_first",
   "name_last",
   "email_address",
@@ -28,52 +29,58 @@ const PAYFAST_FORM_FIELD_ORDER = [
   "amount",
   "item_name",
   "item_description",
-  "custom_str1",
-  "custom_str2",
-  "custom_str3",
-  "custom_str4",
-  "custom_str5",
   "custom_int1",
   "custom_int2",
   "custom_int3",
   "custom_int4",
   "custom_int5",
+  "custom_str1",
+  "custom_str2",
+  "custom_str3",
+  "custom_str4",
+  "custom_str5",
+  "email_confirmation",
+  "confirmation_address",
+  "payment_method",
+  "subscription_type",
+  "billing_date",
+  "recurring_amount",
+  "frequency",
+  "cycles",
 ];
 
 const EXCLUDE_FROM_FORM_SIGNATURE = new Set(["signature", "testing"]);
 
+/** Sort keys by PayFast checkout priority; unknown keys after listed fields, then alphabetically. */
+export function sortByPriorityList(keys, priority) {
+  const priorityDict = {};
+  for (let i = 0; i < priority.length; i++) {
+    priorityDict[priority[i]] = i;
+  }
+  const fallback = priority.length;
+  return [...keys].sort((a, b) => {
+    const pa = priorityDict[a] !== undefined ? priorityDict[a] : fallback;
+    const pb = priorityDict[b] !== undefined ? priorityDict[b] : fallback;
+    if (pa !== pb) return pa - pb;
+    return String(a).localeCompare(String(b));
+  });
+}
+
 /**
  * Generate PayFast security signature for payment form POST (browser).
- * Uses documented field order — not alphabetical — per PayFast custom integration.
+ * One string: all non-empty fields (excl. signature, testing) sorted by official checkout order,
+ * then `&passphrase=` + encoded passphrase (same pattern as PayFast docs / PHP integrations).
  */
 export const generateSignature = (data, passPhrase = null) => {
-  const parts = [];
-  const used = new Set();
-
-  const valFor = (key) => {
-    if (!Object.prototype.hasOwnProperty.call(data, key)) return null;
-    if (EXCLUDE_FROM_FORM_SIGNATURE.has(key)) return null;
-    const val = data[key];
-    if (val == null || val === "") return null;
-    return String(val).trim();
-  };
-
-  for (const key of PAYFAST_FORM_FIELD_ORDER) {
-    const val = valFor(key);
-    if (val === null) continue;
-    parts.push(`${key}=${encodePayFastValue(val)}`);
-    used.add(key);
+  const filtered = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (EXCLUDE_FROM_FORM_SIGNATURE.has(key)) continue;
+    if (value == null || value === "") continue;
+    filtered[key] = String(value).trim();
   }
 
-  const rest = Object.keys(data)
-    .filter((k) => !used.has(k) && !EXCLUDE_FROM_FORM_SIGNATURE.has(k))
-    .sort();
-  for (const key of rest) {
-    const val = valFor(key);
-    if (val === null) continue;
-    parts.push(`${key}=${encodePayFastValue(val)}`);
-  }
-
+  const keys = sortByPriorityList(Object.keys(filtered), CHECKOUT_SIGNATURE_FIELD_ORDER);
+  const parts = keys.map((k) => `${k}=${encodePayFastValue(filtered[k])}`);
   let signatureString = parts.join("&");
 
   const passphraseValue = passPhrase != null ? String(passPhrase).trim() : "";
@@ -89,10 +96,10 @@ export const generateSignature = (data, passPhrase = null) => {
 
   if (payfastDebug && typeof console !== "undefined") {
     const redacted = signatureString.replace(/passphrase=[^&]*/, "passphrase=***REDACTED***");
-    console.log("[PayFast] Signature debug (custom form order; not alphabetical)", {
+    console.log("[PayFast] Signature debug (checkout field priority order)", {
       stringBeforeMd5_redacted: redacted,
       md5: md5Hex,
-      note: "Per PayFast / Network International: merchant_key included; URLs/email encoded.",
+      note: "merchant_key included; custom_int before custom_str per docs; passphrase appended last.",
     });
   }
 
@@ -100,8 +107,8 @@ export const generateSignature = (data, passPhrase = null) => {
 };
 
 /**
- * PayFast hosted form — **alphabetically sorted** parameter names (common in official examples / PHP `ksort` style).
- * Use when `VITE_PAYFAST_FORM_SIGNATURE_ALPHABETICAL=true` if the ordered form signature is rejected (e.g. HTTP 500 on process).
+ * Alternative: **alphabetically** sorted keys, with **passphrase** included in the sort (PHP `ksort` + passphrase in data).
+ * Use when `VITE_PAYFAST_FORM_SIGNATURE_ALPHABETICAL=true` if priority-order signing still fails.
  */
 export const generateSignatureAlphabetical = (data, passPhrase = null) => {
   const filtered = {};
@@ -110,10 +117,11 @@ export const generateSignatureAlphabetical = (data, passPhrase = null) => {
     if (EXCLUDE_FROM_FORM_SIGNATURE.has(key)) continue;
     filtered[key] = String(value).trim();
   }
+  const passphraseValue = passPhrase != null ? String(passPhrase).trim() : "";
+  if (passphraseValue) {
+    filtered.passphrase = passphraseValue;
+  }
   const keys = Object.keys(filtered).sort();
   const parts = keys.map((k) => `${k}=${encodePayFastValue(filtered[k])}`);
-  let signatureString = parts.join("&");
-  const passphraseValue = passPhrase != null ? String(passPhrase).trim() : "";
-  signatureString += `&passphrase=${encodePayFastValue(passphraseValue)}`;
-  return md5(signatureString).toString();
+  return md5(parts.join("&")).toString();
 };

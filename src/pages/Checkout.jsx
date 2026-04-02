@@ -294,19 +294,19 @@ const Checkout = () => {
         : liveProcessUrl;
 
       // Debug logging - ALWAYS log in production to diagnose 500 errors
-      // Log the signature string being generated (before MD5) for debugging
       const signatureData = { ...data };
-      delete signatureData.merchant_key; // Excluded from signature
-      delete signatureData.signature; // Excluded from signature
-      delete signatureData.testing; // Excluded from signature
-      const sortedKeys = Object.keys(signatureData).filter(k => signatureData[k]).sort();
-      const signatureStringPreview = sortedKeys.map(k => `${k}=${String(signatureData[k]).substring(0, 20)}...`).join('&') + (passPhrase ? '&passphrase=***' : '');
-      
+      delete signatureData.signature;
+      delete signatureData.testing;
+      const sortedKeys = Object.keys(signatureData).filter((k) => signatureData[k]);
+      const signatureStringPreview =
+        sortedKeys.map((k) => `${k}=${String(signatureData[k]).substring(0, 24)}…`).join('&') +
+        (passPhrase ? '&passphrase=***' : '');
+
       console.log('PayFast Configuration:', {
         isSandbox,
         payfastUrl,
-        merchant_id: data.merchant_id ? `${data.merchant_id.substring(0, 4)}...` : 'MISSING',
-        merchant_key: data.merchant_key ? 'SET (excluded from signature)' : 'MISSING',
+        merchant_id: data.merchant_id ? `${data.merchant_id.substring(0, 4)}…` : 'MISSING',
+        merchant_key: data.merchant_key ? 'SET (included in signature)' : 'MISSING',
         passphrase: passPhrase ? 'SET (from VITE_PAYFAST_PASSPHRASE)' : 'MISSING - CHECK NETLIFY ENV VARS',
         passphrase_length: passPhrase ? passPhrase.length : 0,
         amount: data.amount,
