@@ -30,6 +30,28 @@
     <!-- End Google Tag Manager -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Early canonical for SPA routes: helps Search Console "Duplicate without user-selected canonical" when crawlers execute JS before React. Matches Seo.jsx (apex, no trailing slash). -->
+    <script>
+      (function () {
+        var host = "https://alameencaps.com";
+        var path = window.location.pathname || "/";
+        if (path !== "/" && path.endsWith("/")) path = path.replace(/\/+$/, "") || "/";
+        var skip =
+          /^\/(checkout|account|login|success|cancel|review-submission)(\/|$)/i.test(path) ||
+          /^\/admin(\/|$)/i.test(path) ||
+          /^\/track\//i.test(path);
+        if (skip) return;
+        var href = host + (path === "/" ? "" : path);
+        var el = document.getElementById("spa-canonical");
+        if (!el) {
+          el = document.createElement("link");
+          el.id = "spa-canonical";
+          el.setAttribute("rel", "canonical");
+          document.head.appendChild(el);
+        }
+        el.setAttribute("href", href);
+      })();
+    </script>
     <meta name="google-site-verification" content="W-c1ye2ZDBH3mhzQdr2MDtpwEUOETT5MThwvfVRS4vM" />
     <meta name="google-site-verification" content="hskuqmL1btWFlFyJQ4QyNVPR6lKM2SCyf4RYp9US_dc" />
     <!-- Google tag (gtag.js): GA4 + Google Ads -->

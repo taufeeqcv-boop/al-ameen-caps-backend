@@ -170,17 +170,16 @@ export default function Seo({
     }
 
     // Canonical (skip for noindex pages - they shouldn't have canonical tags)
-    // Always use the canonical domain (alameencaps.com) for SEO consistency
-    let canonical = document.querySelector('link[rel="canonical"]');
+    // Prefer #spa-canonical from index.html early script so we update one tag (no duplicates).
+    let canonical =
+      document.getElementById('spa-canonical') || document.querySelector('link[rel="canonical"]');
     if (noindex) {
-      // Remove canonical tag if it exists (e.g., from previous navigation)
-      if (canonical) {
-        canonical.remove();
-      }
+      document.querySelectorAll('link[rel="canonical"]').forEach((el) => el.remove());
     } else {
       // Set canonical tag for indexable pages - always use canonical domain
       if (!canonical) {
         canonical = document.createElement('link');
+        canonical.id = 'spa-canonical';
         canonical.rel = 'canonical';
         document.head.appendChild(canonical);
       }
